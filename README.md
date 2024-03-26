@@ -1,15 +1,21 @@
 # winline_ai_chatbot
 
-To install dependencies:
+## Used stack:
+
+- [bun](https://bun.sh)
+- [ElysiaJS](https://elysiajs.com/)
+- [Redis](https://redis.io/)
+- [Prisma](https://www.prisma.io/)
+- [PostgreSQL](https://www.postgresql.org/)
+
+## To run the bot in development mode:
 
 ```bash
-bun install
+bun run dev
 ```
 
-To run:
+## To run the bot in production mode:
 
 ```bash
-bun run index.ts
+bun run start
 ```
-
-This project was created using `bun init` in bun v1.0.30. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.

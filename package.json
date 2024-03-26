@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "docker-compose start postgres && docker-compose up -d redis && bun run --watch ./src/index.ts ",
     "build": "bun build ./src/index.ts",
-    "start": "NODE_ENV=production bun ./src/index.ts"
+    "start": "docker-compose up"
   },
   "devDependencies": {
     "@types/bun": "latest",
