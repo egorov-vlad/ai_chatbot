@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  backend-api:
+    image: 'oven/bun'
+    # override default entrypoint allows us to do `bun install` before serving
+    entrypoint: []
+    # execute bun install before we start the dev server in watch mode
+    command: "/bin/sh -c 'bun install && bun run --watch src/index.ts'"
+    # expose the right ports
+    ports: ['3000:3000']
+    # setup a host mounted volume to sync changes to the container
+    volumes: ['./:/home/bun/app']
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+        limits:
+          cpus: '1'
+          memory: 1024M
+    links:
+      - postgres
+      - redis
+  postgres:
+    image: 'postgres:latest'
+    ports: ['5432:5432']
+    env_file:
+      - ./.env
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+        limits:
+          cpus: '1'
+          memory: 1024M
+  redis:
+    image: 'redis:latest'
+    ports: ['6379:6379']
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+        limits:
+          cpus: '1'
+          memory: 1024M
+volumes:
+  backend-api:
+  postgres:
