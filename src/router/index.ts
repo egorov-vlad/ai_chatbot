@@ -3,6 +3,7 @@ import messageRouter from './v1/message.router';
 
 const router = new Elysia();
 
-router.group('/v1', (router) => router.use(messageRouter));
+router.group('/api', (router) =>
+  router.group('/v1', (router) => router.use(messageRouter)));
 
 export default router;
