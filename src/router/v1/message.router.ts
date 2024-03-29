@@ -1,24 +1,17 @@
-import { Elysia } from 'elysia';
-import MainService from '../../service/main.service';
+import { Elysia, t } from 'elysia';
+import ChatService from '../../service/chat.service';
+import makeResponse from '../../utils/makeResponse';
+
+
 const messageRouter = new Elysia();
 
-
+//TODO: add validation for request 
 messageRouter.post('/message', async (req) => {
-  const service = new MainService();
+  const mainService = new ChatService(req);
+  const data = await mainService.getData();
 
-  return new Response(JSON.stringify(
-    {
-      name: 'winline_ai_chatbot',
-      success: true,
-      message: 'Hello World'
-    }), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
+  return makeResponse({ status: 200, body: { data: data, success: true } });
 })
-
 
 
 

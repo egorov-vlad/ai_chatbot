@@ -1,8 +1,13 @@
-// import db from '../db';
 import redisClient from '../module/redisClient';
 import prisma from '../db';
 
-export default class MainService {
+export default class ChatService {
+  protected userData: any;
+
+  constructor(userData: any) {
+    this.userData = userData;
+  }
+
   async getData() {
     const data = await redisClient.get('data');
     return data;
@@ -11,7 +16,6 @@ export default class MainService {
   async getDataFromDb() {
     await prisma.teams.create({
       data: {
-        id: 1,
         name: 'winline_ai_chatbot',
         players: ['bot1', 'bot2', 'bot3']
       }
