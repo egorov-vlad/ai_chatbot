@@ -1,20 +1,6 @@
 version: '3.9'
 
 services:
-  postgres:
-    image: 'postgres:latest'
-    ports: ['5432:5432']
-    container_name: 'postgres'
-    env_file:
-      - ./.env
-    deploy:
-      resources:
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-        limits:
-          cpus: '1'
-          memory: 1024M
   redis:
     image: 'redis:latest'
     ports: ['6379:6379']
@@ -24,10 +10,10 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: '0.5'
+          cpus: '0.25'
           memory: 512M
         limits:
-          cpus: '1'
+          cpus: '0.5'
           memory: 1024M
   backend-api:
     build:
@@ -38,7 +24,6 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=${PORT}
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
       - REDIS_URL=redis://redis:6379
     volumes: ['./:/home/bun/app']
     deploy:
@@ -50,13 +35,10 @@ services:
           cpus: '1'
           memory: 1024M
     links:
-      - postgres
       - redis
     depends_on:
-      - postgres
       - redis
 
 volumes:
   backend-api:
-  postgres:
   redis:

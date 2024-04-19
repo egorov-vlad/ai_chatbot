@@ -6,7 +6,6 @@ export type THistory = {
 
 export type TResponseBody = {
   data?: any
-  success: boolean,
 }
 
 export type TResponse = {

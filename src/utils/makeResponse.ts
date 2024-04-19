@@ -7,10 +7,10 @@ import type { TResponse } from '../utils/types';
  * @param {TResponse} body - the body of the response
  * @param {number} status - the HTTP status code of the response
  * @param {Object} headers - optional headers for the response
- * @return {Promise<Response>} a Promise that resolves to a Response object
+ * @return {Response} a Promise that resolves to a Response object
  */
-export default async function makeResponse(
-  { body, status, headers = {} }: TResponse): Promise<Response> {
+export default function makeResponse(
+  { body, status, headers = {} }: TResponse): Response {
   return new Response(JSON.stringify(body), {
     status: status,
     headers: {

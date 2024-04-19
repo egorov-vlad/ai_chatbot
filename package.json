@@ -2,25 +2,24 @@
   "name": "winline_ai_chatbot",
   "module": "index.ts",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "scripts": {
-    "dev": "docker-compose start postgres && docker-compose up -d redis && bun run --watch ./src/index.ts ",
+    "dev": "docker-compose up -d redis && bun run --watch ./src/index.ts ",
     "start": "docker-compose build && docker-compose up"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "prisma": "^5.11.0"
+    "@types/lodash": "^4.17.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "@elysiajs/swagger": "^1.0.3",
-    "@prisma/client": "^5.11.0",
-    "cheerio": "^1.0.0-rc.12",
     "elysia": "^0.8.17",
     "fast-xml-parser": "^4.3.6",
-    "puppeteer": "^22.6.1",
+    "graphql-request": "^6.1.0",
+    "lodash": "^4.17.21",
     "redis": "^4.6.13"
   }
 }
