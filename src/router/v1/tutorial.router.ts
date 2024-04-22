@@ -1,5 +1,4 @@
 import { Elysia, t } from 'elysia';
-import makeResponse from '../../utils/makeResponse';
 
 const tutorialRouter = new Elysia();
 
