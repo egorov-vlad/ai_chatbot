@@ -1,6 +1,5 @@
 import { Elysia, t } from 'elysia';
 import redisClient from './module/redisClient';
-import { loadDefaultData } from './utils/loadDefaultData';
 import router from './router';
 import swagger from '@elysiajs/swagger';
 
@@ -42,9 +41,6 @@ app.listen(PORT, () => {
 });
 
 redisClient.connect()
-  .then(() => {
-    loadDefaultData();
-  })
   .catch((e) => {
     console.error(e);
   });

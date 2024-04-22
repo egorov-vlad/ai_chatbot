@@ -27,8 +27,8 @@ export default class SupportService {
   }
 
   public async getMatches(teamId?: number, matchTime: 'today' | 'tomorrow' = 'today'):
-    Promise<TMatch[] | null> {
-      
+    Promise<TMatch[] | []> {
+
     try {
       //Team predictions
       if (teamId && matchTime === 'today') {
@@ -48,7 +48,7 @@ export default class SupportService {
       console.error(e);
     }
 
-    return null;
+    return [];
   }
 
   private async getAllMatches() {
@@ -76,7 +76,7 @@ export default class SupportService {
     })
   }
 
-  private async getTodayMatches(): Promise<TMatch[] | null> {
+  private async getTodayMatches(): Promise<TMatch[] | []> {
     const allMatches = await this.getAllMatches();
 
     const filteredMatches = allMatches.filter(
@@ -84,13 +84,13 @@ export default class SupportService {
         new Date(Date.now()).toLocaleDateString('en-EN', { timeZone: 'Europe/Moscow' })
     );
 
-    return filteredMatches.length ? filteredMatches.map(item => _.omit(item, ['TV', 'isLive', 'sport', 'country',])) : null;
+    return filteredMatches.length ? filteredMatches.map(item => _.omit(item, ['TV', 'isLive', 'sport', 'country',])) : [];
   }
 
-  private async getTomorrowMatches(): Promise<TMatch[] | null> {
+  private async getTomorrowMatches(): Promise<TMatch[] | []> {
     const tomorrowMatches = await this.getUpcomingMatches();
 
-    if (!tomorrowMatches) return null;
+    if (!tomorrowMatches) return [];
 
     const filteredMatches = tomorrowMatches.filter(
       ({ datetime }) =>
@@ -98,11 +98,11 @@ export default class SupportService {
         new Date(Date.now()).toLocaleDateString('en-EN', { timeZone: 'Europe/Moscow' })
     );
 
-    return filteredMatches.length ? filteredMatches.map(item => _.omit(item, ['TV', 'isLive', 'sport', 'country'])) : null;
+    return filteredMatches.length ? filteredMatches.map(item => _.omit(item, ['TV', 'isLive', 'sport', 'country'])) : [];
 
   }
 
-  private async getLiveMatchesWinline(): Promise<TWinlineEvent[] | null> {
+  private async getLiveMatchesWinline(): Promise<TWinlineEvent[] | []> {
     // let winlineLiveMatches: TWinlineEvent[];
     const isLiveMatches = await redisClient.get('liveMatches');
 
@@ -116,7 +116,7 @@ export default class SupportService {
     });
 
     if (!winlineLiveMatches) {
-      return null;
+      return [];
     }
 
     await redisClient.set('liveMatches', JSON.stringify(winlineLiveMatches), { EX: 5 });
