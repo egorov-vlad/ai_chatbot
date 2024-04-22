@@ -16,8 +16,10 @@ export type TWinlineEvent = {
   'id1': number,
   'id2': number,
   'odds': string | Object,
-  '@_id': string
+  '@_id': string,
 }
+
+export type TWinlineEventLive = TWinlineEvent & { isMatchLive: boolean }
 
 type TWinlineMatch = {
   'Winline': {
@@ -33,7 +35,7 @@ export enum TournamentEnum {
   dream_league = 'DreamLeague Season 23',
   elite_league = 'Elite League',
   european_pro_league = 'European Pro League',
-  esl_one = 'ESL One'
+  esl_one = 'ESL One Birmingham'
 }
 
 export type TFilter = {
@@ -64,10 +66,15 @@ async function parseXML(xmlDoc: string): Promise<Object | null> {
 }
 
 //https://bn.wlbann.com/api/v2/cyberlive
-export async function getWinlineLiveMatches(filters: TFilter) {
+export async function getWinlineLiveMatches(filters: TFilter): Promise<TWinlineEventLive[]> {//
   const xmlDoc = await fetchWinline('https://bn.wlbann.com/api/v2/cyberlive');
   const json = await parseXML(xmlDoc) as TWinlineMatch;
-  const filteredJson = filterResponseJson(filters, json);
+  const filteredJson = filterResponseJson(filters, json).map((match) => {
+    return {
+      ...match,
+      isMatchLive: true
+    }
+  });
 
   fs.writeFileSync('./temp/winline-live.json', JSON.stringify(filteredJson));
 
@@ -78,7 +85,12 @@ export async function getWinlineLiveMatches(filters: TFilter) {
 export async function getWinlineAllMatches(filters: TFilter) {
   const xmlDoc = await fetchWinline('https://bn.wlbann.com/api/v2/cyberprematch');
   const json = await parseXML(xmlDoc) as TWinlineMatch;
-  const filteredJson = filterResponseJson(filters, json);
+  const filteredJson = filterResponseJson(filters, json).map((match) => {
+    return {
+      ...match,
+      isMatchLive: false
+    }
+  });
   fs.writeFileSync('./temp/winline-filtered.json', JSON.stringify(filteredJson));
 
   return filteredJson;
