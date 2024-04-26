@@ -1,11 +1,11 @@
 import { Elysia, t } from 'elysia';
-import SupportService from '../../service/support.service';
+import { CachedService } from '../../service/cached.service';
 
 const teamsRouter = new Elysia();
-const supService = new SupportService();
 
 teamsRouter.get('/teams', async (req) => {
-  const teams = await supService.getTeams();
+  const service = new CachedService();
+  const teams = await service.getWinlineTeams();
 
   return new Response(JSON.stringify(teams), {
     status: 200
@@ -17,16 +17,13 @@ teamsRouter.get('/teams', async (req) => {
     }
   },
   response: {
-    200: t.Object({
-      teams: t.Array(t.Object({
-        teamId: t.Number(),
-        name: t.String()
-      }),
-        {
-          description: 'List of teams'
-        })
+    200: t.Array(t.Object({
+      teamId: t.Number(),
+      name: t.String()
     }, {
-      description: 'OK',
+      description: 'Return list of teams who play today'
+    }), {
+      description: 'OK'
     }),
     400: t.Object({
 

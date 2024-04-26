@@ -1,31 +1,33 @@
-import redisClient from '../module/redisClient';
+import { sendMessageToGPT, type TChatMessageHistory } from '../module/openAIClient';
+// import redisClient from '../module/redisClient';
+// import PredictionService from './pediction.service';
 
 export default class ChatService {
-  protected userData: any;
+  // protected userData: any;
+  // protected prediction: PredictionService;
 
-  constructor(userData: any) {
-    this.userData = userData;
+  constructor() {
+    // this.userData = userData;
+    // this.prediction = new PredictionService();
   }
 
-  static async sendMessage(message: string, history: { message: string; role: string; }[]) {
-    history.push({
-      message: message,
-      role: 'user'
-    }, {
-      message: 'Chatbot response',
-      role: 'bot'
-    })
+  async sendMessage(message: string, history: TChatMessageHistory) {
+    message = message.trim();
 
-    return {
-      botMessage: 'Chatbot response',
-      history: history,
-      options: {
-        closeSession: false
-      }
-    }
-  }
-  async getData() {
-    const data = await redisClient.get('data');
-    return data;
+    //TODO: Add prompt
+
+    const gptRequest = await sendMessageToGPT(message, history);
+
+    //TODO: Deserialize gptRequest to json
+    // if (!gptRequest) return null;
+
+    //   return {
+    //     botMessage: 'Chatbot response',
+    //     history: history,
+    //     options: {
+    //       closeSession: false
+    //     }
+    //   }
+    // }
   }
 }

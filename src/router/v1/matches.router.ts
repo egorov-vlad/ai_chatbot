@@ -1,5 +1,5 @@
 import { Elysia, t } from 'elysia';
-import SupportService from '../../service/support.service';
+import { CachedService } from '../../service/cached.service';
 
 const matchesRouter = new Elysia();
 
@@ -8,9 +8,9 @@ const matchesRouter = new Elysia();
 //If teamId is set, return list of matches for this team
 //If matchTime is set, return list of matches for this time
 matchesRouter.get('/matches', async ({ query }) => {
-  const suppService = new SupportService();
+  const service = new CachedService();
 
-  const data = await suppService.getMatches(query.teamId, query.matchTime);
+  const data = await service.getWinlineMatchesByTeamIdAndTime(query.teamId, query.matchTime);
 
   if (data.length === 0) {
     return new Response(JSON.stringify({
@@ -38,7 +38,7 @@ matchesRouter.get('/matches', async ({ query }) => {
   }),
   response: {
     200: t.Object({
-      "@_id": t.String({ description: 'Match id' }),
+      id: t.String({ description: 'Match id' }),
       EventUrl: t.String({ description: 'Event url' }),
       team1: t.String({ description: 'Team 1 name' }),
       team2: t.String({ description: 'Team 2 name' }),
@@ -47,9 +47,10 @@ matchesRouter.get('/matches', async ({ query }) => {
       competition: t.String({ description: 'Competition name' }),
       datatime: t.String({ description: 'Datetime of the match' }),
       isMatchLive: t.Boolean({ description: 'Is live' }),
-      odds: t.Object({}, {
-        description: "Odd of the match. If odds close this params will be empty string('')"
-      }),
+      betLine: t.Array(t.Object({
+        id: t.Number({ description: 'Bet line id' }),
+        name: t.String({ description: 'Bet line name' }),
+      }))
 
     }, {
       description: 'OK',

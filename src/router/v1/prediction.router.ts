@@ -1,29 +1,37 @@
 import { Elysia, t } from 'elysia';
+import { CachedService } from '../../service/cached.service';
 
 const predictionRouter = new Elysia();
 
-predictionRouter.get('/prediction', async (req) => {
+predictionRouter.post('/prediction', async (req) => {
+  const { teamId, betLineId, matchId } = req.body;
 
-  return new Response(JSON.stringify({
-    message: 'Hello, today i not get you prediction. But try later, when i will be ready',
-    role: 'assistant',
-    history: []
-  }), {
+  const prediction = new CachedService();
+  let predictionRes: any = null;
+
+  if (matchId) {
+    predictionRes = await prediction.getPredictionByMatchId(matchId, betLineId);
+  }
+
+  if (teamId) {
+    predictionRes = await prediction.getPredictionByTeamId(teamId, betLineId);
+  }
+
+  return new Response(JSON.stringify(predictionRes), {
     status: 200
   });
+
+
 }, {
   beforeHandle: (req) => {
     if (req.headers['x-api-key'] !== process.env.API_KEY) {
       throw new Error('Invalid API key');
     }
   },
-  query: t.Object({
-    teamId1: t.Numeric({
-      description: 'Team id 1'
-    }),
-    teamId2: t.Optional(t.Numeric({
-      description: 'Team id 2'
-    }), true),
+  body: t.Object({
+    matchId: t.Optional(t.Numeric({ description: 'Match id' }), true),
+    betLineId: t.Numeric({ description: 'ID of selected bet line' }),
+    teamId: t.Optional(t.Numeric({ description: 'Team id' }), true),
   }),
   response: {
     200: t.Object({
@@ -32,11 +40,7 @@ predictionRouter.get('/prediction', async (req) => {
       }),
       role: t.String({
         description: 'The role of chatbot response. Default: assistant'
-      }),
-      history: t.Array(t.Object({
-        message: t.String({ description: 'The message sent to the chatbot' }),
-        role: t.String({ description: "The role must be either 'user' or 'assistant'" })
-      }))
+      })
     }, {
       description: 'OK',
     }),

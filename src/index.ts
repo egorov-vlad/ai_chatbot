@@ -28,7 +28,7 @@ app.guard({
     'x-api-key': t.String({
       required: true,
       condition: (key: string) => key === process.env.API_KEY
-    })
+    }),
   })
 })
 

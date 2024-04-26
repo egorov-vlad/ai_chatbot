@@ -1,20 +1,34 @@
 import { Elysia, t } from 'elysia';
 import ChatService from '../../service/chat.service';
-import makeResponse from '../../utils/makeResponse';
-
 
 const messageRouter = new Elysia();
 
 messageRouter.post('/message', async (req) => {
-  // const mainService = new ChatService(req);
-  const data = await ChatService.sendMessage(req.body.message, req.body.history);
+  // const chat = new ChatService();
 
-  console.log(req.body.message);
-  // const data = await mainService.getData();
+  // const res = await chat.sendMessage(req.body.message, req.body.history);
 
-  return new Response(JSON.stringify(data), {
-    status: 200
-  })
+  return new Response(JSON.stringify({
+    message: "Привет. Сейчас я не могу ответить на ваше сообщение",
+    role: 'assistant',
+    history: req.body.history
+  }))
+
+  // if (!res) {
+  //   return new Response(JSON.stringify({
+  //     message: 'Error occurred while sending message to the chatbot. Please try again later',
+  //     name: 'Internal Server Error'
+  //   }), {
+  //     status: 500
+  //   })
+  // }
+
+  // console.log(req.body.message);
+  // // const data = await mainService.getData();
+
+  // return new Response(JSON.stringify(res), {
+  //   status: 200
+  // })
 }, {
   body: t.Object({
     message: t.String({
@@ -22,13 +36,14 @@ messageRouter.post('/message', async (req) => {
       description: 'The message to be sent to the chatbot'
     }),
     history: t.Array(t.Object({
-      message: t.String({ description: 'The message sent to the chatbot' }),
+      content: t.String({ description: 'The message sent to the chatbot' }),
       role: t.Enum(
         {
           user: 'user',
-          assistant: 'assistant'
+          assistant: 'assistant',
+          system: 'system'
         },
-        { description: "The role must be either 'user' or 'assistant'" })
+        { description: "The role must be either 'user', 'assistant', 'system'" })
     }), {
       default: [],
       description: 'The history of messages sent to the chatbot'
@@ -40,7 +55,7 @@ messageRouter.post('/message', async (req) => {
       role: t.String({ description: 'The role of the response. Default: assistant' }),
       history: t.Array(t.Object({
         message: t.String({ description: 'The message sent to the chatbot' }),
-        role: t.String({ description: "The role must be either 'user' or 'assistant'" })
+        role: t.String({ description: "The role must be either 'user', 'assistant', 'system'" })
       })),
       options: t.Optional(t.Object({}, { description: 'Optional parameters' }), true),
     }, {

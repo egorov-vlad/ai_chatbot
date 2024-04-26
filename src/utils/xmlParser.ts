@@ -1,23 +1,10 @@
 import { XMLParser } from 'fast-xml-parser';
 //TODO: Remove fs 
 import fs from 'node:fs';
+import type { TWinlineEvent } from './types';
+import { betLines } from './constants';
 
 
-export type TWinlineEvent = {
-  'TV': number,
-  'isLive': number,
-  'sport': string,
-  'country': string,
-  'competition': string,
-  'datetime': string,
-  'EventUrl': string,
-  'team1': string,
-  'team2': string,
-  'id1': number,
-  'id2': number,
-  'odds': string | Object,
-  '@_id': string,
-}
 
 export type TWinlineEventLive = TWinlineEvent & { isMatchLive: boolean }
 
@@ -56,6 +43,7 @@ async function fetchWinline(url: string): Promise<string> {
 async function parseXML(xmlDoc: string): Promise<Object | null> {
   const parser = new XMLParser({
     ignoreAttributes: false,
+   transformAttributeName: (attrName) => attrName.replace(/@_/g, ''),
   });
 
   if (!xmlDoc) return null;
@@ -72,6 +60,7 @@ export async function getWinlineLiveMatches(filters: TFilter): Promise<TWinlineE
   const filteredJson = filterResponseJson(filters, json).map((match) => {
     return {
       ...match,
+      betLines: betLines,
       isMatchLive: true
     }
   });
@@ -88,6 +77,7 @@ export async function getWinlineAllMatches(filters: TFilter) {
   const filteredJson = filterResponseJson(filters, json).map((match) => {
     return {
       ...match,
+      betLines: betLines,
       isMatchLive: false
     }
   });
