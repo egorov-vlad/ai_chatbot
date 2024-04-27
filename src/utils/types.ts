@@ -212,7 +212,8 @@ export type TStratzSeries = {
   type: string | "BEST_OF_THREE" | "BEST_OF_FIVE" | "BEST_OF_TWO" | "BEST_OF_ONE";
   teamOneName: string;
   teamTwoName: string;
-  result: "WIN" | "DRAW" | "LOSE" | "";
+  result: "WIN" | "DRAW" | "LOSE" | "" | string;
+  winningTeamName: string | null;
   matches: {
     didRadiantWin: boolean;
     radiantTeamName: string;

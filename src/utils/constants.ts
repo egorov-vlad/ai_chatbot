@@ -3142,23 +3142,15 @@ export const staticInfo = [
     }
   },
   {
-    type: "button",
-    message: "На этот матч я могу дать прогноз по нескольким линиям, выбери одну из тех, что тебя интересует",
-    title: "name",
-    isInputEnabled: true,
-    next: ["makeBet"],
-    options: {
+    "type": "button",
+    "message": "На этот матч я могу дать прогноз по нескольким линиям, выбери одну из тех, что тебя интересует",
+    "title": "name",
+    "isInputEnabled": true,
+    "next": ["makeBet"],
+    "options": {
       url: "url"
     }
   },
-  // {
-  //   "name": "wantAIPrediction",
-  //   "message": "",
-  //   "type": "button",
-  //   "title": "ХОЧЕШЬ ПРОГНОЗ НА СТАВКИ ОТ НАШЕГО AI",
-  //   "isInputEnabled": false,
-  //   "next": ["startPrediction"]
-  // },
   {
     "name": "startPrediction",
     "message": "",

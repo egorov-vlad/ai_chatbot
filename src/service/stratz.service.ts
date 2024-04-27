@@ -310,7 +310,8 @@ export default class StratzService {
 
     try {
       const data = await this.makeRequest(query) as TStratzMatch;
-      return this.deserializeMatchStatistics(data);
+      // return this.deserializeMatchStatistics(data);
+      return null
     } catch (e) {
       console.error(e);
     }
@@ -423,9 +424,9 @@ export default class StratzService {
         seriesCount: team.overview.seriesCount,
         seriesWins: team.overview.seriesWins,
         seriesDraws: team.overview.seriesDraws,
-        killsAvg: Math.floor(team.stats.kills),
-        deathsAvg: Math.floor(team.stats.deaths),
-        assistsAvg: Math.floor(team.stats.assists),
+        killsAvg: Number(team.stats.kills.toFixed(2)),
+        deathsAvg: Number(team.stats.deaths.toFixed(2)),
+        assistsAvg: Number(team.stats.assists.toFixed(2)),
         heroes: team.heroes.map(hero => {
           return {
             name: heroes.find(constHero => constHero?.id === hero.heroId)?.name,
@@ -433,8 +434,7 @@ export default class StratzService {
             matchWins: hero.matchWins,
             banCount: hero.banCount
           }
-        })
-        ,
+        }),
         members: team.members.map(member => {
           return member.steamAccount.proSteamAccount.name
 
@@ -480,7 +480,9 @@ export default class StratzService {
         type: series.type,
         teamOneName: series.teamOne.name,
         teamTwoName: series.teamTwo.name,
-        result: series.winningTeamId === null ? "DRAW" : series.winningTeamId === series.teamOneId ? "WIN" : "LOSE",
+        winningTeamName: series.winningTeamId !== null ?
+          series.winningTeamId === series.teamOneId ? series.teamOne.name : series.teamTwo.name : null,
+        result: this.getMatchResult(series.type, series.winningTeamId, series.teamOneId),
         matches: series.matches.map(match => {
           return {
             didRadiantWin: match.didRadiantWin,
@@ -495,118 +497,122 @@ export default class StratzService {
     }
   }
 
-  private deserializeMatchStatistics(match: TStratzMatch): TStratzMatchFiltered {
-    return {
-      radiantScore: match.live.match.radiantScore,
-      direScore: match.live.match.direScore,
-      gameTime: match.live.match.gameTime,
-      radiantTeam: {
-        name: match.live.match.radiantTeam.name,
-        winCount: match.live.match.radiantTeam.winCount,
-        loseCount: match.live.match.radiantTeam.lossCount,
-        series: match.live.match.radiantTeam.series.map(series => {
-          return {
-            type: series.type,
-            teamOneName: series.teamOne.name,
-            teamTwoName: series.teamTwo.name,
-            result: series.winningTeamId === null ? "DRAW" : series.winningTeamId === series.teamOneId ? "WIN" : "LOSE",
-            matches: series.matches.map(match => {
-              return {
-                didRadiantWin: match.didRadiantWin,
-                radiantTeamName: match.radiantTeam.name,
-              }
-            })
-          }
-        })
-      },
-      direTeam: {
-        name: match.live.match.direTeam.name,
-        winCount: match.live.match.direTeam.winCount,
-        loseCount: match.live.match.direTeam.lossCount,
-        series: match.live.match.direTeam.series.map(series => {
-          return {
-            type: series.type,
-            teamOneName: series.teamOne.name,
-            teamTwoName: series.teamTwo.name,
-            result: this.getMatchResult(series.type, series.winningTeamId, match.live.match.direTeam.id),
-            matches: series.matches.map(match => {
-              return {
-                didRadiantWin: match.didRadiantWin,
-                radiantTeamName: match.radiantTeam.name,
-              }
-            })
-          }
-        })
-      },
-      liveWinRateValues: match.live.match.liveWinRateValues.map(value => {
-        return value.winRate
-      }),
-      winRateValues: match.live.match.winRateValues,
-      insight: {
-        teamOneVsWinCount: match.live.match.insight.teamOneVsWinCount,
-        teamTwoVsWinCount: match.live.match.insight.teamTwoVsWinCount,
-        teamOneLeagueWinCount: match.live.match.insight.teamOneLeagueWinCount,
-        teamTwoLeagueWinCount: match.live.match.insight.teamTwoLeagueWinCount,
-        teamOneLeagueMatchCount: match.live.match.insight.teamOneLeagueMatchCount,
-        teamTwoLeagueMatchCount: match.live.match.insight.teamTwoLeagueMatchCount,
-        lastSeries: match.live.match.insight.lastSeries.map(series => {
-          return {
-            type: series.type,
-            teamOneName: series.teamOne.name,
-            teamTwoName: series.teamTwo.name,
-            result: this.getMatchResult(series.type, series.winningTeamId, series.teamOneId),
-            matches: series.matches.map(match => {
-              return {
-                didRadiantWin: match.didRadiantWin,
-                radiantTeamName: match.radiantTeam.name,
-              }
-            })
-          }
-        })
-      },
-      roshanEvents: match.live.match.playbackData.roshanEvents,
-      picked: match.live.match.playbackData.pickBans.map(pickBan => {
-        if (pickBan.isPick) {
-          return {
-            name: heroes.find(hero => hero?.id === pickBan.heroId)?.name,
-            isRadiant: pickBan.isRadiant,
-            baseWinRate: pickBan.baseWinRate,
-            adjustedWinRate: pickBan.adjustedWinRate,
-            position: pickBan.position,
-            winRateValues: pickBan.winRateValues
-          }
-        }
-      }).filter(item => item !== undefined),
-      banned: match.live.match.playbackData.pickBans.map(pickBan => {
-        if (!pickBan.isPick) {
-          return {
-            name: heroes.find(hero => hero?.id === pickBan.bannedHeroId)?.name,
-            isRadiant: pickBan.isRadiant,
-          }
-        }
-      }).filter(item => item !== undefined),
-      players: match.live.match.players.map(player => {
-        return {
-          name: player.steamAccount.proSteamAccount.name,
-          hero: heroes.find(hero => hero?.id === player.heroId)?.name,
-          team: player.isRadiant ? match.live.match.radiantTeam.name : match.live.match.direTeam.name,
-          kills: player.numKills,
-          deaths: player.numDeaths,
-          assists: player.numAssists,
-          lvl: player.level,
-          item: this.getItemNameById([player.itemId0, player.itemId1, player.itemId2, player.itemId3, player.itemId4, player.itemId5]),
-          networth: player.networth,
-          position: player.position,
-          numLastHits: player.numLastHits,
-          goldPerMinute: player.goldPerMinute,
-          experiencePerMinute: player.experiencePerMinute
-        }
-      })
-    }
-  }
+  // private deserializeMatchStatistics(match: TStratzMatch): TStratzMatchFiltered {
+  //   return {
+  //     radiantScore: match.live.match.radiantScore,
+  //     direScore: match.live.match.direScore,
+  //     gameTime: match.live.match.gameTime,
+  //     radiantTeam: {
+  //       name: match.live.match.radiantTeam.name,
+  //       winCount: match.live.match.radiantTeam.winCount,
+  //       loseCount: match.live.match.radiantTeam.lossCount,
+  //       series: match.live.match.radiantTeam.series.map(series => {
+  //         return {
+  //           type: series.type,
+  //           teamOneName: series.teamOne.name,
+  //           teamTwoName: series.teamTwo.name,
+  //           result: series.winningTeamId === null ? "DRAW" : series.winningTeamId === series.teamOneId ? "WIN" : "LOSE",
+  //           matches: series.matches.map(match => {
+  //             return {
+  //               didRadiantWin: match.didRadiantWin,
+  //               radiantTeamName: match.radiantTeam.name,
+  //             }
+  //           })
+  //         }
+  //       })
+  //     },
+  //     direTeam: {
+  //       name: match.live.match.direTeam.name,
+  //       winCount: match.live.match.direTeam.winCount,
+  //       loseCount: match.live.match.direTeam.lossCount,
+  //       series: match.live.match.direTeam.series.map(series => {
+  //         return {
+  //           type: series.type,
+  //           teamOneName: series.teamOne.name,
+  //           teamTwoName: series.teamTwo.name,
+  //           result: this.getMatchResult(series.type, series.winningTeamId, match.live.match.direTeam.id),
+  //           matches: series.matches.map(match => {
+  //             return {
+  //               didRadiantWin: match.didRadiantWin,
+  //               radiantTeamName: match.radiantTeam.name,
+  //             }
+  //           })
+  //         }
+  //       })
+  //     },
+  //     liveWinRateValues: match.live.match.liveWinRateValues.map(value => {
+  //       return value.winRate
+  //     }),
+  //     winRateValues: match.live.match.winRateValues,
+  //     insight: {
+  //       teamOneVsWinCount: match.live.match.insight.teamOneVsWinCount,
+  //       teamTwoVsWinCount: match.live.match.insight.teamTwoVsWinCount,
+  //       teamOneLeagueWinCount: match.live.match.insight.teamOneLeagueWinCount,
+  //       teamTwoLeagueWinCount: match.live.match.insight.teamTwoLeagueWinCount,
+  //       teamOneLeagueMatchCount: match.live.match.insight.teamOneLeagueMatchCount,
+  //       teamTwoLeagueMatchCount: match.live.match.insight.teamTwoLeagueMatchCount,
+  //       lastSeries: match.live.match.insight.lastSeries.map(series => {
+  //         return {
+  //           type: series.type,
+  //           teamOneName: series.teamOne.name,
+  //           teamTwoName: series.teamTwo.name,
+  //           result: this.getMatchResult(series.type, series.winningTeamId, series.teamOneId),
+  //           matches: series.matches.map(match => {
+  //             return {
+  //               didRadiantWin: match.didRadiantWin,
+  //               radiantTeamName: match.radiantTeam.name,
+  //             }
+  //           })
+  //         }
+  //       })
+  //     },
+  //     roshanEvents: match.live.match.playbackData.roshanEvents,
+  //     picked: match.live.match.playbackData.pickBans.map(pickBan => {
+  //       if (pickBan.isPick) {
+  //         return {
+  //           name: heroes.find(hero => hero?.id === pickBan.heroId)?.name,
+  //           isRadiant: pickBan.isRadiant,
+  //           baseWinRate: pickBan.baseWinRate,
+  //           adjustedWinRate: pickBan.adjustedWinRate,
+  //           position: pickBan.position,
+  //           winRateValues: pickBan.winRateValues
+  //         }
+  //       }
+  //     }).filter(item => item !== undefined),
+  //     banned: match.live.match.playbackData.pickBans.map(pickBan => {
+  //       if (!pickBan.isPick) {
+  //         return {
+  //           name: heroes.find(hero => hero?.id === pickBan.bannedHeroId)?.name,
+  //           isRadiant: pickBan.isRadiant,
+  //         }
+  //       }
+  //     }).filter(item => item !== undefined),
+  //     players: match.live.match.players.map(player => {
+  //       return {
+  //         name: player.steamAccount.proSteamAccount.name,
+  //         hero: heroes.find(hero => hero?.id === player.heroId)?.name,
+  //         team: player.isRadiant ? match.live.match.radiantTeam.name : match.live.match.direTeam.name,
+  //         kills: player.numKills,
+  //         deaths: player.numDeaths,
+  //         assists: player.numAssists,
+  //         lvl: player.level,
+  //         item: this.getItemNameById([player.itemId0, player.itemId1, player.itemId2, player.itemId3, player.itemId4, player.itemId5]),
+  //         networth: player.networth,
+  //         position: player.position,
+  //         numLastHits: player.numLastHits,
+  //         goldPerMinute: player.goldPerMinute,
+  //         experiencePerMinute: player.experiencePerMinute
+  //       }
+  //     })
+  //   }
+  // }
 
   private getMatchResult(type: string, winningTeamId: number, myId: number) {
     if (type === "BEST_OF_ONE" || type === "BEST_OF_THREE" || type === "BEST_OF_FIVE") {
+      if (winningTeamId === null) {
+        return "";
+      }
+
       return winningTeamId === myId ? "WIN" : "LOSE";
     }
 
