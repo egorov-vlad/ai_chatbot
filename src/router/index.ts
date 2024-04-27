@@ -4,6 +4,7 @@ import staticRouter from './v1/static.router';
 import matchesRouter from './v1/matches.router';
 import teamsRouter from './v1/teams.router';
 import predictionRouter from './v1/prediction.router';
+import testRouter from './v1/test.router';
 
 const router = new Elysia();
 
@@ -14,6 +15,7 @@ router.group('/api', (router) =>
     .use(matchesRouter)
     .use(teamsRouter)
     .use(predictionRouter)
+    .use(testRouter)
   ));
 
 export default router;

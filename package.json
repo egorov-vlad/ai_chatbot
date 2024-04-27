@@ -16,11 +16,13 @@
   },
   "dependencies": {
     "@elysiajs/swagger": "^1.0.3",
+    "cheerio": "^1.0.0-rc.12",
     "elysia": "^0.8.17",
     "fast-xml-parser": "^4.3.6",
     "graphql-request": "^6.1.0",
     "lodash": "^4.17.21",
     "openai": "^4.38.2",
+    "puppeteer": "^22.7.1",
     "redis": "^4.6.13"
   }
 }
