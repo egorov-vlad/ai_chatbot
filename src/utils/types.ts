@@ -47,7 +47,9 @@ export type TMatchResponse = {
   data: TMatch[]
 }
 
-export type TWinlineTeams = Omit<TTeam, 'id'>
+export type TWinlineTeams = Omit<TTeam, 'id'> & {
+  url: string;
+}
 
 export type TPredictionByTeamIds = {
   teamId: number;

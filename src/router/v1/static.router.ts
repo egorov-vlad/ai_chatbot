@@ -16,7 +16,7 @@ staticRouter.get('/static', async (req) => {
   response: {
     200: t.Array(t.Object({
       name: t.String({ description: "Unique filed name" }),
-      message: t.String({ description: "The static phrase of the bot, which should be reflected by clicking on the button" }),
+      message: t.String({ description: "The static phrase of the bot, which should be reflected by clicking on the button. If string is empty, the message dont will be shown" }),
       type: t.String({ description: "The type of the button. Can be 'text' or 'button'" }),
       title: t.String({ description: "The title of the button" }),
       isInputEnabled: t.Boolean({ description: "Is the input enabled after clicking on the button" }),

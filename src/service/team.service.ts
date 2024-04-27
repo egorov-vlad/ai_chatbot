@@ -11,10 +11,10 @@ export default class TeamService {
     const uniqTeams = _.unionBy(
       Array.from(
         [...allMatches.map(team => {
-          if (team) return ({ teamId: team.id1, name: team.team1 })
+          if (team) return ({ teamId: team.id1, name: team.team1, url: team.EventUrl })
         }),
         ...allMatches.map(team => {
-          if (team) return ({ teamId: team.id2, name: team.team2 })
+          if (team) return ({ teamId: team.id2, name: team.team2, url: team.EventUrl })
         })]
       ), 'teamId') as TWinlineTeams[];
 

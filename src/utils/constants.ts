@@ -3141,6 +3141,16 @@ export const staticInfo = [
       "url": "https://winline.ru/stavki/sport/kibersport/dota_2"
     }
   },
+  {
+    type: "button",
+    message: "На этот матч я могу дать прогноз по нескольким линиям, выбери одну из тех, что тебя интересует",
+    title: "name",
+    isInputEnabled: true,
+    next: ["makeBet"],
+    options: {
+      url: "url"
+    }
+  },
   // {
   //   "name": "wantAIPrediction",
   //   "message": "",

@@ -1,6 +1,4 @@
 import { XMLParser } from 'fast-xml-parser';
-//TODO: Remove fs 
-import fs from 'node:fs';
 import type { TWinlineEvent } from './types';
 import { betLines } from './constants';
 
@@ -65,8 +63,6 @@ export async function getWinlineLiveMatches(filters: TFilter): Promise<TWinlineE
     }
   });
 
-  fs.writeFileSync('./temp/winline-live.json', JSON.stringify(filteredJson));
-
   return filteredJson;
 }
 
@@ -81,7 +77,6 @@ export async function getWinlineAllMatches(filters: TFilter) {
       isMatchLive: false
     }
   });
-  fs.writeFileSync('./temp/winline-filtered.json', JSON.stringify(filteredJson));
 
   return filteredJson;
 }
