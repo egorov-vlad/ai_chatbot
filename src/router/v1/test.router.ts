@@ -8,7 +8,7 @@ testRouter.get('/test', async () => {
   // await service.getPageInfo();
 
   const service = new CachedService();
-  const data = await service.getSupportTables();
+  const data = await service.getAllMatches();
 
   return new Response(JSON.stringify({
     data

@@ -2,6 +2,7 @@ import { Elysia, t } from 'elysia';
 import redisClient from './module/redisClient';
 import router from './router';
 import swagger from '@elysiajs/swagger';
+import Bun from 'bun';
 
 const app = new Elysia();
 const PORT = process.env.PORT || 3000;
@@ -35,8 +36,14 @@ app.guard({
 
 app.use(router);
 
-
-app.listen(PORT, () => {
+app.listen({
+  port: PORT,
+  hostname: '0.0.0.0',
+  tls: {
+    // key: Bun.file(process.env.SSL_KEY as string),
+    // cert: Bun.file(process.env.SSL_CERT as string),
+  }
+}, () => {
   console.log(`Server started on port ${PORT}`);
 });
 
