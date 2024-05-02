@@ -45,7 +45,12 @@ predictionRouter.post('/prediction', async (req) => {
       role: t.String({
         description: 'The role of chatbot response. Default: assistant'
       }),
-      betLineId: t.Numeric({ description: 'ID of selected bet line' }),
+      betLines: t.Array(t.Object({
+        id: t.Number({ description: 'Bet line id' }),
+        name: t.String({ description: 'Bet line name' }),
+      }), {
+        description: 'List of bet lines for user chosen.'
+      }),
     }, {
       description: 'OK',
     }),
@@ -62,7 +67,7 @@ predictionRouter.post('/prediction', async (req) => {
   },
   detail: {
     tags: ['Chatbot'],
-    description: 'Return AI prediction based on selected teams.<br> If team id 2 is not provided, the prediction get upcoming match of team id 1'
+    description: 'Return AI prediction based on selected matchId or teamID.<br> BetLineId is optional. If betLineId is not selected, prediction goes to WIN in series.'
   }
 })
 
