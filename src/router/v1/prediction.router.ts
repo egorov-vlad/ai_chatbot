@@ -9,10 +9,14 @@ predictionRouter.post('/prediction', async (req) => {
   const prediction = new CachedService();
   let predictionRes: any = null;
 
+  //prediction by matchId
+  //prediction by matchId and betLineId
   if (matchId) {
     predictionRes = await prediction.getPredictionByMatchId(matchId, betLineId);
   }
 
+  //prediction by teamId
+  //prediction by teamId and betLineId
   if (teamId) {
     predictionRes = await prediction.getPredictionByTeamId(teamId, betLineId);
   }
@@ -30,7 +34,7 @@ predictionRouter.post('/prediction', async (req) => {
   },
   body: t.Object({
     matchId: t.Optional(t.Numeric({ description: 'Match id' }), true),
-    betLineId: t.Numeric({ description: 'ID of selected bet line' }),
+    betLineId: t.Optional(t.Numeric({ description: 'ID of selected bet line' })),
     teamId: t.Optional(t.Numeric({ description: 'Team id' }), true),
   }),
   response: {
@@ -40,7 +44,8 @@ predictionRouter.post('/prediction', async (req) => {
       }),
       role: t.String({
         description: 'The role of chatbot response. Default: assistant'
-      })
+      }),
+      betLineId: t.Numeric({ description: 'ID of selected bet line' }),
     }, {
       description: 'OK',
     }),

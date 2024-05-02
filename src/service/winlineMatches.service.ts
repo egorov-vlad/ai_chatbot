@@ -8,7 +8,7 @@ export class WinlineMatchService {
   constructor() {
     this.config = {
       game: GameEnum.DOTA_2,
-      tournament: TournamentEnum.esl_one
+      tournament: TournamentEnum.european_pro_league
     }
   }
   public async getMatches(teamId?: number, matchTime: 'today' | 'tomorrow' = 'today'):
@@ -72,7 +72,6 @@ export class WinlineMatchService {
       ({ datetime }) => new Date(datetime).toLocaleDateString('en-EN', { timeZone: 'Europe/Moscow' }) ===
         new Date(Date.now()).toLocaleDateString('en-EN', { timeZone: 'Europe/Moscow' })
     );
-
     return filteredMatches.length ? this.omitWinlineData(filteredMatches) : [];
   }
 
@@ -114,7 +113,7 @@ export class WinlineMatchService {
     }
 
     return matches.map(item => {
-      return _.omit(item, ['TV', 'isLive', 'sport', 'country', 'odds']);
+      return _.omit(item, ['TV', 'isLive', 'sport', 'country', 'betLines']);
     }) as TMatch[];
   }
 

@@ -30,7 +30,7 @@ export async function sendMessageToGPT(message: string, history: TChatMessageHis
   const completion = await openai.chat.completions.create({
     messages: messages,
     model: "gpt-3.5-turbo",
-  }).catch(err => console.log(err));
+  }).catch(err => console.error(err));
 
   return completion?.choices;
 }

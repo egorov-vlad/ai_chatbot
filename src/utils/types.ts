@@ -40,7 +40,7 @@ export type TWinlineEvent = {
   lines: TBetLine[]
 }
 
-export type TMatch = Omit<TWinlineEvent, 'TV' | 'isLive' | 'sport' | 'country' | 'odds'>;
+export type TMatch = Omit<TWinlineEvent, 'TV' | 'isLive' | 'sport' | 'country' | 'lines'>;
 
 export type TMatchResponse = {
   type: 'team' | 'today' | 'tomorrow',
@@ -53,7 +53,7 @@ export type TWinlineTeams = Omit<TTeam, 'id'> & {
 
 export type TPredictionByTeamIds = {
   teamId: number;
-  line: number;
+  line?: number;
 }
 
 export type MatchList = {

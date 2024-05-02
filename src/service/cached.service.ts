@@ -105,11 +105,12 @@ export class CachedService {
       return matches.data;
     }
 
+
     return [];
   }
 
 
-  public async getPredictionByTeamId(teamId: number, line: number) {
+  public async getPredictionByTeamId(teamId: number, line?: number) {
     const isPrediction = await this.getCachedData(`chatbotPrediction:${teamId}:${line}`);
 
     if (isPrediction) {
@@ -132,7 +133,7 @@ export class CachedService {
    * @param {number} betLineId - The Winline ID of the bet
    * @return {void} 
    */
-  public async getPredictionByMatchId(winlineMatchId: number, betLineId: number) {
+  public async getPredictionByMatchId(winlineMatchId: number, betLineId?: number) {
     //Get real matchId by winlineMatchId
     const allMatches = await this.getAllMatches();
     const teams = this.teams.getTeamsByWinlineMatchId(winlineMatchId, allMatches);

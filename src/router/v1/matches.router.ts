@@ -59,10 +59,15 @@ matchesRouter.get('/matches', async ({ query }) => {
         competition: t.String({ description: 'Competition name' }),
         datatime: t.String({ description: 'Datetime of the match' }),
         isMatchLive: t.Boolean({ description: 'Is live' }),
-        betLine: t.Array(t.Object({
-          id: t.Number({ description: 'Bet line id' }),
-          name: t.String({ description: 'Bet line name' }),
-        }))
+        odds: t.Object({
+          line: t.Array(t.Object({
+            freeText: t.String({ description: 'Line name' }),
+            name1: t.String({ description: 'Team 1 name' }),
+            odd1: t.String({ description: 'Team 1 odd' }),
+            name2: t.String({ description: 'Team 2 name' }),
+            odd2: t.String({ description: 'Team 2 odd' }),
+          }))
+        }, { description: "Winline odds. If line closed odds will be empty string" })
       })),
       format: t.Object({
         type: t.String({ description: 'The type of the button. Can be "text" or "button"' }),

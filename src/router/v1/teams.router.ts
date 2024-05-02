@@ -16,8 +16,9 @@ teamsRouter.get('/teams', async (req) => {
     options: {
       url: "url"
     }
-  }
-  return new Response(JSON.stringify({ teams: teams, betLines: betLines, format: format }), {
+  } 
+  // betLines: betLines
+  return new Response(JSON.stringify({ teams: teams, format: format }), {
     status: 200
   })
 }, {
@@ -37,10 +38,10 @@ teamsRouter.get('/teams', async (req) => {
       }), {
         description: 'OK'
       }),
-      betLines: t.Array(t.Object({
-        id: t.Number({ description: 'Bet line id' }),
-        name: t.String({ description: 'Bet line name' }),
-      })),
+      // betLines: t.Array(t.Object({
+      //   id: t.Number({ description: 'Bet line id' }),
+      //   name: t.String({ description: 'Bet line name' }),
+      // })),
       format: t.Object({
         type: t.String({ description: 'The type of the button. Can be "text" or "button"' }),
         title: t.String({ description: 'The text of the button' }),
