@@ -6,7 +6,7 @@ import { teams } from '../utils/constants';
 export default class TeamService {
   constructor() { }
 
-  public getTeams(allMatches: TMatch[]): TWinlineTeams[] {
+  public getTeams(allMatches: TMatch[]): TWinlineTeams[] {  
 
     const uniqTeams = _.unionBy(
       Array.from(

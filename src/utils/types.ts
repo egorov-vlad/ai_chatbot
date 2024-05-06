@@ -51,6 +51,16 @@ export type TWinlineTeams = Omit<TTeam, 'id'> & {
   url: string;
 }
 
+export type TPandaScoreFilteredMatch = {
+  id: number;
+  datatime: string;
+  status: string;
+  team1: string;
+  teamId1: number;
+  team2: string;
+  teamId2: number;
+}
+
 export type TPredictionByTeamIds = {
   teamId: number;
   line?: number;
@@ -516,3 +526,267 @@ export type TStratzSliceStatistics = {
     }
   }
 }
+
+export type TPandascoreFilteredTeam = {
+  teamName: string;
+  lastMatches: TMatchUps[],
+  killAvg: number;
+  gameLengthAvg: number;
+  towerKillAvg: number;
+  barracksKillAvg: number;
+  radiantWinrate: number;
+  direWinrate: number;
+  firstBloodPercent: number;
+  gpmAvg: number;
+  mostPicked: {
+    name: string;
+    presence: number;
+  }[];
+  mostBanned: {
+    name: string;
+    presence: number;
+  }[];
+  players: string[];
+}
+
+export type TMatchUps = {
+  teamName1: string;
+  teamName2: string;
+  score: string;
+  winningTeam: string;
+}
+
+export type TAllMatchData = {
+  begin_at: string;
+  detailed_stats: boolean;
+  encounters: {
+    begin_at: string;
+    detailed_stats: boolean;
+    forfeit: boolean;
+    games: {
+      complete: boolean;
+      forfeit: boolean;
+      id: number;
+      position: number;
+    }[],
+    id: number;
+    league_name: string;
+    modified_at: string;
+    opponents: {
+      acronym: string;
+      id: number;
+      image_url: string;
+      name: string;
+      score: number;
+      slug: string;
+      type: string
+    }[],
+    serie_full_name: string;
+    tournament_id: number;
+    tournament_name: string;
+    videogame_slug: string;
+    videogame_title: string;
+    winner_id: number | null;
+  }[],
+  forfeit: boolean;
+  games: {
+    id: number;
+    opponents: {
+      heroes: {
+        id: number;
+        image_url: string;
+        name: string;
+        winrate: number;
+      }[];
+      id: number;
+      kills: number;
+      side: "dire" | "radiant";
+      tower_status: {
+        ancient_bottom: boolean;
+        ancient_top: boolean;
+        bottom_tier_1: boolean;
+        bottom_tier_2: boolean;
+        bottom_tier_3: boolean;
+        middle_tier_1: boolean;
+        middle_tier_2: boolean;
+        middle_tier_3: boolean;
+        top_tier_1: boolean;
+        top_tier_2: boolean;
+        top_tier_3: boolean;
+      };
+      towers: number;
+    }[];
+    position: number;
+    status: string;
+    timer: {
+      issued_at: number | null;
+      paused: boolean;
+      timer: number | null;
+    };
+    radiant_gold_adv: {
+      timer: number;
+      value: number;
+    }[];
+    videogame_slug: string;
+    winner_id: number | null;
+  }[],
+  id: number;
+  league_name: string;
+  match_status: string;
+  modified_at: string;
+  opponents: {
+    acronym: string;
+    form: {
+      begin_at: string;
+      detailed_stats: boolean;
+      forfeit: boolean;
+      games: {
+        complete: boolean;
+        forfeit: boolean;
+        id: number;
+        position: number;
+      }[];
+      id: number;
+      league_name: string;
+      modified_at: string;
+      opponents: {
+        acronym: string;
+        id: number;
+        image_url: string;
+        name: string;
+        score: number;
+        slug: string;
+        type: string
+      }[];
+      serie_full_name: string;
+      tournament_id: number;
+      tournament_name: string;
+      videogame_slug: string;
+      videogame_title: string;
+      winner_id: number | null;
+    }[];
+    id: number;
+    image_url: string;
+    name: string;
+    slug: string;
+  }[];
+  serie_full_name: string;
+  streams_list: {
+    embed_url: string;
+    language: string;
+    main: boolean;
+    official: boolean;
+    raw_url: string;
+  }[];
+  tournament_id: number;
+  tournament_name: string;
+  videogame_slug: string;
+  videogame_title: string;
+}
+
+export type TAvgTeamData = {
+  begin_at: string;
+  detailed_stats: boolean;
+  forfeit: boolean;
+  id: number;
+  league_name: string;
+  modified_at: string;
+  opponents: {
+    acronym: string;
+    id: number;
+    image_url: string;
+    name: string;
+    number_of_games: number;
+    slug: string;
+    stats: {
+      average_game_length: number;
+      barracks: number;
+      dire_winrate: number;
+      first_blood_percentage: number;
+      gold_per_minute: number;
+      kills: number;
+      most_banned_against: {
+        id: number;
+        image_url: string;
+        name: string;
+        number_of_picks: number;
+        presence_percentage: number;
+      }[];
+      most_picked: {
+        id: number;
+        image_url: string;
+        name: string;
+        number_of_picks: number;
+        presence_percentage: number;
+      }[];
+      players: {
+        assists: number;
+        camps_stacked: number;
+        country: string;
+        damage_percentage: number;
+        deaths: number;
+        gold_percentage: number;
+        id: number;
+        kills: number;
+        last_hits: number;
+        most_picked: {
+          id: number;
+          image_url: string;
+          name: string;
+          number_of_picks: number;
+          presence_percentage: number;
+        }[];
+        name: string;
+        position: string;
+      }[];
+      radiant_winrate: number;
+      towers: number;
+      xp_per_minute: number;
+    };
+  }[];
+  serie: number | null;
+  serie_full_name: string;
+  tournament_id: number;
+  tournament_name: string;
+  videogame_slug: string;
+  videogame_title: string;
+}
+
+export type TTeamMatchData = {
+  teamName: string;
+  lastMatches: {
+    teamName1: string;
+    teamName2: string;
+    score: string;
+    winningTeam: string;
+  }[];
+  killAvg: number;
+  gameLengthAvg: string;
+  towerKillAvg: number;
+  barracksKillAvg: number;
+  radiantWinrate: string;
+  direWinrate: string;
+  firstBloodPercent: string;
+  gpmAvg: number;
+  mostPicked: {
+    name: string;
+    presence: string;
+  }[];
+  mostBannedAgainst: {
+    name: string;
+    presence: string;
+  }[];
+  players: string[];
+}
+
+export type TMatchData = {
+  matchId: number;
+  matchUps: {
+    teamName1: string;
+    teamName2: string;
+    score: string;
+    winningTeam: string;
+  }[];
+  team1: TTeamMatchData;
+  team2: TTeamMatchData;
+};

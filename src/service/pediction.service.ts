@@ -1,47 +1,48 @@
 
-import StratzService from './stratz.service';
-import { sendMessageToGPT } from '../module/openAIClient';
-import { teams } from '../utils/constants';
-import type { TPredictionByTeamIds } from '../utils/types';
+import { createRun, createThread, getMessageList, pullMessages, sendMessageToThread } from '../module/openAIClient';
+import { betLines } from '../utils/constants';
+import type { TMatchData } from '../utils/types';
+import { PandascoreService } from './pandascore.service';
+
 
 export default class PredictionService {
-  protected stratz: StratzService;
+  protected pandascore: PandascoreService;
+
   constructor() {
-    this.stratz = new StratzService();
+    this.pandascore = new PandascoreService();
   }
 
-  public async getPredictionByTeamId({ teamId, line }: TPredictionByTeamIds) {
+  public async getWinPrediction(matchData: TMatchData, assistantId: string) {
+    const threadId = await createThread();
+    const threadMessage = await sendMessageToThread(threadId, "Кто победит? " + JSON.stringify(matchData));
+    const runId = await createRun(threadId, assistantId);
 
-    //TODO:Get winline matches
-    // const allMatches = await this.service.getAllMatches();
+    const res = await this.checkStatus(threadId, runId);
 
-    const matchList = await this.stratz.getLiveTournamentMatches();
+    return res;
+  }
 
-    //TODO: If no live matches but have winline matches need to get prediction
-    // only with selected line 
-    if (!matchList) return null;
+  public async getPredictionByBetLine(matchData: TMatchData, assistantId: string, question: string) {
 
-    const id1 = teams.find(team => team.teamId === teamId)?.id;
-    const id2 = teams.find(team => team.teamId === teamId)?.id;
+    const threadId = await createThread();
+    const threadMessage = await sendMessageToThread(threadId, `${question}` + JSON.stringify(matchData));
+    const runId = await createRun(threadId, assistantId);
 
+    const res = await this.checkStatus(threadId, runId);
 
-    const matchId =
-      matchList?.league?.liveMatches?.find(match =>
-        (id1 && match.radiantTeamId === id1) ||
-        (id2 && match.direTeamId === id2)
-      )?.matchId ??
-      matchList?.league?.liveMatches?.find(match =>
-        (id1 && match.radiantTeamId === id1)
-      )?.matchId;
+    return res;
+  }
 
+  private async checkStatus(threadId: string, runId: string) {
+    let messages = await pullMessages(threadId, runId);
 
-    if (!matchId) return null;
+    while (messages.status !== "completed") {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      messages = await pullMessages(threadId, runId);
+    }
+    const res = await getMessageList(threadId);
 
-    const match = await this.stratz.getStatsByMatchId(matchId);
-
-    //then send to gpt
-    //const response = await sendMessageToGPT(message);
-
-    //return response
+    return res;
   }
 }
+

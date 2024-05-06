@@ -3,16 +3,14 @@ import ChatService from '../../service/chat.service';
 
 const messageRouter = new Elysia();
 
-messageRouter.post('/message', async (req) => {
-  // const chat = new ChatService();
+//@ts-ignore
+messageRouter.post('/message', async ({ body, main }) => {
 
-  // const res = await chat.sendMessage(req.body.message, req.body.history);
+  const res = await main().sendMessage(body.message, body.history);
 
-  return new Response(JSON.stringify({
-    message: "Привет. Сейчас я не могу ответить на ваше сообщение",
-    role: 'assistant',
-    history: req.body.history
-  }))
+  return new Response(JSON.stringify(res), {
+    status: 200
+  })
 
   // if (!res) {
   //   return new Response(JSON.stringify({

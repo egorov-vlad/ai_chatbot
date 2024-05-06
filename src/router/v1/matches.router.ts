@@ -1,16 +1,13 @@
 import { Elysia, t } from 'elysia';
-import { CachedService } from '../../service/cached.service';
 
 const matchesRouter = new Elysia();
-
 
 //return list of matches
 //If teamId is set, return list of matches for this team
 //If matchTime is set, return list of matches for this time
-matchesRouter.get('/matches', async ({ query }) => {
-  const service = new CachedService();
-
-  const data = await service.getWinlineMatchesByTeamIdAndTime(query.teamId, query.matchTime);
+//@ts-ignore
+matchesRouter.get('/matches', async ({ query, main }) => {
+  const data = await main()?.getMatches(query.teamId, query.matchTime);
 
   if (data.length === 0) {
     return new Response(JSON.stringify({

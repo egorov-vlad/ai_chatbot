@@ -1,17 +1,28 @@
 import { Elysia } from 'elysia';
-import { CachedService } from '../../service/cached.service';
+
 const testRouter = new Elysia();
 
-testRouter.get('/test', async () => {
+//@ts-ignore
+testRouter.get('/test', async ({ main }) => {
 
-  const service = new CachedService();
-  const data = await service.getAllMatches();
+  // const service = new CachedService();
+  // const data = await service.getSupportTables();
+
+  const data = await main().test();
+
+  // const service = new PandascoreService();
+  // const data = await service.getLiveMatches();
+  // const live = data[0].id;
+  // const matchData = await service.getAllDataByID(live);
+
 
   return new Response(JSON.stringify({
     data
   }), {
     status: 200
   })
+}, {
+
 });
 
 export default testRouter;

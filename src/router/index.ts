@@ -5,17 +5,19 @@ import matchesRouter from './v1/matches.router';
 import teamsRouter from './v1/teams.router';
 import predictionRouter from './v1/prediction.router';
 import testRouter from './v1/test.router';
+import { MainService } from '../service/main.service';
 
 const router = new Elysia();
 
 router.group('/api', (router) =>
   router.group('/v1', (router) => router
+    .decorate('main', () => new MainService())
     .use(messageRouter)
     .use(staticRouter)
     .use(matchesRouter)
     .use(teamsRouter)
     .use(predictionRouter)
-    // .use(testRouter)
+    .use(testRouter)
   ));
 
 export default router;

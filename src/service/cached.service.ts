@@ -1,5 +1,7 @@
 import redisClient from '../module/redisClient';
-import type { MatchList, TMatch, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
+import { betLines } from '../utils/constants';
+import type { MatchList, TAllMatchData, TAvgTeamData, TMatch, TMatchData, TPandaScoreFilteredMatch, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
+import { PandascoreService } from './pandascore.service';
 import PredictionService from './pediction.service';
 import StratzService from './stratz.service';
 import TeamService from './team.service';
@@ -10,6 +12,7 @@ export class CachedService {
   protected winlineMatches: WinlineMatchService;
   protected stratz: StratzService;
   protected teams: TeamService;
+  protected pandascore: PandascoreService;
 
   constructor() {
     this.redisClient = redisClient;
@@ -17,6 +20,7 @@ export class CachedService {
     this.winlineMatches = new WinlineMatchService();
     this.stratz = new StratzService();
     this.teams = new TeamService();
+    this.pandascore = new PandascoreService();
   }
 
   private async getCachedData(key: string): Promise<Object | null> {
@@ -40,7 +44,7 @@ export class CachedService {
       return isTeams;
     }
 
-    const allMatches = await this.getAllMatches();
+    const allMatches = await this.getWinlineMatchesByTeamIdAndTime(undefined, 'today');
 
     const teams = new TeamService();
     const winlineTeams = teams.getTeams(allMatches);
@@ -111,55 +115,318 @@ export class CachedService {
 
 
   public async getPredictionByTeamId(teamId: number, line?: number) {
-    const isPrediction = await this.getCachedData(`chatbotPrediction:${teamId}:${line}`);
+    //проверка в кэше
+    const isPrediction = line ? await this.getCachedData(`chatbotPrediction:${teamId}:${line}`) : await this.getCachedData(`chatbotPrediction:${teamId}`);
 
     if (isPrediction) {
       return isPrediction;
     }
 
-    const predictor = new PredictionService();
+    const isMatchData = await this.getCachedData(`matchData:${teamId}`) as TMatchData;
+    let matchData = isMatchData;
 
-    const prediction = await predictor.getPredictionByTeamId({ teamId, line });
+    if (!isMatchData) {
+      //В кэше нет собираем всю инфу
+      const winlineMatches = await this.getAllMatches();
+      const pandascoreMatches = await this.getPandascoreMatches();
 
-    this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 30);
+      const winlineMatch = winlineMatches.find(match => match.id1 === teamId || match.id2 === teamId);
+      const teamName = teamId === winlineMatch?.id1 ? winlineMatch?.team1 : winlineMatch?.team2;
 
-    return prediction;
-  }
+      if (!winlineMatch) {
+        console.error('Prediction module', 'Winline match not found', "Team id: " + teamId);
+        return null;
+      }
 
-  /**
-   * A description of the entire function.
-   *
-   * @param {number} winlineMatchId - The Winline ID of the match
-   * @param {number} betLineId - The Winline ID of the bet
-   * @return {void} 
-   */
-  public async getPredictionByMatchId(winlineMatchId: number, betLineId?: number) {
-    //Get real matchId by winlineMatchId
-    const allMatches = await this.getAllMatches();
-    const teams = this.teams.getTeamsByWinlineMatchId(winlineMatchId, allMatches);
+      const pandascoreMatch = pandascoreMatches.filter(match => {
+        if (winlineMatch.isMatchLive) {
+          if (match.status === 'running') {
+            return match;
+          }
+        } else {
+          if (match.team1.toLowerCase() === teamName?.toLocaleLowerCase()) {
+            return match
+          }
+        }
+      }).sort((a, b) => new Date(a.datatime).getTime() - new Date(b.datatime).getTime())[0];
 
-    // if (!teams?.id1 && !teams?.id2) {
-    //   console.error('No teams found');
-    //   return null;
-    // }
-    const matchId = 7705557154;
-    // const matchId = await this.getMatchIdByTeamId(teams.id1, teams.id2);
-    // const supportTables = await this.getSupportTables();
+      //Если не нашли матч в pandascore
+      if (!pandascoreMatch) {
+        console.error('Prediction module', 'Pandascore match not found', teamId, teamName);
+        return null;
+      }
 
-    if (!matchId) {
-      console.error('No matchId in stratz found');
-      return null
-    };
+      matchData = this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
 
-    //get stats by matchId
-    const matchStat = await this.getStatisticsByMatchId(matchId);
-
-    if (!matchStat) {
-      console.error(`Stratz failed to get statistics for matchId: ${matchId}`);
-      return null
+      if (!matchData) {
+        console.error('Prediction module', 'Match data not found', teamId, teamName);
+        return null;
+      }
+      await this.setCachedData(`matchData:${teamId}`, matchData, 30);
     }
 
-    return matchStat;
+    //Генерируем предикшен по матчу
+    const predictor = new PredictionService();
+    const assistantId = await redisClient.get("predictorAssistant") as string;
+    if (!line) {
+      const prediction = await predictor.getWinPrediction(matchData, assistantId);
+
+      if (!prediction) {
+        console.error('Prediction module', 'Failed get prediction', teamId);
+        return null;
+      }
+      this.setCachedData(`chatbotPrediction:${teamId}`, prediction, 30);
+
+      return {
+        message: prediction?.text?.value,
+        role: 'assistant',
+        betLines: betLines
+      };
+    } else {
+      const lineName = betLines[line];
+      const question = lineName.name;
+
+      const prediction = await predictor.getPredictionByBetLine(matchData, assistantId, question);
+      this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 30);
+
+      return {
+        message: prediction?.text?.value,
+        role: 'assistant',
+      };
+    }
+  }
+
+  private filterMatchData(data: [TAllMatchData, TAvgTeamData]) {
+    let matchesData: TAllMatchData = data[0];
+    let teamData: TAvgTeamData = data[1];
+
+    const formatPercent = (num: number) => {
+      return (num * 100).toFixed(2) + "%";
+    }
+
+    let liveMatch;
+    if (matchesData.match_status === 'running') {
+      liveMatch = matchesData.games.map(game => {
+        if (game.status === "running" && game.timer.timer !== null) {
+
+          return {
+            inGameTime: game.timer.timer / 60 + "минута",
+            team1: {
+              teamName: teamData.opponents[0].id === game.opponents[0].id ? teamData.opponents[0].name : teamData.opponents[1].name,
+              heroes: game.opponents[0].heroes.map(hero => {
+                return {
+                  name: hero.name,
+                  winRate: formatPercent(hero.winrate)
+                }
+              }),
+              side: game.opponents[0].side,
+              kills: game.opponents[0].kills,
+              towerAlive: game.opponents[0].tower_status,
+              towersKills: game.opponents[0].towers
+            },
+            team2: {
+              teamName: teamData.opponents[1].id === game.opponents[1].id ? teamData.opponents[1].name : teamData.opponents[0].name,
+              heroes: game.opponents[1].heroes.map(hero => {
+                return {
+                  name: hero.name,
+                  winRate: formatPercent(hero.winrate)
+                }
+              }),
+              side: game.opponents[1].side,
+              kills: game.opponents[1].kills,
+              towerAlive: game.opponents[1].tower_status,
+              towersKills: game.opponents[1].towers
+            },
+            radiantGoldAdvantage: game.radiant_gold_adv.pop()?.value,
+          }
+        }
+      }).filter(match => match)[0];
+      console.log(liveMatch);
+    }
+
+    return {
+      matchId: matchesData.id,
+      match_status: matchesData.match_status,
+      liveMatch: liveMatch,
+      matchUps: matchesData.encounters.map(match => {
+        let team1 = match.opponents[0];
+        let team2 = match.opponents[1];
+
+        return {
+          teamName1: team1.name,
+          teamName2: team2.name,
+          score: team1.score + " : " + team2.score,
+          winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
+        }
+      }),
+      team1: {
+        teamName: matchesData.opponents[0].name,
+        lastMatches: matchesData.opponents[0].form.map(match => {
+          let team1 = match.opponents[0];
+          let team2 = match.opponents[1];
+          return {
+            teamName1: team1.name,
+            teamName2: team2.name,
+            score: team1.score + " : " + team2.score,
+            winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
+          }
+        }),
+        killAvg: teamData.opponents[0].stats.kills,
+        gameLengthAvg: teamData.opponents[0].stats.average_game_length / 60 + ' минут',
+        towerKillAvg: teamData.opponents[0].stats.towers,
+        barracksKillAvg: teamData.opponents[0].stats.barracks,
+        radiantWinrate: formatPercent(teamData.opponents[0].stats.radiant_winrate),
+        direWinrate: formatPercent(teamData.opponents[0].stats.dire_winrate),
+        firstBloodPercent: formatPercent(teamData.opponents[0].stats.first_blood_percentage),
+        gpmAvg: teamData.opponents[0].stats.gold_per_minute,
+        mostPicked: teamData.opponents[0].stats.most_picked.map(hero => {
+          return { name: hero.name, presence: formatPercent(hero.presence_percentage) }
+        }),
+        mostBannedAgainst: teamData.opponents[0].stats.most_banned_against.map(hero => {
+          return { name: hero.name, presence: formatPercent(hero.presence_percentage) }
+        }),
+        players: teamData.opponents[0].stats.players.map(player => player.name)
+      },
+      team2: {
+        teamName: matchesData.opponents[1].name,
+        lastMatches: matchesData.opponents[1].form.map(match => {
+          let team1 = match.opponents[0];
+          let team2 = match.opponents[1];
+          return {
+            teamName1: team1.name,
+            teamName2: team2.name,
+            score: team1.score + " : " + team2.score,
+            winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
+          }
+        }),
+        killAvg: teamData.opponents[1].stats.kills,
+        gameLengthAvg: teamData.opponents[1].stats.average_game_length / 60 + ' минут',
+        towerKillAvg: teamData.opponents[1].stats.towers,
+        barracksKillAvg: teamData.opponents[1].stats.barracks,
+        radiantWinrate: formatPercent(teamData.opponents[1].stats.radiant_winrate),
+        direWinrate: formatPercent(teamData.opponents[1].stats.dire_winrate),
+        firstBloodPercent: formatPercent(teamData.opponents[1].stats.first_blood_percentage),
+        gpmAvg: teamData.opponents[1].stats.gold_per_minute,
+        mostPicked: teamData.opponents[1].stats.most_picked.map(hero => {
+          return { name: hero.name, presence: formatPercent(hero.presence_percentage) }
+        }),
+        mostBannedAgainst: teamData.opponents[1].stats.most_banned_against.map(hero => {
+          return { name: hero.name, presence: formatPercent(hero.presence_percentage) }
+        }),
+        players: teamData.opponents[1].stats.players.map(player => player.name)
+      }
+    }
+  }
+
+  public async getPredictionByMatchId(winlineMatchId: number, line?: number) {
+
+    const isPrediction = line ? await this.getCachedData(`chatbotPrediction:${winlineMatchId}:${line}`) : await this.getCachedData(`chatbotPrediction:${winlineMatchId}`);
+
+    if (isPrediction) {
+      return isPrediction;
+    }
+
+    const isMatchData = await this.getCachedData(`matchData:${winlineMatchId}`) as TMatchData;
+    let matchData = isMatchData;
+
+
+    if (!isMatchData) {
+      const winlineMatches = await this.getAllMatches();
+      const pandascoreMatches = await this.getPandascoreMatches();
+
+      const winlineMatch = winlineMatches.find(match => Number(match.id) === winlineMatchId);
+      const teamName1 = winlineMatch?.team1;
+      const teamName2 = winlineMatch?.team2;
+
+      if (!winlineMatch) {
+        console.error('Prediction module', 'Winline match not found', "Mach id: " + winlineMatchId);
+        return null;
+      }
+
+      const pandascoreMatch = pandascoreMatches.filter(match => {
+        if (winlineMatch.isMatchLive) {
+          if (match.status === 'running') {
+            return match;
+          }
+        } else {
+          if (match.team1.toLowerCase() === teamName1?.toLocaleLowerCase() &&
+            match.team2.toLowerCase() === teamName2?.toLocaleLowerCase()) {
+            return match
+          }
+        }
+      }).sort((a, b) => new Date(a.datatime).getTime() - new Date(b.datatime).getTime())[0];
+
+      matchData = this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
+
+      if (!matchData) {
+        console.error('Prediction module', 'Match data not found', winlineMatchId);
+        return null;
+      }
+
+      await this.setCachedData(`matchData:${winlineMatchId}`, matchData, 30);
+    }
+
+    const predictor = new PredictionService();
+
+    const assistantId = await redisClient.get("predictorAssistant") as string;
+    if (!line) {
+      const prediction = await predictor.getWinPrediction(matchData, assistantId);
+
+      if (!prediction) {
+        console.error('Prediction module', 'Failed get prediction', winlineMatchId);
+        return null;
+      }
+      this.setCachedData(`chatbotPrediction:${winlineMatchId}`, prediction, 30);
+
+      return {
+        message: prediction?.text?.value,
+        role: 'assistant',
+        betLines: betLines
+      };
+    } else {
+      const lineName = betLines[line];
+      const question = lineName.name;
+
+      const prediction = await predictor.getPredictionByBetLine(matchData, assistantId, question);
+      if (!prediction) {
+        console.error('Prediction module', 'Failed get prediction', winlineMatchId, line);
+        return null;
+      }
+
+      this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 30);
+
+      return {
+        message: prediction?.text?.value,
+        role: 'assistant',
+      };
+    }
+
+    //Get real matchId by winlineMatchId
+    // const allMatches = await this.getAllMatches();
+    // const teams = this.teams.getTeamsByWinlineMatchId(winlineMatchId, allMatches);
+
+    // // if (!teams?.id1 && !teams?.id2) {
+    // //   console.error('No teams found');
+    // //   return null;
+    // // }
+    // const matchId = 7705557154;
+    // // const matchId = await this.getMatchIdByTeamId(teams.id1, teams.id2);
+    // // const supportTables = await this.getSupportTables();
+
+    // if (!matchId) {
+    //   console.error('No matchId in stratz found');
+    //   return null
+    // };
+
+    // //get stats by matchId
+    // const matchStat = await this.getStatisticsByMatchId(matchId);
+
+    // if (!matchStat) {
+    //   console.error(`Stratz failed to get statistics for matchId: ${matchId}`);
+    //   return null
+    // }
+
+    // return matchStat;
 
     // return supportTables;
 
@@ -226,5 +493,22 @@ export class CachedService {
 
     return matchStat;
   }
+
+  //Pandascore
+  public async getPandascoreMatches(): Promise<TPandaScoreFilteredMatch[] | []> {
+    const isPandascoreMatches = await this.getCachedData('pandascoreMatches') as TPandaScoreFilteredMatch[];
+
+    if (isPandascoreMatches) return isPandascoreMatches;
+
+    const pandascoreMatches = await this.pandascore.getAllMatches();
+
+    if (!pandascoreMatches) return [];
+
+    this.setCachedData('pandascoreMatches', pandascoreMatches, 60);
+
+    return pandascoreMatches;
+  }
+
+
 
 }

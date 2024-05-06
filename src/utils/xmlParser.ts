@@ -41,7 +41,7 @@ async function fetchWinline(url: string): Promise<string> {
 async function parseXML(xmlDoc: string): Promise<Object | null> {
   const parser = new XMLParser({
     ignoreAttributes: false,
-   transformAttributeName: (attrName) => attrName.replace(/@_/g, ''),
+    transformAttributeName: (attrName) => attrName.replace(/@_/g, ''),
   });
 
   if (!xmlDoc) return null;
@@ -54,7 +54,12 @@ async function parseXML(xmlDoc: string): Promise<Object | null> {
 //https://bn.wlbann.com/api/v2/cyberlive
 export async function getWinlineLiveMatches(filters: TFilter): Promise<TWinlineEventLive[]> {//
   const xmlDoc = await fetchWinline('https://bn.wlbann.com/api/v2/cyberlive');
-  const json = await parseXML(xmlDoc) as TWinlineMatch;
+  let json = await parseXML(xmlDoc) as TWinlineMatch;
+
+  if (!Array.isArray(json.Winline.event)) {
+    json = { Winline: { event: [json.Winline.event] } }
+  }
+
   const filteredJson = filterResponseJson(filters, json).map((match) => {
     return {
       ...match,
@@ -70,6 +75,7 @@ export async function getWinlineLiveMatches(filters: TFilter): Promise<TWinlineE
 export async function getWinlineAllMatches(filters: TFilter) {
   const xmlDoc = await fetchWinline('https://bn.wlbann.com/api/v2/cyberprematch');
   const json = await parseXML(xmlDoc) as TWinlineMatch;
+  // console.log(json);
   const filteredJson = filterResponseJson(filters, json).map((match) => {
     return {
       ...match,
@@ -87,17 +93,15 @@ export function filterResponseJson(filters: TFilter, matchList: TWinlineMatch): 
 
   let filtered: TWinlineEvent[] = [];
 
-  for (const filter in filters) {
-    filtered = matchList.Winline.event.filter((item) => {
-      if (filter === 'game') {
-        return item.country === filters[filter];
-      }
+  // console.log(matchList);
 
-      if (filter === 'tournament') {
-        return item.competition === filters[filter];
-      }
-    });
-  }
+  filtered = matchList.Winline.event.filter(item => {
+    // console.log(item);
+    return (
+      (!filters.game || item.country === filters.game) &&
+      (!filters.tournament || item.competition === filters.tournament)
+    );
+  });
 
 
   return filtered;

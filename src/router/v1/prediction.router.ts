@@ -1,25 +1,14 @@
 import { Elysia, t } from 'elysia';
-import { CachedService } from '../../service/cached.service';
 
 const predictionRouter = new Elysia();
 
-predictionRouter.post('/prediction', async (req) => {
-  const { teamId, betLineId, matchId } = req.body;
+// @ts-ignore
+predictionRouter.post('/prediction', async ({ body, main }) => {
 
-  const prediction = new CachedService();
-  let predictionRes: any = null;
+  const { teamId, betLineId, matchId } = body;
 
-  //prediction by matchId
-  //prediction by matchId and betLineId
-  if (matchId) {
-    predictionRes = await prediction.getPredictionByMatchId(matchId, betLineId);
-  }
+  const predictionRes = await main().getPrediction(teamId, matchId, betLineId);
 
-  //prediction by teamId
-  //prediction by teamId and betLineId
-  if (teamId) {
-    predictionRes = await prediction.getPredictionByTeamId(teamId, betLineId);
-  }
 
   return new Response(JSON.stringify(predictionRes), {
     status: 200
@@ -34,7 +23,7 @@ predictionRouter.post('/prediction', async (req) => {
   },
   body: t.Object({
     matchId: t.Optional(t.Numeric({ description: 'Match id' }), true),
-    betLineId: t.Optional(t.Numeric({ description: 'ID of selected bet line' })),
+    betLineId: t.Optional(t.Numeric({ description: 'ID of selected bet line' }), true),
     teamId: t.Optional(t.Numeric({ description: 'Team id' }), true),
   }),
   response: {

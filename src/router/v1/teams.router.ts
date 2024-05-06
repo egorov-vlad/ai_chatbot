@@ -1,12 +1,13 @@
 import { Elysia, t } from 'elysia';
-import { CachedService } from '../../service/cached.service';
-import { betLines } from '../../utils/constants';
 
 const teamsRouter = new Elysia();
 
-teamsRouter.get('/teams', async (req) => {
-  const service = new CachedService();
-  const teams = await service.getWinlineTeams();
+// @ts-ignore
+teamsRouter.get('/teams', async ({ main }) => {
+
+
+  const teams = await main().getTeams();
+  
   const format = {
     type: "button",
     title: "Сделать прогноз на name",
@@ -16,7 +17,7 @@ teamsRouter.get('/teams', async (req) => {
     options: {
       url: "url"
     }
-  } 
+  }
   // betLines: betLines
   return new Response(JSON.stringify({ teams: teams, format: format }), {
     status: 200

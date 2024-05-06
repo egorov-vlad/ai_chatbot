@@ -2,7 +2,9 @@ import { Elysia, t } from 'elysia';
 import redisClient from './module/redisClient';
 import router from './router';
 import swagger from '@elysiajs/swagger';
-import Bun from 'bun';
+import { createAssistant, getAssistant } from './module/openAIClient';
+import { predictionPrompt, textAnalyserPrompt } from './utils/constants';
+import type OpenAI from 'openai';
 
 const app = new Elysia();
 const PORT = process.env.PORT || 3000;
@@ -47,7 +49,28 @@ app.listen({
   console.log(`Server started on port ${PORT}`);
 });
 
-redisClient.connect()
+redisClient
+  .connect()
+  .then(() => {
+    // getAssistants();
+  })
   .catch((e) => {
     console.error(e);
   });
+
+
+const getAssistants = async () => {
+  const assistantList = await getAssistant();
+  let predictorAssistant: OpenAI.Beta.Assistants.Assistant;
+  let supportAssistant: OpenAI.Beta.Assistants.Assistant;
+
+  predictorAssistant = assistantList.data.find((assistant) => assistant.name === "Predictor") ||
+    await createAssistant(predictionPrompt, "Predictor");
+  supportAssistant = assistantList.data.find((assistant) => assistant.name === "Support")
+    || await createAssistant(textAnalyserPrompt, "Support");
+
+  console.log("Assistants: ", predictorAssistant.id, supportAssistant.id);
+
+  await redisClient.set("predictorAssistant", predictorAssistant?.id);
+  await redisClient.set("supportAssistant", supportAssistant?.id);
+}
