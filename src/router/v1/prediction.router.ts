@@ -25,6 +25,10 @@ predictionRouter.post('/prediction', async ({ body, main }) => {
     matchId: t.Optional(t.Numeric({ description: 'Match id' }), true),
     betLineId: t.Optional(t.Numeric({ description: 'ID of selected bet line' }), true),
     teamId: t.Optional(t.Numeric({ description: 'Team id' }), true),
+    history: t.Optional(t.Array(t.Object({
+      role: t.String({ description: 'The role of chatbot response. Default: user' }),
+      content: t.String({ description: 'The message of chatbot response' }),
+    })))
   }),
   response: {
     200: t.Object({

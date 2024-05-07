@@ -178,9 +178,8 @@ export class CachedService {
       this.setCachedData(`chatbotPrediction:${teamId}`, prediction, 30);
 
       return {
-        message: prediction?.text?.value,
-        role: 'assistant',
-        betLines: betLines
+        ...prediction,
+        betLines
       };
     } else {
       const lineName = betLines[line];
@@ -189,10 +188,7 @@ export class CachedService {
       const prediction = await predictor.getPredictionByBetLine(matchData, assistantId, question);
       this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 30);
 
-      return {
-        message: prediction?.text?.value,
-        role: 'assistant',
-      };
+      return prediction;
     }
   }
 
@@ -326,9 +322,9 @@ export class CachedService {
       return isPrediction;
     }
 
+    console.time('getPredictionByMatchId');
     const isMatchData = await this.getCachedData(`matchData:${winlineMatchId}`) as TMatchData;
     let matchData = isMatchData;
-
 
     if (!isMatchData) {
       const winlineMatches = await this.getAllMatches();
@@ -365,6 +361,7 @@ export class CachedService {
 
       await this.setCachedData(`matchData:${winlineMatchId}`, matchData, 30);
     }
+    console.timeEnd("getPredictionByMatchId")
 
     const predictor = new PredictionService();
 
@@ -379,9 +376,8 @@ export class CachedService {
       this.setCachedData(`chatbotPrediction:${winlineMatchId}`, prediction, 30);
 
       return {
-        message: prediction?.text?.value,
-        role: 'assistant',
-        betLines: betLines
+        ...prediction,
+        betLines
       };
     } else {
       const lineName = betLines[line];
@@ -395,10 +391,7 @@ export class CachedService {
 
       this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 30);
 
-      return {
-        message: prediction?.text?.value,
-        role: 'assistant',
-      };
+      return prediction;
     }
 
     //Get real matchId by winlineMatchId

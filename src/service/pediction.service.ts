@@ -12,17 +12,21 @@ export default class PredictionService {
     this.pandascore = new PandascoreService();
   }
 
-  public async getWinPrediction(matchData: TMatchData, assistantId: string) {
+  public async getWinPrediction(matchData: TMatchData, assistantId: string = "asst_sd7RiXTvptxDajv5i0P5d1hS") {
+    console.time("CreateThread");
     const threadId = await createThread();
     const threadMessage = await sendMessageToThread(threadId, "Кто победит? " + JSON.stringify(matchData));
     const runId = await createRun(threadId, assistantId);
+    console.timeEnd("CreateThread");
 
+    console.time("checkStatus");
     const res = await this.checkStatus(threadId, runId);
+    console.timeEnd("checkStatus");
 
     return res;
   }
 
-  public async getPredictionByBetLine(matchData: TMatchData, assistantId: string, question: string) {
+  public async getPredictionByBetLine(matchData: TMatchData, assistantId: string = "asst_sd7RiXTvptxDajv5i0P5d1hS", question: string) {
 
     const threadId = await createThread();
     const threadMessage = await sendMessageToThread(threadId, `${question}` + JSON.stringify(matchData));
@@ -37,7 +41,8 @@ export default class PredictionService {
     let messages = await pullMessages(threadId, runId);
 
     while (messages.status !== "completed") {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log(messages.status)
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       messages = await pullMessages(threadId, runId);
     }
     const res = await getMessageList(threadId);

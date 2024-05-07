@@ -29,13 +29,13 @@ export async function sendMessageToGPT(message: string, history: TChatMessageHis
 
   const completion = await openai.chat.completions.create({
     messages: messages,
-    model: "gpt-4",
+    model: "gpt-4-turbo",
     response_format: {
       type: 'json_object'
     }
   }).catch(err => console.error(err));
 
-  return completion?.choices;
+  return completion;
 }
 
 export async function getAssistant() {
@@ -54,7 +54,7 @@ export async function createAssistant(prompt: string, name: string) {
   const assistant = await openai.beta.assistants.create({
     instructions: prompt,
     metadata: {
-      
+
     },
     name: name,
     model: "gpt-4",
@@ -103,7 +103,7 @@ export async function getMessageList(threadId: string) {
   const messageList = await openai.beta.threads.messages.list(threadId);
   let message: string[] = [];
 
-  const assistantResponses = messageList.data.filter(msg => msg.role === 'assistant');
+  // const assistantResponses = messageList.data.filter(msg => msg.role === 'assistant');
 
   // const response = assistantResponses.map(msg => 
   //   msg.content
@@ -112,5 +112,23 @@ export async function getMessageList(threadId: string) {
   //     .join('\n')
   // ).join('\n');
 
-  return assistantResponses[assistantResponses.length - 1].content[0];
+  return deserializePredictionMessage(messageList);
+}
+
+function deserializePredictionMessage(messageList: any) {
+  const history: TChatMessageHistory = [];
+
+  messageList.data.reverse().forEach((message: any) => {
+    history.push({
+      role: message.role,
+      content: message.content[0].text.value
+    });
+  })
+
+  return {
+    history: history,
+    role: 'assistant',
+    message: history[history.length - 1].content
+  }
+
 }
