@@ -1,5 +1,5 @@
 import redisClient from '../module/redisClient';
-import { betLines } from '../utils/constants';
+import { betLines, winLinePandascoreTeamsEPL } from '../utils/constants';
 import type { MatchList, TAllMatchData, TAvgTeamData, TMatch, TMatchData, TPandaScoreFilteredMatch, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
 import { PandascoreService } from './pandascore.service';
 import PredictionService from './pediction.service';
@@ -131,7 +131,9 @@ export class CachedService {
       const pandascoreMatches = await this.getPandascoreMatches();
 
       const winlineMatch = winlineMatches.find(match => match.id1 === teamId || match.id2 === teamId);
-      const teamName = teamId === winlineMatch?.id1 ? winlineMatch?.team1 : winlineMatch?.team2;
+      const teamId1 = winLinePandascoreTeamsEPL.find(team => team.winId === winlineMatch?.id1)?.pandaId;
+      const teamId2 = winLinePandascoreTeamsEPL.find(team => team.winId === winlineMatch?.id2)?.pandaId;
+
 
       if (!winlineMatch) {
         console.error('Prediction module', 'Winline match not found', "Team id: " + teamId);
@@ -144,7 +146,8 @@ export class CachedService {
             return match;
           }
         } else {
-          if (match.team1.toLowerCase() === teamName?.toLocaleLowerCase()) {
+          if (match.teamId1 === teamId1 &&
+            match.teamId2 === teamId2) {
             return match
           }
         }
@@ -152,14 +155,14 @@ export class CachedService {
 
       //Если не нашли матч в pandascore
       if (!pandascoreMatch) {
-        console.error('Prediction module', 'Pandascore match not found', teamId, teamName);
+        console.error('Prediction module', 'Pandascore match not found', teamId);
         return null;
       }
 
       matchData = this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
 
       if (!matchData) {
-        console.error('Prediction module', 'Match data not found', teamId, teamName);
+        console.error('Prediction module', 'Match data not found', teamId);
         return null;
       }
       await this.setCachedData(`matchData:${teamId}`, matchData, 30);
@@ -337,8 +340,8 @@ export class CachedService {
       const pandascoreMatches = await this.getPandascoreMatches();
 
       const winlineMatch = winlineMatches.find(match => Number(match.id) === winlineMatchId);
-      const teamName1 = winlineMatch?.team1;
-      const teamName2 = winlineMatch?.team2;
+      const teamId1 = winLinePandascoreTeamsEPL.find(team => team.winId === winlineMatch?.id1)?.pandaId;
+      const teamId2 = winLinePandascoreTeamsEPL.find(team => team.winId === winlineMatch?.id2)?.pandaId;
 
       if (!winlineMatch) {
         console.error('Prediction module', 'Winline match not found', "Mach id: " + winlineMatchId);
@@ -351,8 +354,8 @@ export class CachedService {
             return match;
           }
         } else {
-          if (match.team1.toLowerCase() === teamName1?.toLocaleLowerCase() &&
-            match.team2.toLowerCase() === teamName2?.toLocaleLowerCase()) {
+          if (match.teamId1 === teamId1 &&
+            match.teamId2 === teamId2) {
             return match
           }
         }

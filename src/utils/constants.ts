@@ -56,6 +56,27 @@ export const teams: TTeam[] = [{
   teamId: 282171
 }];
 
+export const winLinePandascoreTeamsEPL = [
+  {
+    name: "B8",
+    winId: 681251,
+    pandaId: 127059
+  },
+  {
+    name: "MONTE",
+    winId: 50058962,
+    pandaId: 132557
+  },
+  {
+    name: "ASAKURA",
+    winId: 50061391,
+    pandaId: 134594
+  }, {
+    name: "LEVEL UP MB",
+    winId: 50061885,
+    pandaId: 134686
+  }
+];
 
 export const betLines: TBetLine[] = [
   {
