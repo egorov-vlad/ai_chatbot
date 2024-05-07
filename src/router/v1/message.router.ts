@@ -6,7 +6,7 @@ const messageRouter = new Elysia();
 //@ts-ignore
 messageRouter.post('/message', async ({ body, main }) => {
 
-  const res = await main().sendMessage(body.message, body.history);
+  const res = await main().sendMessage(body.message, [], body.threadId);
 
   return new Response(JSON.stringify(res), {
     status: 200
@@ -33,28 +33,30 @@ messageRouter.post('/message', async ({ body, main }) => {
       maxLength: 300,
       description: 'The message to be sent to the chatbot'
     }),
-    history: t.Array(t.Object({
-      content: t.String({ description: 'The message sent to the chatbot' }),
-      role: t.Enum(
-        {
-          user: 'user',
-          assistant: 'assistant',
-          system: 'system'
-        },
-        { description: "The role must be either 'user', 'assistant', 'system'" })
-    }), {
-      default: [],
-      description: 'The history of messages sent to the chatbot'
-    }),
+    threadId: t.String({ description: 'The id of the thread' }),
+    // history: t.Array(t.Object({
+    //   content: t.String({ description: 'The message sent to the chatbot' }),
+    //   role: t.Enum(
+    //     {
+    //       user: 'user',
+    //       assistant: 'assistant',
+    //       system: 'system'
+    //     },
+    //     { description: "The role must be either 'user', 'assistant', 'system'" })
+    // }), {
+    //   default: [],
+    //   description: 'The history of messages sent to the chatbot'
+    // }),
   }),
   response: {
     200: t.Object({
       message: t.String({ description: 'The response from the chatbot' }),
       role: t.String({ description: 'The role of the response. Default: assistant' }),
-      history: t.Array(t.Object({
-        message: t.String({ description: 'The message sent to the chatbot' }),
-        role: t.String({ description: "The role must be either 'user', 'assistant', 'system'" })
-      })),
+      // threadId: t.Optional(t.String({ description: 'The id of the thread' }), true),
+      // history: t.Array(t.Object({
+      //   message: t.String({ description: 'The message sent to the chatbot' }),
+      //   role: t.String({ description: "The role must be either 'user', 'assistant', 'system'" })
+      // })),
       options: t.Optional(t.Object({}, { description: 'Optional parameters' }), true),
     }, {
       description: 'OK'

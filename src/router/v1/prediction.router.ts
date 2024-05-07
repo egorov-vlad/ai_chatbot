@@ -5,9 +5,9 @@ const predictionRouter = new Elysia();
 // @ts-ignore
 predictionRouter.post('/prediction', async ({ body, main }) => {
 
-  const { teamId, betLineId, matchId } = body;
+  const { teamId, betLineId, matchId, threadId } = body;
 
-  const predictionRes = await main().getPrediction(teamId, matchId, betLineId);
+  const predictionRes = await main().getPrediction(teamId, matchId, betLineId, threadId);
 
 
   return new Response(JSON.stringify(predictionRes), {
@@ -25,15 +25,19 @@ predictionRouter.post('/prediction', async ({ body, main }) => {
     matchId: t.Optional(t.Numeric({ description: 'Match id' }), true),
     betLineId: t.Optional(t.Numeric({ description: 'ID of selected bet line' }), true),
     teamId: t.Optional(t.Numeric({ description: 'Team id' }), true),
-    history: t.Optional(t.Array(t.Object({
-      role: t.String({ description: 'The role of chatbot response. Default: user' }),
-      content: t.String({ description: 'The message of chatbot response' }),
-    })))
+    threadId: t.Optional(t.String({ description: 'Thread id' }), true),
+    // history: t.Optional(t.Array(t.Object({
+    //   role: t.String({ description: 'The role of chatbot response. Default: user' }),
+    //   content: t.String({ description: 'The message of chatbot response' }),
+    // })))
   }),
   response: {
     200: t.Object({
       message: t.String({
         description: 'The message of chatbot response'
+      }),
+      threadId: t.String({
+        description: 'Thread id'
       }),
       role: t.String({
         description: 'The role of chatbot response. Default: assistant'

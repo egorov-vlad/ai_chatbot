@@ -25,11 +25,11 @@ export default class ChatService {
     //TODO: Deserialize gptRequest to json
     // if (!gptRequest) return null;
 
-    return {
-      message: gptRequest[0].message.content,
-      role: gptRequest[0].message.role,
-      history: history,
-    }
+    // return {
+    //   message: gptRequest[0].message.content,
+    //   role: gptRequest[0].message.role,
+    //   history: history,
+    // }
   }
   public async textAnalyser(message: string, assistantId: string) {
 
@@ -53,10 +53,17 @@ export default class ChatService {
     return res;
   }
 
-  public async validateMessage(message: string, textAnalyserRes: any, history: TChatMessageHistory) {
-    if (textAnalyserRes.text.value === "relevant"){
-      
-    } 
+  public async validateMessage(message: string, textAnalyserRes: any, assistantId: string, threadId?: string,) {
+    console.log(textAnalyserRes.message);
+    if ((textAnalyserRes.message === "relevant") && threadId) {
+      const predictor = new PredictionService();
+
+      const res = await predictor.getPredictionByThread(message, threadId, assistantId);
+
+      return res;
+    } else {
+      return { massage: "Я не могу ответить на этот вопрос", role: "assistant" };
+    }
   }
 }
 

@@ -57,10 +57,10 @@ export async function createAssistant(prompt: string, name: string) {
 
     },
     name: name,
-    model: "gpt-4",
-    response_format: {
-      type: 'json_object'
-    }
+    model: "gpt-4-turbo",
+    // response_format: {
+    //   type: 'json_object'
+    // }
   });
 
   return assistant;
@@ -126,7 +126,7 @@ function deserializePredictionMessage(messageList: any) {
   })
 
   return {
-    history: history,
+    // history: history,
     role: 'assistant',
     message: history[history.length - 1].content
   }

@@ -17,7 +17,7 @@ router.group('/api', (router) =>
     .use(matchesRouter)
     .use(teamsRouter)
     .use(predictionRouter)
-    .use(testRouter)
+    // .use(testRouter)
   ));
 
 export default router;

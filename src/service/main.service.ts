@@ -1,12 +1,22 @@
-import { getAssistant, type TChatMessageHistory } from '../module/openAIClient';
+import { deleteAssistant, getAssistant, type TChatMessageHistory } from '../module/openAIClient';
+import redisClient from '../module/redisClient';
 import { CachedService } from './cached.service';
 import ChatService from './chat.service';
 
 export class MainService {
   protected cached: CachedService;
+  protected predictorAssistant: string = "";
+  protected supportAssistant: string = "";
 
   constructor() {
     this.cached = new CachedService();
+
+    this.init();
+  }
+
+  async init() {
+    this.predictorAssistant = await redisClient.get('predictorAssistant') as string;
+    this.supportAssistant = await redisClient.get('supportAssistant') as string;
   }
 
   public async getTeams() {
@@ -17,7 +27,7 @@ export class MainService {
     return this.cached.getWinlineMatchesByTeamIdAndTime(teamId, matchTime);
   }
 
-  public async getPrediction(teamId: number, matchId: number, betLineId: number) {
+  public async getPrediction(teamId: number, matchId: number, betLineId: number, threadId: string) {
     //prediction by matchId
     //prediction by matchId and betLineId
     if (matchId) {
@@ -31,17 +41,17 @@ export class MainService {
     }
   }
 
-  public async sendMessage(message: string, history: TChatMessageHistory) {
+  public async sendMessage(message: string, history: TChatMessageHistory, threadId?: string) {
     const chat = new ChatService();
-    const textAnalyserRes = await chat.textAnalyser(message, "asst_lUJexpIWWQ7Fo3KW0W4kLE4I");
+    const textAnalyserRes = await chat.textAnalyser(message, this.supportAssistant);
 
-    const res = await chat.validateMessage(message, textAnalyserRes, history);
+    const res = await chat.validateMessage(message, textAnalyserRes, this.predictorAssistant, threadId);
 
     return res;
   }
 
   public async test() {
+    // await deleteAssistant("asst_9IJ1lWnv591amk5Cb6sLTLKS");
     return getAssistant();
-
   }
 }

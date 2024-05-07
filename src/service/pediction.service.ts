@@ -1,5 +1,5 @@
 
-import { createRun, createThread, getMessageList, pullMessages, sendMessageToThread } from '../module/openAIClient';
+import { createRun, createThread, getMessageList, pullMessages, sendMessageToThread, type TChatMessageHistory } from '../module/openAIClient';
 import { betLines } from '../utils/constants';
 import type { TMatchData } from '../utils/types';
 import { PandascoreService } from './pandascore.service';
@@ -23,13 +23,26 @@ export default class PredictionService {
     const res = await this.checkStatus(threadId, runId);
     console.timeEnd("checkStatus");
 
-    return res;
+    return {
+      ...res,
+      threadId
+    };
   }
 
-  public async getPredictionByBetLine(matchData: TMatchData, assistantId: string = "asst_sd7RiXTvptxDajv5i0P5d1hS", question: string) {
+  public async getPredictionByBetLine(matchData: TMatchData, assistantId: string, question: string) {
 
     const threadId = await createThread();
     const threadMessage = await sendMessageToThread(threadId, `${question}` + JSON.stringify(matchData));
+    const runId = await createRun(threadId, assistantId);
+
+    const res = await this.checkStatus(threadId, runId);
+
+    return res;
+  }
+
+  public async getPredictionByThread(message: string, threadId: string, assistantId: string) {
+
+    const threadMessage = await sendMessageToThread(threadId, message);
     const runId = await createRun(threadId, assistantId);
 
     const res = await this.checkStatus(threadId, runId);
@@ -45,7 +58,7 @@ export default class PredictionService {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       messages = await pullMessages(threadId, runId);
     }
-    
+
     console.timeEnd("awaitComplete")
     console.time("getMessageList");
     const res = await getMessageList(threadId);
