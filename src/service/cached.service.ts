@@ -200,13 +200,19 @@ export class CachedService {
       return (num * 100).toFixed(2) + "%";
     }
 
+    const convertTime = (time: number) => {
+      const minutes = `${Math.floor(time / 60)}`.padStart(2, "0");
+      const seconds = `${time - Number(minutes) * 60}`.padStart(2, "0");
+      return `${minutes}:${seconds}`;
+    }
+
     let liveMatch;
     if (matchesData.match_status === 'running') {
       liveMatch = matchesData.games.map(game => {
         if (game.status === "running" && game.timer.timer !== null) {
 
           return {
-            inGameTime: game.timer.timer / 60 + "минута",
+            inGameTime: convertTime(game.timer.timer) + " минут",
             team1: {
               teamName: teamData.opponents[0].id === game.opponents[0].id ? teamData.opponents[0].name : teamData.opponents[1].name,
               heroes: game.opponents[0].heroes.map(hero => {
@@ -237,7 +243,7 @@ export class CachedService {
           }
         }
       }).filter(match => match)[0];
-      console.log(liveMatch);
+      // console.log(liveMatch);
     }
 
     return {

@@ -54,7 +54,7 @@ export default class ChatService {
   }
 
   public async validateMessage(message: string, textAnalyserRes: any, assistantId: string, threadId?: string,) {
-    console.log(textAnalyserRes.message);
+    console.log(textAnalyserRes.message, threadId);
     if ((textAnalyserRes.message === "relevant") && threadId) {
       const predictor = new PredictionService();
 
