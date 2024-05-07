@@ -71,7 +71,9 @@ export default class ChatService {
       }
 
       if (textAnalyserRes.message === "archive") {
-        return { message: "Извините, я располагаю информацией только о текущем турнире", role: "assistant" };
+        return { message: "Извините, я располагаю информацией только о текущем турнире", role: "assistant",options:{
+          next: ["howToBet", "startPrediction"]
+        } };
       }
 
       return { massage: "Я не могу ответить на этот вопрос", role: "assistant" };
