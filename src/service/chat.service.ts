@@ -55,13 +55,25 @@ export default class ChatService {
 
   public async validateMessage(message: string, textAnalyserRes: any, assistantId: string, threadId?: string,) {
     console.log(textAnalyserRes.message, threadId);
-    if ((textAnalyserRes.message === "relevant") && threadId) {
+    if ((textAnalyserRes.message === "relevant" || textAnalyserRes.message === "wetrain") && threadId) {
       const predictor = new PredictionService();
 
       const res = await predictor.getPredictionByThread(message, threadId, assistantId);
 
       return res;
     } else {
+      if (textAnalyserRes.message === "irrelevant") {
+        return { massage: "Извините, я располагаю информацией только о текущем турнире.", role: "assistant" };
+      }
+
+      if (textAnalyserRes.message === "nsfw") {
+        return { message: "Ваш запрос не может быть выполнен в соответствии с правилами использования нашего сервиса.", role: "assistant" };
+      }
+
+      if (textAnalyserRes.message === "archive") {
+        return { message: "Извините, я располагаю информацией только о текущем турнире", role: "assistant" };
+      }
+
       return { massage: "Я не могу ответить на этот вопрос", role: "assistant" };
     }
   }
