@@ -52,7 +52,7 @@ app.listen({
 redisClient
   .connect()
   .then(() => {
-    // getAssistants();
+    getAssistants();
   })
   .catch((e) => {
     console.error(e);
