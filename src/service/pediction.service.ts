@@ -40,13 +40,16 @@ export default class PredictionService {
   private async checkStatus(threadId: string, runId: string) {
     let messages = await pullMessages(threadId, runId);
 
+    console.time("awaitComplete")
     while (messages.status !== "completed") {
-      console.log(messages.status)
       await new Promise((resolve) => setTimeout(resolve, 5000));
       messages = await pullMessages(threadId, runId);
     }
+    
+    console.timeEnd("awaitComplete")
+    console.time("getMessageList");
     const res = await getMessageList(threadId);
-
+    console.timeEnd("getMessageList");
     return res;
   }
 }
