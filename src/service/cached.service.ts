@@ -203,7 +203,7 @@ export class CachedService {
         betLines
       };
     } else {
-      const lineName = betLines[line];
+      const lineName = betLines[line - 1];
       const question = lineName.name;
 
       const isPredictionInProgress = await redisClient.get(`predictionInProgress${teamId}:${line}`) as string;
@@ -440,7 +440,7 @@ export class CachedService {
         betLines
       };
     } else {
-      const lineName = betLines[line];
+      const lineName = betLines[line - 1];
       const question = lineName.name;
 
       const isPredictionInProgress = await redisClient.get(`predictionInProgress${winlineMatchId}:${line}`) as string;
