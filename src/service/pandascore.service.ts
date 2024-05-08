@@ -161,7 +161,7 @@ export class PandascoreService {
       .flatMap((item) => (item || []))
       .filter(match => match.league_id === this.tournamentId)
       .forEach(match => {
-        if (match.opponents.length === 0) return;
+        if (match.opponents.length < 2) return;
         matches.push({
           id: match.id,
           datatime: match.begin_at,
