@@ -42,7 +42,12 @@ export class MainService {
   }
 
   public async sendMessage(message: string, history: TChatMessageHistory, threadId?: string) {
+    if (!this.supportAssistant || !this.predictorAssistant) {
+      await this.init();
+    }
+    
     const chat = new ChatService();
+
     const textAnalyserRes = await chat.textAnalyser(message, this.supportAssistant);
 
     const res = await chat.validateMessage(message, textAnalyserRes, this.predictorAssistant, threadId);
