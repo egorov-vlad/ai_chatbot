@@ -12,7 +12,7 @@ export default class PredictionService {
     this.pandascore = new PandascoreService();
   }
 
-  public async getWinPrediction(matchData: TMatchData, assistantId: string = "asst_sd7RiXTvptxDajv5i0P5d1hS") {
+  public async getWinPrediction(matchData: TMatchData, assistantId: string) {
     console.time("CreateThread");
     const threadId = await createThread();
     const threadMessage = await sendMessageToThread(threadId, "Кто победит? " + JSON.stringify(matchData));

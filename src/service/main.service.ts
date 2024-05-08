@@ -45,7 +45,7 @@ export class MainService {
     if (!this.supportAssistant || !this.predictorAssistant) {
       await this.init();
     }
-    
+
     const chat = new ChatService();
 
     const textAnalyserRes = await chat.textAnalyser(message, this.supportAssistant);
@@ -56,7 +56,7 @@ export class MainService {
   }
 
   public async test() {
-    // await deleteAssistant("asst_9IJ1lWnv591amk5Cb6sLTLKS");
+    // await deleteAssistant("asst_lUJexpIWWQ7Fo3KW0W4kLE4I");
     return getAssistant();
   }
 }
