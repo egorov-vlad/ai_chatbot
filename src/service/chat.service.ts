@@ -45,7 +45,7 @@ export default class ChatService {
     let messages = await pullMessages(threadId, runId);
 
     while (messages.status !== "completed") {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       messages = await pullMessages(threadId, runId);
     }
     const res = await getMessageList(threadId);

@@ -75,6 +75,36 @@ export const winLinePandascoreTeamsEPL = [
     name: "LEVEL UP MB",
     winId: 50061885,
     pandaId: 134686
+  },
+  {
+    name: "1WIN",
+    winId: 678849,
+    pandaId: 134536
+  },
+  {
+    name: "ONE MOVE",
+    winId: 50006593,
+    pandaId: 131008
+  },
+  {
+    name: "NEMIGA GAMING",
+    winId: 371608,
+    pandaId: 2227
+  },
+  {
+    name: "NATUS VINCERE JUNIOR",
+    winId: 640344,
+    pandaId: 132308
+  },
+  {
+    name: "REST FARMERS",
+    winId: 50061448,
+    pandaId: 134629
+  },
+  {
+    name: "SIBE TEAM",
+    winId: 50049799,
+    pandaId: 133225
   }
 ];
 

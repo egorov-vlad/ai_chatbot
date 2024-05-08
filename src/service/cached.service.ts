@@ -171,14 +171,32 @@ export class CachedService {
     //Генерируем предикшен по матчу
     const predictor = new PredictionService();
     const assistantId = await redisClient.get("predictorAssistant") as string;
+
     if (!line) {
+
+      const isPredictionInProgress = await redisClient.get(`predictionInProgress${teamId}`) as string;
+      console.log(isPredictionInProgress);
+
+      if (isPredictionInProgress) {
+        const prediction = await this.awaitPrediction(`${teamId}`);
+        console.log('1');
+        return {
+          ...prediction,
+          betLines
+        };;
+      }
+
+      await redisClient.set(`predictionInProgress${teamId}`, "true");
       const prediction = await predictor.getWinPrediction(matchData, assistantId);
 
       if (!prediction) {
         console.error('Prediction module', 'Failed get prediction', teamId);
+        await redisClient.del(`predictionInProgress${teamId}`);
         return null;
       }
-      this.setCachedData(`chatbotPrediction:${teamId}`, prediction, 30);
+
+      await this.setCachedData(`chatbotPrediction:${teamId}`, prediction, 30);
+      await redisClient.del(`predictionInProgress${teamId}`);
 
       return {
         ...prediction,
@@ -188,8 +206,25 @@ export class CachedService {
       const lineName = betLines[line];
       const question = lineName.name;
 
+      const isPredictionInProgress = await redisClient.get(`predictionInProgress${teamId}:${line}`) as string;
+
+      if (isPredictionInProgress) {
+        const prediction = await this.awaitPrediction(`${teamId}:${line}`);
+        await redisClient.set(`predictionInProgress${teamId}:${line}`, "false");
+        return prediction;
+      }
+
+      await redisClient.set(`predictionInProgress${teamId}`, "true");
       const prediction = await predictor.getPredictionByBetLine(matchData, assistantId, question);
-      this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 30);
+
+      if (!prediction) {
+        console.error('Prediction module', 'Failed get prediction', teamId, question);
+        await redisClient.del(`predictionInProgress${teamId}`);
+        return null;
+      }
+
+      await this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 30);
+      await redisClient.set(`predictionInProgress${teamId}:${line}`, "false");
 
       return prediction;
     }
@@ -375,14 +410,30 @@ export class CachedService {
     const predictor = new PredictionService();
 
     const assistantId = await redisClient.get("predictorAssistant") as string;
+
     if (!line) {
+      const isPredictionInProgress = await redisClient.get(`predictionInProgress${winlineMatchId}`) as string;
+
+      if (isPredictionInProgress) {
+        const prediction = await this.awaitPrediction(winlineMatchId.toString());
+        return {
+          ...prediction,
+          betLines
+        }
+      }
+
+      await redisClient.set(`predictionInProgress${winlineMatchId}`, "true");
+
       const prediction = await predictor.getWinPrediction(matchData, assistantId);
 
       if (!prediction) {
         console.error('Prediction module', 'Failed get prediction', winlineMatchId);
+        await redisClient.del(`predictionInProgress${winlineMatchId}`)
         return null;
       }
-      this.setCachedData(`chatbotPrediction:${winlineMatchId}`, prediction, 30);
+
+      await this.setCachedData(`chatbotPrediction:${winlineMatchId}`, prediction, 30);
+      await redisClient.del(`predictionInProgress${winlineMatchId}`)
 
       return {
         ...prediction,
@@ -392,13 +443,23 @@ export class CachedService {
       const lineName = betLines[line];
       const question = lineName.name;
 
+      const isPredictionInProgress = await redisClient.get(`predictionInProgress${winlineMatchId}:${line}`) as string;
+
+      if (isPredictionInProgress) {
+        const prediction = await this.awaitPrediction(`${winlineMatchId}:${line}`);
+        return prediction;
+      }
+      await redisClient.set(`predictionInProgress${winlineMatchId}:${line}`, "true");
+
       const prediction = await predictor.getPredictionByBetLine(matchData, assistantId, question);
       if (!prediction) {
         console.error('Prediction module', 'Failed get prediction', winlineMatchId, line);
+        await redisClient.del(`predictionInProgress${winlineMatchId}`)
         return null;
       }
 
-      this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 30);
+      await this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 30);
+      await redisClient.del(`predictionInProgress${winlineMatchId}`)
 
       return prediction;
     }
@@ -437,6 +498,18 @@ export class CachedService {
     //set cache
 
     //return
+  }
+
+  private async awaitPrediction(id: string) {
+    let isPredictionInProgress = await redisClient.get(`predictionInProgress${id}`) as string;
+
+    while (isPredictionInProgress === 'true') {
+      await new Promise((resolve) => setTimeout(resolve, 5000))
+      // console.log(`Awaiting prediction: ${id}`);
+      isPredictionInProgress = await redisClient.get(`predictionInProgress${id}`) as string;
+    }
+
+    return this.getCachedData(`chatbotPrediction:${id}`);
   }
 
   //Stratz
