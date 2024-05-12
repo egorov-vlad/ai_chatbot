@@ -56,55 +56,65 @@ export const teams: TTeam[] = [{
   teamId: 282171
 }];
 
-export const winLinePandascoreTeamsEPL = [
+export const winLinePandascoreTeamsPGL = [
   {
-    name: "B8",
-    winId: 681251,
-    pandaId: 127059
+    name: "nouns",
+    winId: 50000541,
+    pandaId: 130920
   },
   {
-    name: "MONTE",
-    winId: 50058962,
-    pandaId: 132557
+    name: "G2.iG",
+    winId: 50058995,
+    pandaId: 134024
   },
   {
-    name: "ASAKURA",
-    winId: 50061391,
-    pandaId: 134594
+    name: "TEAM AURORA",
+    winId: 50046800,
+    pandaId: 133882
   }, {
-    name: "LEVEL UP MB",
-    winId: 50061885,
-    pandaId: 134686
+    name: "SHOPIFY REBELLION",
+    winId: 50044347,
+    pandaId: 132234
   },
   {
-    name: "1WIN",
-    winId: 678849,
-    pandaId: 134536
+    name: "GAIMIN GLADIATORS",
+    winId: 881559,
+    pandaId: 130354
   },
   {
-    name: "ONE MOVE",
-    winId: 50006593,
-    pandaId: 131008
+    name: "BOOM ESPORTS",
+    winId: 377162,
+    pandaId: 126229
   },
   {
-    name: "NEMIGA GAMING",
-    winId: 371608,
-    pandaId: 2227
+    name: "TEAM LIQUID",
+    winId: 281541,
+    pandaId: 1647
   },
   {
-    name: "NATUS VINCERE JUNIOR",
-    winId: 640344,
-    pandaId: 132308
+    name: "MOUZ",
+    winId: 220604,
+    pandaId: 134559
   },
   {
-    name: "REST FARMERS",
-    winId: 50061448,
-    pandaId: 134629
+    name: "BB TEAM",
+    winId: 50031026,
+    pandaId: 130768
   },
   {
-    name: "SIBE TEAM",
-    winId: 50049799,
-    pandaId: 133225
+    name: "TEAM SPIRIT",
+    winId: 242390,
+    pandaId: 1669
+  },
+  {
+    name: "TEAM SECRET",
+    winId: 242388,
+    pandaId: 1656
+  },
+  {
+    name: "VIRTUS.PRO",
+    winId: 220624,
+    pandaId: 1651
   }
 ];
 

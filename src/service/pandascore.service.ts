@@ -130,7 +130,7 @@ export class PandascoreService {
 
     this.API_URL = 'https://api.pandascore.co/dota2';
     this.API_KEY = 'Bearer ' + process.env.PANDASCORE_API_KEY;
-    this.tournamentId = 4807;
+    this.tournamentId = 4108;
   }
 
   private async makeRequest(route: string) {

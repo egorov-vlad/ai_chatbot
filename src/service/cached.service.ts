@@ -1,5 +1,5 @@
 import redisClient from '../module/redisClient';
-import { betLines, winLinePandascoreTeamsEPL } from '../utils/constants';
+import { betLines, winLinePandascoreTeamsPGL } from '../utils/constants';
 import type { MatchList, TAllMatchData, TAvgTeamData, TMatch, TMatchData, TPandaScoreFilteredMatch, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
 import { PandascoreService } from './pandascore.service';
 import PredictionService from './pediction.service';
@@ -45,6 +45,7 @@ export class CachedService {
     }
 
     const allMatches = await this.getWinlineMatchesByTeamIdAndTime(undefined, 'today');
+
 
     const teams = new TeamService();
     const winlineTeams = teams.getTeams(allMatches);
@@ -131,8 +132,8 @@ export class CachedService {
       const pandascoreMatches = await this.getPandascoreMatches();
 
       const winlineMatch = winlineMatches.find(match => match.id1 === teamId || match.id2 === teamId);
-      const teamId1 = winLinePandascoreTeamsEPL.find(team => team.winId === winlineMatch?.id1)?.pandaId;
-      const teamId2 = winLinePandascoreTeamsEPL.find(team => team.winId === winlineMatch?.id2)?.pandaId;
+      const teamId1 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id1)?.pandaId;
+      const teamId2 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id2)?.pandaId;
 
 
       if (!winlineMatch) {
@@ -175,7 +176,6 @@ export class CachedService {
     if (!line) {
 
       const isPredictionInProgress = await redisClient.get(`predictionInProgress${teamId}`) as string;
-      console.log(isPredictionInProgress);
 
       if (isPredictionInProgress) {
         const prediction = await this.awaitPrediction(`${teamId}`);
@@ -374,8 +374,8 @@ export class CachedService {
       const pandascoreMatches = await this.getPandascoreMatches();
 
       const winlineMatch = winlineMatches.find(match => Number(match.id) === winlineMatchId);
-      const teamId1 = winLinePandascoreTeamsEPL.find(team => team.winId === winlineMatch?.id1)?.pandaId;
-      const teamId2 = winLinePandascoreTeamsEPL.find(team => team.winId === winlineMatch?.id2)?.pandaId;
+      const teamId1 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id1)?.pandaId;
+      const teamId2 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id2)?.pandaId;
 
       if (!winlineMatch) {
         console.error('Prediction module', 'Winline match not found', "Mach id: " + winlineMatchId);

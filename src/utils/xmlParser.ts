@@ -20,7 +20,8 @@ export enum TournamentEnum {
   dream_league = 'DreamLeague Season 23',
   elite_league = 'Elite League',
   european_pro_league = 'European Pro League',
-  esl_one = 'ESL One Birmingham'
+  esl_one = 'ESL One Birmingham',
+  pgl_wallachia = 'PGL Wallachia'
 }
 
 export type TFilter = {
@@ -75,7 +76,7 @@ export async function getWinlineLiveMatches(filters: TFilter): Promise<TWinlineE
 export async function getWinlineAllMatches(filters: TFilter) {
   const xmlDoc = await fetchWinline('https://bn.wlbann.com/api/v2/cyberprematch');
   const json = await parseXML(xmlDoc) as TWinlineMatch;
-  // console.log(json);
+  // console.log(json.Winline.event);
   const filteredJson = filterResponseJson(filters, json).map((match) => {
     return {
       ...match,
@@ -96,13 +97,13 @@ export function filterResponseJson(filters: TFilter, matchList: TWinlineMatch): 
   // console.log(matchList);
 
   filtered = matchList.Winline.event.filter(item => {
-    // console.log(item);
+    // console.log(item.competition, filters.tournament, item.competition === filters.tournament);
     return (
       (!filters.game || item.country === filters.game) &&
       (!filters.tournament || item.competition === filters.tournament)
     );
   });
 
-
+  // console.log(filtered);
   return filtered;
 }
