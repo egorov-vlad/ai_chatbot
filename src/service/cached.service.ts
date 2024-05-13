@@ -1,3 +1,4 @@
+import { getAssistant } from '../module/openAIClient';
 import redisClient from '../module/redisClient';
 import { betLines, winLinePandascoreTeamsPGL } from '../utils/constants';
 import type { MatchList, TAllMatchData, TAvgTeamData, TMatch, TMatchData, TPandaScoreFilteredMatch, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
@@ -117,116 +118,24 @@ export class CachedService {
 
   public async getPredictionByTeamId(teamId: number, line?: number) {
     //проверка в кэше
-    const isPrediction = line ? await this.getCachedData(`chatbotPrediction:${teamId}:${line}`) : await this.getCachedData(`chatbotPrediction:${teamId}`);
+    const isPrediction = await this.getCachedData(`chatbotPrediction:${teamId}:${line}`);
 
     if (isPrediction) {
       return isPrediction;
     }
 
-    const isMatchData = await this.getCachedData(`matchData:${teamId}`) as TMatchData;
-    let matchData = isMatchData;
-
-    if (!isMatchData) {
-      //В кэше нет собираем всю инфу
-      const winlineMatches = await this.getAllMatches();
-      const pandascoreMatches = await this.getPandascoreMatches();
-
-      const winlineMatch = winlineMatches.find(match => match.id1 === teamId || match.id2 === teamId);
-      const teamId1 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id1)?.pandaId;
-      const teamId2 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id2)?.pandaId;
-
-
-      if (!winlineMatch) {
-        console.error('Prediction module', 'Winline match not found', "Team id: " + teamId);
-        return null;
-      }
-
-      const pandascoreMatch = pandascoreMatches.filter(match => {
-        if (winlineMatch.isMatchLive) {
-          if (match.status === 'running') {
-            return match;
-          }
-        } else {
-          if (match.teamId1 === teamId1 &&
-            match.teamId2 === teamId2) {
-            return match
-          }
-        }
-      }).sort((a, b) => new Date(a.datatime).getTime() - new Date(b.datatime).getTime())[0];
-
-      //Если не нашли матч в pandascore
-      if (!pandascoreMatch) {
-        console.error('Prediction module', 'Pandascore match not found', teamId);
-        return null;
-      }
-
-      matchData = this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
-
-      if (!matchData) {
-        console.error('Prediction module', 'Match data not found', teamId);
-        return null;
-      }
-      await this.setCachedData(`matchData:${teamId}`, matchData, 30);
-    }
-
-    //Генерируем предикшен по матчу
-    const predictor = new PredictionService();
-    const assistantId = await redisClient.get("predictorAssistant") as string;
-
-    if (!line) {
-
-      const isPredictionInProgress = await redisClient.get(`predictionInProgress${teamId}`) as string;
-
-      if (isPredictionInProgress) {
-        const prediction = await this.awaitPrediction(`${teamId}`);
-        return {
-          ...prediction,
-          betLines
-        };;
-      }
-
-      await redisClient.set(`predictionInProgress${teamId}`, "true");
-      const prediction = await predictor.getWinPrediction(matchData, assistantId);
-
-      if (!prediction) {
-        console.error('Prediction module', 'Failed get prediction', teamId);
-        await redisClient.del(`predictionInProgress${teamId}`);
-        return null;
-      }
-
-      await this.setCachedData(`chatbotPrediction:${teamId}`, prediction, 30);
-      await redisClient.del(`predictionInProgress${teamId}`);
-
+    const matchData = await this.getMatchData('team', teamId);
+    if (!matchData) {
       return {
-        ...prediction,
-        betLines
+        message: 'Match not found'
       };
-    } else {
-      const lineName = betLines[line - 1];
-      const question = lineName.name;
-
-      const isPredictionInProgress = await redisClient.get(`predictionInProgress${teamId}:${line}`) as string;
-
-      if (isPredictionInProgress) {
-        const prediction = await this.awaitPrediction(`${teamId}:${line}`);
-        await redisClient.set(`predictionInProgress${teamId}:${line}`, "false");
-        return prediction;
-      }
-
-      await redisClient.set(`predictionInProgress${teamId}`, "true");
-      const prediction = await predictor.getPredictionByBetLine(matchData, assistantId, question);
-
-      if (!prediction) {
-        console.error('Prediction module', 'Failed get prediction', teamId, question);
-        await redisClient.del(`predictionInProgress${teamId}:${line}`);
-        return null;
-      }
-
-      await this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 30);
-      await redisClient.set(`predictionInProgress${teamId}:${line}`, "false");
-
-      return prediction;
     }
+
+    const prediction = await this.getPrediction(matchData, line);
+
+    await this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 40);
+
+    return prediction;
   }
 
   private filterMatchData(data: [TAllMatchData, TAvgTeamData]) {
@@ -359,78 +268,138 @@ export class CachedService {
 
   public async getPredictionByMatchId(winlineMatchId: number, line?: number) {
 
-    const isPrediction = line ? await this.getCachedData(`chatbotPrediction:${winlineMatchId}:${line}`) : await this.getCachedData(`chatbotPrediction:${winlineMatchId}`);
+    const isPrediction = await this.getCachedData(`chatbotPrediction:${winlineMatchId}:${line}`);
 
     if (isPrediction) {
       return isPrediction;
     }
 
     console.time('getPredictionByMatchId');
-    const isMatchData = await this.getCachedData(`matchData:${winlineMatchId}`) as TMatchData;
-    let matchData = isMatchData;
-
-    if (!isMatchData) {
-      const winlineMatches = await this.getAllMatches();
-      const pandascoreMatches = await this.getPandascoreMatches();
-
-      const winlineMatch = winlineMatches.find(match => Number(match.id) === winlineMatchId);
-      const teamId1 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id1)?.pandaId;
-      const teamId2 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id2)?.pandaId;
-
-      if (!winlineMatch) {
-        console.error('Prediction module', 'Winline match not found', "Mach id: " + winlineMatchId);
-        return null;
+    const matchData = await this.getMatchData('match', winlineMatchId);
+    if (!matchData) {
+      return {
+        message: 'Match not found',
       }
-
-      const pandascoreMatch = pandascoreMatches.filter(match => {
-        if (winlineMatch.isMatchLive) {
-          if (match.status === 'running') {
-            return match;
-          }
-        } else {
-          if (match.teamId1 === teamId1 &&
-            match.teamId2 === teamId2) {
-            return match
-          }
-        }
-      }).sort((a, b) => new Date(a.datatime).getTime() - new Date(b.datatime).getTime())[0];
-
-      matchData = this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
-
-      if (!matchData) {
-        console.error('Prediction module', 'Match data not found', winlineMatchId);
-        return null;
-      }
-
-      await this.setCachedData(`matchData:${winlineMatchId}`, matchData, 30);
     }
-    console.timeEnd("getPredictionByMatchId")
+    console.timeEnd("getPredictionByMatchId");
+
+    const prediction = await this.getPrediction(matchData, line);
+
+    await this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 40);
+
+    return prediction;
+  }
+
+  private async awaitPrediction(id: string): Promise<Object | null> {
+    const startTime = Date.now();
+    const timeout = 1000 * 60 * 1; // 1 min
+    const awaitInterval = 5000; // 5 sec
+
+    while (await redisClient.get(`predictionInProgress${id}`) === 'true') {
+      const elapsed = Date.now() - startTime;
+
+      if (elapsed > timeout) {
+        console.error(`Awaiting prediction: ${id} timeout`);
+        return null;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, awaitInterval));
+    }
+
+    return this.getCachedData(`chatbotPrediction:${id}`);
+  }
+
+  private async getMatchData(type: 'team' | 'match', id: number) {
+
+    const winlineMatches = await this.getAllMatches();
+    const pandascoreMatches = await this.getPandascoreMatches();
+
+    let winlineMatch;
+
+    if (type === 'match') {
+      winlineMatch = winlineMatches.find(match => Number(match.id) === id);
+    } else {
+      winlineMatch = winlineMatches.find(match => match.id1 === id || match.id2 === id);
+    }
+
+    if (!winlineMatch) {
+      console.error('Prediction module', 'Winline match not found', "Mach id: " + id);
+      return null;
+    }
+    const isMatchData = await this.getCachedData(`matchData:${winlineMatch.id}`) as TMatchData;
+
+    if (isMatchData) {
+      return isMatchData;
+    }
+
+    const teamId1 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id1)?.pandaId;
+    const teamId2 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id2)?.pandaId;
+
+
+    const pandascoreMatch = pandascoreMatches.filter(match => {
+      if (winlineMatch.isMatchLive) {
+        if (match.status === 'running') {
+          return match;
+        }
+      } else {
+        if (match.teamId1 === teamId1 &&
+          match.teamId2 === teamId2) {
+          return match
+        }
+      }
+    }).sort((a, b) => new Date(a.datatime).getTime() - new Date(b.datatime).getTime())[0];
+
+    const matchData = this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
+
+    if (!matchData) {
+      console.error('Prediction module', 'Match data not found', id);
+      return null;
+    }
+
+    await this.setCachedData(`matchData:${winlineMatch.id}`, matchData, 30);
+
+    return matchData;
+  }
+
+  private async getAssistantFromCache() {
+    let assistantId = await redisClient.get("predictorAssistant") as string;
+
+    if (!assistantId) {
+      getAssistant();
+    }
+
+    assistantId = await redisClient.get("predictorAssistant") as string;
+
+    return assistantId;
+  }
+
+  private async getPrediction(matchData: TMatchData, line?: number) {
 
     const predictor = new PredictionService();
-    const assistantId = await redisClient.get("predictorAssistant") as string;
+    const assistantId = await this.getAssistantFromCache();
+
     if (!line) {
-      const isPredictionInProgress = await redisClient.get(`predictionInProgress${winlineMatchId}`) as string;
+      const isPredictionInProgress = await redisClient.get(`predictionInProgress${matchData.matchId}`) as string;
 
       if (isPredictionInProgress) {
-        const prediction = await this.awaitPrediction(winlineMatchId.toString());
+        const prediction = await this.awaitPrediction(`${matchData.matchId}`);
         return {
           ...prediction,
           betLines
         }
       }
 
-      await redisClient.set(`predictionInProgress${winlineMatchId}`, "true");
-
+      await redisClient.set(`predictionInProgress${matchData.matchId}`, "true");
       const prediction = await predictor.getWinPrediction(matchData, assistantId);
 
       if (!prediction) {
-        console.error('Prediction module', 'Failed get prediction', winlineMatchId);
-        await redisClient.del(`predictionInProgress${winlineMatchId}`)
+        console.error('Prediction module', 'Failed get prediction', matchData.matchId);
+        await redisClient.del(`predictionInProgress${matchData.matchId}`)
         return null;
       }
 
-      await this.setCachedData(`chatbotPrediction:${winlineMatchId}`, prediction, 30);
-      await redisClient.del(`predictionInProgress${winlineMatchId}`)
+      await this.setCachedData(`chatbotPrediction:${matchData.matchId}`, prediction, 30);
+      await redisClient.del(`predictionInProgress${matchData.matchId}`)
 
       return {
         ...prediction,
@@ -440,74 +409,30 @@ export class CachedService {
       const lineName = betLines[line - 1];
       const question = lineName.name;
 
-      const isPredictionInProgress = await redisClient.get(`predictionInProgress${winlineMatchId}:${line}`) as string;
+      const isPredictionInProgress = await redisClient.get(`predictionInProgress${matchData.matchId}:${line}`) as string;
 
       if (isPredictionInProgress) {
-        const prediction = await this.awaitPrediction(`${winlineMatchId}:${line}`);
+        const prediction = await this.awaitPrediction(`${matchData.matchId}:${line}`);
         return prediction;
       }
-      await redisClient.set(`predictionInProgress${winlineMatchId}:${line}`, "true");
+
+      await redisClient.set(`predictionInProgress${matchData.matchId}:${line}`, "true");
 
       const prediction = await predictor.getPredictionByBetLine(matchData, assistantId, question);
+
       if (!prediction) {
-        console.error('Prediction module', 'Failed get prediction', winlineMatchId, line);
-        await redisClient.del(`predictionInProgress${winlineMatchId}:${line}`)
+        console.error('Prediction module', 'Failed get prediction', matchData.matchId, line);
+        await redisClient.del(`predictionInProgress${matchData.matchId}:${line}`)
         return null;
       }
 
-      await this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 30);
-      await redisClient.del(`predictionInProgress${winlineMatchId}:${line}`)
+      await redisClient.del(`predictionInProgress${matchData.matchId}:${line}`)
 
       return prediction;
     }
 
-    //Get real matchId by winlineMatchId
-    // const allMatches = await this.getAllMatches();
-    // const teams = this.teams.getTeamsByWinlineMatchId(winlineMatchId, allMatches);
-
-    // // if (!teams?.id1 && !teams?.id2) {
-    // //   console.error('No teams found');
-    // //   return null;
-    // // }
-    // const matchId = 7705557154;
-    // // const matchId = await this.getMatchIdByTeamId(teams.id1, teams.id2);
-    // // const supportTables = await this.getSupportTables();
-
-    // if (!matchId) {
-    //   console.error('No matchId in stratz found');
-    //   return null
-    // };
-
-    // //get stats by matchId
-    // const matchStat = await this.getStatisticsByMatchId(matchId);
-
-    // if (!matchStat) {
-    //   console.error(`Stratz failed to get statistics for matchId: ${matchId}`);
-    //   return null
-    // }
-
-    // return matchStat;
-
-    // return supportTables;
-
-    //get prediction
-
-    //set cache
-
-    //return
   }
 
-  private async awaitPrediction(id: string) {
-    let isPredictionInProgress = await redisClient.get(`predictionInProgress${id}`) as string;
-
-    while (isPredictionInProgress === 'true') {
-      await new Promise((resolve) => setTimeout(resolve, 5000))
-      // console.log(`Awaiting prediction: ${id}`);
-      isPredictionInProgress = await redisClient.get(`predictionInProgress${id}`) as string;
-    }
-
-    return this.getCachedData(`chatbotPrediction:${id}`);
-  }
 
   //Stratz
   public async getSupportTables(): Promise<TSupportTables | null> {
