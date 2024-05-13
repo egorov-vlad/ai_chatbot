@@ -22,11 +22,10 @@ export default class PredictionService {
     console.time("checkStatus");
     const res = await this.checkStatus(threadId, runId);
     console.timeEnd("checkStatus");
-
-    return {
+    return res ? {
       ...res,
       threadId
-    };
+    } : null;
   }
 
   public async getPredictionByBetLine(matchData: TMatchData, assistantId: string, question: string) {
@@ -57,6 +56,10 @@ export default class PredictionService {
     while (messages.status !== "completed") {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       messages = await pullMessages(threadId, runId);
+      if (messages.status === "failed") {
+        console.error("AI thread failed", messages, threadId, runId);
+        return null;
+      }
     }
 
     console.timeEnd("awaitComplete")
