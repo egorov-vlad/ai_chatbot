@@ -6,6 +6,7 @@ const messageRouter = new Elysia();
 //@ts-ignore
 messageRouter.post('/message', async ({ body, main }) => {
 
+  console.log(body);
   const res = await main().sendMessage(body.message, [], body.threadId);
 
   return new Response(JSON.stringify(res), {
