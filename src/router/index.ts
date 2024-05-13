@@ -6,6 +6,7 @@ import teamsRouter from './v1/teams.router';
 import predictionRouter from './v1/prediction.router';
 import testRouter from './v1/test.router';
 import { MainService } from '../service/main.service';
+import { matchDataRouter } from './v1/matchData.router';
 
 const router = new Elysia();
 
@@ -17,6 +18,7 @@ router.group('/api', (router) =>
     .use(matchesRouter)
     .use(teamsRouter)
     .use(predictionRouter)
+    .use(matchDataRouter)
     // .use(testRouter)
   ));
 

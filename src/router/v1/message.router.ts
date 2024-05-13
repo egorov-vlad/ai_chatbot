@@ -57,7 +57,9 @@ messageRouter.post('/message', async ({ body, main }) => {
       //   message: t.String({ description: 'The message sent to the chatbot' }),
       //   role: t.String({ description: "The role must be either 'user', 'assistant', 'system'" })
       // })),
-      options: t.Optional(t.Object({}, { description: 'Optional parameters' }), true),
+      options: t.Optional(t.Object({
+        next: t.Array(t.String({ description: 'The next command to will be show to the user' }))
+      }, { description: 'Optional parameters' }), true),
     }, {
       description: 'OK'
     }),

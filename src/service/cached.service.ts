@@ -220,7 +220,7 @@ export class CachedService {
           }
         }),
         killAvg: teamData.opponents[0].stats.kills,
-        gameLengthAvg: teamData.opponents[0].stats.average_game_length / 60 + ' минут',
+        gameLengthAvg: convertTime(teamData.opponents[0].stats.average_game_length) + " минут",
         towerKillAvg: teamData.opponents[0].stats.towers,
         barracksKillAvg: teamData.opponents[0].stats.barracks,
         radiantWinrate: formatPercent(teamData.opponents[0].stats.radiant_winrate),
@@ -248,7 +248,7 @@ export class CachedService {
           }
         }),
         killAvg: teamData.opponents[1].stats.kills,
-        gameLengthAvg: teamData.opponents[1].stats.average_game_length / 60 + ' минут',
+        gameLengthAvg: convertTime(teamData.opponents[1].stats.average_game_length) + " минут",
         towerKillAvg: teamData.opponents[1].stats.towers,
         barracksKillAvg: teamData.opponents[1].stats.barracks,
         radiantWinrate: formatPercent(teamData.opponents[1].stats.radiant_winrate),
@@ -309,7 +309,7 @@ export class CachedService {
     return this.getCachedData(`chatbotPrediction:${id}`);
   }
 
-  private async getMatchData(type: 'team' | 'match', id: number) {
+  public async getMatchData(type: 'team' | 'match', id: number) {
 
     const winlineMatches = await this.getAllMatches();
     const pandascoreMatches = await this.getPandascoreMatches();

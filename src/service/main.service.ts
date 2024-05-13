@@ -19,6 +19,10 @@ export class MainService {
     this.supportAssistant = await redisClient.get('supportAssistant') as string;
   }
 
+  public async getMatchData(id: number) {
+    return this.cached.getMatchData('match', id);
+  }
+
   public async getTeams() {
     return this.cached.getWinlineTeams();
   }
