@@ -56,7 +56,7 @@ export class MainService {
 
     const res = await chat.validateMessage(message, textAnalyserRes, this.predictorAssistant, threadId);
 
-    return res;
+    return { ...res, threadId };
   }
 
   public async test() {
