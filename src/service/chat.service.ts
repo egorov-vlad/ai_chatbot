@@ -63,20 +63,42 @@ export default class ChatService {
       return res;
     } else {
       if (textAnalyserRes.message === "irrelevant") {
-        return { massage: "Извините, я располагаю информацией только о текущем турнире.", role: "assistant" };
+        return {
+          massage: "Извините, я располагаю информацией только о текущем турнире.",
+          role: "assistant",
+          options: {
+            next: ["howToBet", "startPrediction"]
+          }
+        };
       }
 
       if (textAnalyserRes.message === "nsfw") {
-        return { message: "Ваш запрос не может быть выполнен в соответствии с правилами использования нашего сервиса.", role: "assistant" };
+        return {
+          message: "Ваш запрос не может быть выполнен в соответствии с правилами использования нашего сервиса",
+          role: "assistant",
+          options: {
+            next: ["toStart"]
+          }
+        };
       }
 
       if (textAnalyserRes.message === "archive") {
-        return { message: "Извините, я располагаю информацией только о текущем турнире", role: "assistant",options:{
-          next: ["howToBet", "startPrediction"]
-        } };
+        return {
+          message: "Извините, я располагаю информацией только о текущем турнире",
+          role: "assistant",
+          options: {
+            next: ["toStart"]
+          }
+        };
       }
 
-      return { massage: "Я не могу ответить на этот вопрос", role: "assistant" };
+      return {
+        massage: "Я не могу ответить на этот вопрос",
+        role: "assistant",
+        options: {
+          next: ["toStart"]
+        }
+      };
     }
   }
 }
