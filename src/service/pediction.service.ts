@@ -36,7 +36,10 @@ export default class PredictionService {
 
     const res = await this.checkStatus(threadId, runId);
 
-    return res;
+    return res ? {
+      ...res,
+      threadId
+    } : null
   }
 
   public async getPredictionByThread(message: string, threadId: string, assistantId: string) {

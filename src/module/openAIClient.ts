@@ -57,7 +57,7 @@ export async function createAssistant(prompt: string, name: string) {
 
     },
     name: name,
-    model: "gpt-4-turbo",
+    model: "gpt-4o-2024-05-13",
     // response_format: {
     //   type: 'json_object'
     // }

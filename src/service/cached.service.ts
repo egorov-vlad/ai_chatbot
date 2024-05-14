@@ -4,6 +4,7 @@ import { betLines, winLinePandascoreTeamsPGL } from '../utils/constants';
 import type { MatchList, TAllMatchData, TAvgTeamData, TMatch, TMatchData, TPandaScoreFilteredMatch, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
 import { PandascoreService } from './pandascore.service';
 import PredictionService from './pediction.service';
+// import { SocketService } from './socket.service';
 import StratzService from './stratz.service';
 import TeamService from './team.service';
 import { WinlineMatchService } from './winlineMatches.service';
@@ -350,6 +351,13 @@ export class CachedService {
     }).sort((a, b) => new Date(a.datatime).getTime() - new Date(b.datatime).getTime())[0];
 
     const matchData = this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
+
+    // const isPandascoreLiveData = await this.getCachedData(`pandascoreLiveData:${winlineMatch.id}`);
+
+    // if (!isPandascoreLiveData && pandascoreMatch.live && pandascoreMatch.status === 'running') {
+    //   const socket = new SocketService(pandascoreMatch.live);
+    //   await Promise.resolve(setTimeout(() => console.log('await 1 sec'), 1000))
+    // }
 
     if (!matchData) {
       console.error('Prediction module', 'Match data not found', id);

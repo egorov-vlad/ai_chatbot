@@ -59,6 +59,7 @@ export type TPandaScoreFilteredMatch = {
   teamId1: number;
   team2: string;
   teamId2: number;
+  live: string | null;
 }
 
 export type TPredictionByTeamIds = {

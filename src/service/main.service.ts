@@ -60,7 +60,7 @@ export class MainService {
   }
 
   public async test() {
-    // await deleteAssistant("asst_lUJexpIWWQ7Fo3KW0W4kLE4I");
+    // await deleteAssistant("asst_NIr5YaGio6metW4fT0dNj7QX");
     return getAssistant();
   }
 }
