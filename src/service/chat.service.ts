@@ -60,13 +60,19 @@ export default class ChatService {
 
       const res = await predictor.getPredictionByThread(message, threadId, assistantId);
 
-      return res;
+      return {
+        ...res,
+        options: {
+          isRelevant: true
+        }
+      };
     } else {
       if (textAnalyserRes.message === "irrelevant") {
         return {
           massage: "Извините, я располагаю информацией только о текущем турнире.",
           role: "assistant",
           options: {
+            isRelevant: false,
             next: ["howToBet", "startPrediction"]
           }
         };
@@ -77,6 +83,7 @@ export default class ChatService {
           message: "Ваш запрос не может быть выполнен в соответствии с правилами использования нашего сервиса",
           role: "assistant",
           options: {
+            isRelevant: false,
             next: ["toStart"]
           }
         };
@@ -87,7 +94,19 @@ export default class ChatService {
           message: "Извините, я располагаю информацией только о текущем турнире",
           role: "assistant",
           options: {
+            isRelevant: false,
             next: ["toStart"]
+          }
+        };
+      }
+
+      if (textAnalyserRes.message === "help") {
+        return {
+          message: 'Если тебе нужна информация о разных видах ставок и пари или о том, как делать ставки, я могу перевести тебя в нашу обучающую рубрику. Там ты найдешь все, что тебе нужно. Просто нажми на кнопку "Как сделать ставку?" под нашим диалогом',
+          role: "assistant",
+          options: {
+            isRelevant: true,
+            next: ["howToBet"]
           }
         };
       }
@@ -96,6 +115,7 @@ export default class ChatService {
         massage: "Я не могу ответить на этот вопрос",
         role: "assistant",
         options: {
+          isRelevant: false,
           next: ["toStart"]
         }
       };
