@@ -6,7 +6,7 @@ const messageRouter = new Elysia();
 //@ts-ignore
 messageRouter.post('/message', async ({ body, main }) => {
 
-  console.log(body);
+  // console.log(body);
   const res = await main().sendMessage(body.message, [], body.threadId);
 
   return new Response(JSON.stringify(res), {
@@ -59,6 +59,7 @@ messageRouter.post('/message', async ({ body, main }) => {
       //   role: t.String({ description: "The role must be either 'user', 'assistant', 'system'" })
       // })),
       options: t.Optional(t.Object({
+        isRelevant: t.Boolean({ description: 'Whether the response is relevant to the user' }),
         next: t.Array(t.String({ description: 'The next command to will be show to the user' }))
       }, { description: 'Optional parameters' }), true),
     }, {

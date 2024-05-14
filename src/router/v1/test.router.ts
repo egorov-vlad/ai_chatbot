@@ -21,8 +21,6 @@ testRouter.get('/test', async ({ main }) => {
   }), {
     status: 200
   })
-}, {
-
 });
 
 export default testRouter;
