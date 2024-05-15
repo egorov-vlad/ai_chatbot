@@ -1,41 +1,21 @@
-import { createRun, createThread, getMessageList, pullMessages, sendMessageToGPT, sendMessageToThread, type TChatMessageHistory } from '../module/openAIClient';
-// import redisClient from '../module/redisClient';
+import { createRun, createThread, getMessageList, pullMessages, sendMessageToThread, type TChatMessageHistory } from '../module/openAIClient';
 import PredictionService from './pediction.service';
 
 export default class ChatService {
-  // protected userData: any;
   protected prediction: PredictionService;
 
   constructor() {
-    // this.userData = userData;
     this.prediction = new PredictionService();
   }
 
-  async sendMessage(message: string, history: TChatMessageHistory) {
-    message = message.trim();
-
-    //TODO: Add prompt
-
-    const gptRequest = await sendMessageToGPT(message, history);
-
-    if (!gptRequest) return null;
-
-    // return gptRequest;
-
-    //TODO: Deserialize gptRequest to json
-    // if (!gptRequest) return null;
-
-    // return {
-    //   message: gptRequest[0].message.content,
-    //   role: gptRequest[0].message.role,
-    //   history: history,
-    // }
-  }
   public async textAnalyser(message: string, assistantId: string) {
 
     const threadId = await createThread();
+    if(!threadId) return null
     const threadMessage = await sendMessageToThread(threadId, message);
+
     const runId = await createRun(threadId, assistantId);
+    if(!runId) return null;
 
     const res = await this.checkStatus(threadId, runId);
 
@@ -43,8 +23,9 @@ export default class ChatService {
   }
   private async checkStatus(threadId: string, runId: string) {
     let messages = await pullMessages(threadId, runId);
+    
 
-    while (messages.status !== "completed") {
+    while (messages?.status !== "completed") {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       messages = await pullMessages(threadId, runId);
     }
@@ -59,7 +40,8 @@ export default class ChatService {
     if (!threadId) return null
 
     switch (textAnalyserRes.message) {
-      case "relevant" || "wetrain":
+      case "relevant":
+      case"wetrain":
         const predictor = new PredictionService();
 
         const res = await predictor.getPredictionByThread(message, threadId, assistantId);
