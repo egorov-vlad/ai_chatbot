@@ -16,7 +16,7 @@ router.onRequest((ctx) => {
 })
 
 router.onError((ctx) => {
-  logger.error(ctx.request.method + ' ' + ctx.request.url + ctx.code + ctx.error.message);
+  logger.error(ctx.request.method + ' ' + ctx.request.url + ' ' + ctx.code + ' ' + ctx.error.message);
 })
 
 router.group('/api', (router) =>
