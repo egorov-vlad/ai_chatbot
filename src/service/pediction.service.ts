@@ -1,74 +1,79 @@
 
+import logger from '../module/logger';
 import { createRun, createThread, getMessageList, pullMessages, sendMessageToThread, type TChatMessageHistory } from '../module/openAIClient';
-import { betLines } from '../utils/constants';
-import type { TMatchData } from '../utils/types';
-import { PandascoreService } from './pandascore.service';
+import type { TChatWithTreadIDResponse, TMatchData } from '../utils/types';
 
 
 export default class PredictionService {
-  protected pandascore: PandascoreService;
 
-  constructor() {
-    this.pandascore = new PandascoreService();
-  }
-
-  public async getWinPrediction(matchData: TMatchData, assistantId: string) {
-    console.time("CreateThread");
+  public async getPrediction(matchData: TMatchData, assistantId: string, question: string): Promise<TChatWithTreadIDResponse | null> {
     const threadId = await createThread();
-    const threadMessage = await sendMessageToThread(threadId, "Кто победит? " + JSON.stringify(matchData));
+
+    if (!threadId) {
+      logger.error("Thread creation failed " + JSON.stringify(matchData));
+      return null;
+    }
+
+    await sendMessageToThread(threadId, "Кто победит? " + JSON.stringify(matchData));
     const runId = await createRun(threadId, assistantId);
-    console.timeEnd("CreateThread");
+
+    if (!runId) {
+      logger.error("Run creation failed " + JSON.stringify(matchData));
+      return null;
+    }
 
     console.time("checkStatus");
     const res = await this.checkStatus(threadId, runId);
     console.timeEnd("checkStatus");
+
     return res ? {
       ...res,
       threadId
     } : null;
   }
 
-  public async getPredictionByBetLine(matchData: TMatchData, assistantId: string, question: string) {
 
-    const threadId = await createThread();
-    const threadMessage = await sendMessageToThread(threadId, `${question}` + JSON.stringify(matchData));
+  public async getPredictionByThread(message: string, threadId: string, assistantId: string): Promise<TChatWithTreadIDResponse | null> {
+
+    await sendMessageToThread(threadId, message);
     const runId = await createRun(threadId, assistantId);
+
+    if (!runId) {
+      logger.error("Run creation failed " + threadId + message);
+      return null;
+    }
 
     const res = await this.checkStatus(threadId, runId);
 
     return res ? {
       ...res,
       threadId
-    } : null
-  }
-
-  public async getPredictionByThread(message: string, threadId: string, assistantId: string) {
-
-    const threadMessage = await sendMessageToThread(threadId, message);
-    const runId = await createRun(threadId, assistantId);
-
-    const res = await this.checkStatus(threadId, runId);
-
-    return res;
+    } : null;
   }
 
   private async checkStatus(threadId: string, runId: string) {
     let messages = await pullMessages(threadId, runId);
 
-    console.time("awaitComplete")
-    while (messages.status !== "completed") {
+    if (!messages) {
+      logger.error("Failed pull messages " + threadId + " " + runId);
+      return null;
+    }
+
+    while (messages?.status !== "completed") {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       messages = await pullMessages(threadId, runId);
-      if (messages.status === "failed") {
-        console.error("AI thread failed", messages, threadId, runId);
+      if (!messages || messages.status === "failed") {
+        logger.error("AI thread failed", messages, threadId, runId);
         return null;
       }
     }
 
-    console.timeEnd("awaitComplete")
-    console.time("getMessageList");
     const res = await getMessageList(threadId);
-    console.timeEnd("getMessageList");
+    if (!res) {
+      logger.error("Failed get AI response " + threadId + " " + runId);
+      return null;
+    }
+
     return res;
   }
 }

@@ -9,12 +9,7 @@ predictionRouter.post('/prediction', async ({ body, main }) => {
 
   const predictionRes = await main().getPrediction(teamId, matchId, betLineId, threadId);
 
-
-  return new Response(JSON.stringify(predictionRes), {
-    status: 200
-  });
-
-
+  return predictionRes;
 }, {
   beforeHandle: (req) => {
     if (req.headers['x-api-key'] !== process.env.API_KEY) {

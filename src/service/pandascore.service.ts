@@ -1,5 +1,5 @@
-import Bun from 'bun';
 import type { TPandaScoreFilteredMatch } from '../utils/types';
+import logger from '../module/logger';
 
 export type TPandaScoreMatch = {
   tournament_id: number;
@@ -140,7 +140,7 @@ export class PandascoreService {
       }
     })
       .then(res => res.json())
-      .catch(err => console.error(err))
+      .catch(err => logger.error('Error when fetching data from pandascore', err))
   }
 
   async getLiveMatches(): Promise<TPandaScoreMatch[] | []> {
@@ -153,28 +153,33 @@ export class PandascoreService {
 
   async getAllMatches(): Promise<TPandaScoreFilteredMatch[] | []> {
     let matches: TPandaScoreFilteredMatch[] = [];
-    const data = await Promise.all([
-      this.getLiveMatches(), this.getUpcomingMatches()
-    ]);
-
-    data
-      .flatMap((item) => (item || []))
-      .filter(match => match.league_id === this.tournamentId)
-      .forEach(match => {
-        if (match.opponents.length < 2) return;
-        matches.push({
-          id: match.id,
-          datatime: match.begin_at,
-          status: match.status,
-          team1: match.opponents[0].opponent.name,
-          teamId1: match.opponents[0].opponent.id,
-          team2: match.opponents[1].opponent.name,
-          teamId2: match.opponents[1].opponent.id,
-          live: match.live.supported ? match.live.url : null
+    try {
+      const data = await Promise.all([
+        this.getLiveMatches(), this.getUpcomingMatches()
+      ]);
+      data
+        .flatMap((item) => (item || []))
+        .filter(match => match.league_id === this.tournamentId)
+        .forEach(match => {
+          if (match.opponents.length < 2) return;
+          matches.push({
+            id: match.id,
+            datatime: match.begin_at,
+            status: match.status,
+            team1: match.opponents[0].opponent.name,
+            teamId1: match.opponents[0].opponent.id,
+            team2: match.opponents[1].opponent.name,
+            teamId2: match.opponents[1].opponent.id,
+            live: match.live.supported ? match.live.url : null
+          });
         });
-      });
 
-    return matches;
+      return matches;
+    }
+    catch (err) {
+      logger.error('Error when fetching data from pandascore', err);
+      return []
+    }
   }
 
   public async getMatchDataByID(matchID: number) {
@@ -184,7 +189,8 @@ export class PandascoreService {
 
       return data;
     } catch (err) {
-      console.error(matchID, err);
+      logger.error('Error when fetching data from pandascore', err, matchID);
+      return null;
     }
   }
 
@@ -192,9 +198,11 @@ export class PandascoreService {
     try {
       const res = await fetch(`https://ratchet.pandascore.co/api/matches/${matchID}/last_3_months/period?block=full`);
       const data = await res.json();
-      return data
+
+      return data;
     } catch (err) {
-      console.error(err);
+      logger.error('Error when fetching last 3 months from pandascore', err, matchID);
+      return null;
     }
   }
 
@@ -206,7 +214,8 @@ export class PandascoreService {
 
       return data;
     } catch (err) {
-      console.error(err);
+      logger.error('Error when fetching data from pandascore', err, matchID);
+      return null;
     }
   }
 }

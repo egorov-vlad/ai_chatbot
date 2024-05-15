@@ -5,10 +5,10 @@ import swagger from '@elysiajs/swagger';
 import { createAssistant, getAssistant } from './module/openAIClient';
 import { predictionPrompt, textAnalyserPrompt } from './utils/constants';
 import type OpenAI from 'openai';
+import logger from './module/logger';
 
 const app = new Elysia();
 const PORT = process.env.PORT || 3000;
-
 
 app.use(swagger({
   documentation: {
@@ -46,30 +46,41 @@ app.listen({
     // cert: Bun.file(process.env.SSL_CERT as string),
   }
 }, () => {
-  console.log(`Server started on port ${PORT}`);
+  logger.info(`Server started on port ${PORT}`);
 });
+
 
 redisClient
   .connect()
   .then(() => {
     getAssistants();
   })
-  .catch((e) => {
-    console.error(e);
+  .catch((err) => {
+    logger.error("Redis connection error", err);
   });
 
 
 const getAssistants = async () => {
   const assistantList = await getAssistant();
-  let predictorAssistant: OpenAI.Beta.Assistants.Assistant;
-  let supportAssistant: OpenAI.Beta.Assistants.Assistant;
+  if (!assistantList) {
+    logger.error("Assistants not found");
+    return;
+  }
+
+  let predictorAssistant: OpenAI.Beta.Assistants.Assistant | undefined;
+  let supportAssistant: OpenAI.Beta.Assistants.Assistant | undefined;
 
   predictorAssistant = assistantList.data.find((assistant) => assistant.name === "Predictor") ||
     await createAssistant(predictionPrompt, "Predictor");
   supportAssistant = assistantList.data.find((assistant) => assistant.name === "Support")
     || await createAssistant(textAnalyserPrompt, "Support");
 
-  console.log("Assistants: ", predictorAssistant.id, supportAssistant.id);
+  if (!predictorAssistant || !supportAssistant) {
+    logger.error("Assistants not found");
+    return;
+  }
+
+  logger.info("Assistants: ", predictorAssistant.id, supportAssistant.id);
 
   await redisClient.set("predictorAssistant", predictorAssistant?.id);
   await redisClient.set("supportAssistant", supportAssistant?.id);

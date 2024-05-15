@@ -1,3 +1,4 @@
+import { type OpenAI } from 'openai'
 /**
  * Type of team.
  * @typedef {Object} TTeam
@@ -791,3 +792,16 @@ export type TMatchData = {
   team1: TTeamMatchData;
   team2: TTeamMatchData;
 };
+
+export type TChatResponse = {
+  role: string;
+  message: string | OpenAI.Chat.Completions.ChatCompletionContentPart[] | null | undefined;
+}
+
+export type TChatWithTreadIDResponse = TChatResponse & {
+  threadId: string;
+}
+
+export type TMessageResponse = TChatWithTreadIDResponse & { options: { isRelevant?: boolean, next?: string[] } }
+
+export type TPredictionResponse = TChatWithTreadIDResponse & { betLines?: TBetLine[] }

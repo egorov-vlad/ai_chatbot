@@ -1,5 +1,7 @@
 import { OpenAI, } from 'openai';
 import type { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
+import logger from './logger';
+import type { TChatResponse } from '../utils/types';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY as string,
@@ -9,113 +11,100 @@ const openai = new OpenAI({
 export type TChatMessageHistory = Array<ChatCompletionMessageParam>;
 
 
-export async function sendMessageToGPT(message: string, history: TChatMessageHistory, prompt?: string, data?: any) {
-  const messages: TChatMessageHistory = [];
-
-  if (prompt) {
-    messages.push({
-      role: 'system',
-      content: prompt,
-    });
-  }
-
-  if (history.length > 0) messages.push(...history)
-
-  messages.push({
-    role: "user",
-    content: message
-  })
-
-
-  const completion = await openai.chat.completions.create({
-    messages: messages,
-    model: "gpt-4-turbo",
-    response_format: {
-      type: 'json_object'
-    }
-  }).catch(err => console.error(err));
-
-  return completion;
-}
-
 export async function getAssistant() {
-  const assistant = await openai.beta.assistants.list({
-    order: "desc",
-    limit: 10
-  });
+  try {
+    const assistant = await openai.beta.assistants.list({
+      order: "desc",
+      limit: 10
+    });
 
-  // console.log(assistant);
-
-  return assistant;
+    return assistant;
+  } catch (err) {
+    logger.error(err);
+  }
 }
 
 
 export async function createAssistant(prompt: string, name: string) {
-  const assistant = await openai.beta.assistants.create({
-    instructions: prompt,
-    metadata: {
+  try {
+    const assistant = await openai.beta.assistants.create({
+      instructions: prompt,
+      name: name,
+      model: "gpt-4o-2024-05-13",
+    });
 
-    },
-    name: name,
-    model: "gpt-4o-2024-05-13",
-    // response_format: {
-    //   type: 'json_object'
-    // }
-  });
-
-  return assistant;
+    return assistant;
+  }
+  catch (err) {
+    logger.error(err);
+  }
 }
 
 export async function createThread() {
-  const emptyThread = await openai.beta.threads.create();
+  try {
+    const emptyThread = await openai.beta.threads.create();
 
-  return emptyThread.id;
+    return emptyThread.id;
+  }
+  catch (err) {
+    logger.error(err);
+  }
 }
 
 export async function deleteAssistant(id: string) {
-  const response = await openai.beta.assistants.del(id);
+  try {
+    const response = await openai.beta.assistants.del(id);
+  } catch (err) {
+    logger.error(err);
+  }
 }
 
 export async function createRun(threadId: string, assistantId: string) {
-  const run = await openai.beta.threads.runs.create(threadId, {
-    assistant_id: assistantId
-  });
+  try {
+    const run = await openai.beta.threads.runs.create(threadId, {
+      assistant_id: assistantId
+    });
 
-  return run.id;
+    return run.id;
+  } catch (err) {
+    logger.error(err);
+  }
 }
 
 export async function sendMessageToThread(threadId: string, message: string) {
-  const res = await openai.beta.threads.messages.create(threadId, {
-    role: "user", content: message,
-  });
+  try {
+    const res = await openai.beta.threads.messages.create(threadId, {
+      role: "user", content: message,
+    });
 
-  return res;
+    return res;
+  } catch (err) {
+    logger.error(err);
+  }
 }
 
 
 export async function pullMessages(threadId: string, runId: string) {
-  const messages = await openai.beta.threads.runs.retrieve(threadId, runId);
+  try {
+    const messages = await openai.beta.threads.runs.retrieve(threadId, runId);
 
-  return messages;
+    return messages;
+  } catch (err) {
+    logger.error(err);
+  }
 }
 
 export async function getMessageList(threadId: string) {
-  const messageList = await openai.beta.threads.messages.list(threadId);
-  let message: string[] = [];
+  try {
+    const messageList = await openai.beta.threads.messages.list(threadId);
 
-  // const assistantResponses = messageList.data.filter(msg => msg.role === 'assistant');
-
-  // const response = assistantResponses.map(msg => 
-  //   msg.content
-  //     .filter(contentItem => contentItem.type === 'text')
-  //     .map(textContent => textContent)
-  //     .join('\n')
-  // ).join('\n');
-
-  return deserializePredictionMessage(messageList);
+    return deserializePredictionMessage(messageList);
+  } catch (err) {
+    logger.error(err);
+  }
 }
 
-function deserializePredictionMessage(messageList: any) {
+function deserializePredictionMessage(messageList: any): TChatResponse {
   const history: TChatMessageHistory = [];
 
   messageList.data.reverse().forEach((message: any) => {
@@ -126,9 +115,7 @@ function deserializePredictionMessage(messageList: any) {
   })
 
   return {
-    // history: history,
     role: 'assistant',
     message: history[history.length - 1].content
   }
-
 }

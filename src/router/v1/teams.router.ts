@@ -4,24 +4,9 @@ const teamsRouter = new Elysia();
 
 // @ts-ignore
 teamsRouter.get('/teams', async ({ main }) => {
-
-
-  const teams = await main().getTeams();
+  const res = await main().getTeams();
   
-  const format = {
-    type: "button",
-    title: "Сделать прогноз на name",
-    message: "",
-    isInputEnabled: false,
-    next: ["chooseBetLine", "makeBet"],
-    options: {
-      url: "url"
-    }
-  }
-  // betLines: betLines
-  return new Response(JSON.stringify({ teams: teams, format: format }), {
-    status: 200
-  })
+  return res
 }, {
   beforeHandle: (req) => {
     if (req.headers['x-api-key'] !== process.env.API_KEY) {

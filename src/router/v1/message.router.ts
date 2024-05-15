@@ -1,33 +1,13 @@
 import { Elysia, t } from 'elysia';
-import ChatService from '../../service/chat.service';
 
 const messageRouter = new Elysia();
 
 //@ts-ignore
 messageRouter.post('/message', async ({ body, main }) => {
 
-  // console.log(body);
-  const res = await main().sendMessage(body.message, [], body.threadId);
+  const res = await main().sendMessage(body.message, body.threadId);
 
-  return new Response(JSON.stringify(res), {
-    status: 200
-  })
-
-  // if (!res) {
-  //   return new Response(JSON.stringify({
-  //     message: 'Error occurred while sending message to the chatbot. Please try again later',
-  //     name: 'Internal Server Error'
-  //   }), {
-  //     status: 500
-  //   })
-  // }
-
-  // console.log(req.body.message);
-  // // const data = await mainService.getData();
-
-  // return new Response(JSON.stringify(res), {
-  //   status: 200
-  // })
+  return res
 }, {
   body: t.Object({
     message: t.String({
@@ -35,29 +15,11 @@ messageRouter.post('/message', async ({ body, main }) => {
       description: 'The message to be sent to the chatbot'
     }),
     threadId: t.String({ description: 'The id of the thread' }),
-    // history: t.Array(t.Object({
-    //   content: t.String({ description: 'The message sent to the chatbot' }),
-    //   role: t.Enum(
-    //     {
-    //       user: 'user',
-    //       assistant: 'assistant',
-    //       system: 'system'
-    //     },
-    //     { description: "The role must be either 'user', 'assistant', 'system'" })
-    // }), {
-    //   default: [],
-    //   description: 'The history of messages sent to the chatbot'
-    // }),
   }),
   response: {
     200: t.Object({
       message: t.String({ description: 'The response from the chatbot' }),
       role: t.String({ description: 'The role of the response. Default: assistant' }),
-      // threadId: t.Optional(t.String({ description: 'The id of the thread' }), true),
-      // history: t.Array(t.Object({
-      //   message: t.String({ description: 'The message sent to the chatbot' }),
-      //   role: t.String({ description: "The role must be either 'user', 'assistant', 'system'" })
-      // })),
       options: t.Optional(t.Object({
         isRelevant: t.Boolean({ description: 'Whether the response is relevant to the user' }),
         next: t.Array(t.String({ description: 'The next command to will be show to the user' }))
@@ -65,15 +27,10 @@ messageRouter.post('/message', async ({ body, main }) => {
     }, {
       description: 'OK'
     }),
-    400: t.Object({
-
-    }, {
+    400: t.String({
       description: 'Bad Request',
     }),
-    500: t.Object({
-      message: t.String(),
-      name: t.String()
-    }, {
+    500: t.String({
       description: 'Internal Server Error'
     })
   },

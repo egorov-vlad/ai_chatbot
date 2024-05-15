@@ -7,8 +7,17 @@ import predictionRouter from './v1/prediction.router';
 import testRouter from './v1/test.router';
 import { MainService } from '../service/main.service';
 import { matchDataRouter } from './v1/matchData.router';
+import logger from '../module/logger';
 
 const router = new Elysia();
+
+router.onRequest((ctx) => {
+  logger.info(ctx.request.method + ' ' + ctx.request.url);
+})
+
+router.onError((ctx) => {
+  logger.error(ctx.request.method + ' ' + ctx.request.url + ctx.code + ctx.error.message);
+})
 
 router.group('/api', (router) =>
   router.group('/v1', (router) => router
@@ -18,8 +27,8 @@ router.group('/api', (router) =>
     .use(matchesRouter)
     .use(teamsRouter)
     .use(predictionRouter)
-    .use(matchDataRouter)
     // .use(testRouter)
+    .use(matchDataRouter)
   ));
 
 export default router;

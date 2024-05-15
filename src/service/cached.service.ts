@@ -1,7 +1,8 @@
+import logger from '../module/logger';
 import { getAssistant } from '../module/openAIClient';
 import redisClient from '../module/redisClient';
 import { betLines, winLinePandascoreTeamsPGL } from '../utils/constants';
-import type { MatchList, TAllMatchData, TAvgTeamData, TMatch, TMatchData, TPandaScoreFilteredMatch, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
+import type { MatchList, TAllMatchData, TAvgTeamData, TChatWithTreadIDResponse, TMatch, TMatchData, TPandaScoreFilteredMatch, TPredictionResponse, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
 import { PandascoreService } from './pandascore.service';
 import PredictionService from './pediction.service';
 // import { SocketService } from './socket.service';
@@ -23,6 +24,29 @@ export class CachedService {
     this.stratz = new StratzService();
     this.teams = new TeamService();
     this.pandascore = new PandascoreService();
+    this.teams = new TeamService();
+  }
+
+  public async getWinlineTeams() {
+    const isTeams = await this.getCachedData('winlineTeams') as TWinlineTeams[];
+
+    if (isTeams) {
+      return isTeams;
+    }
+
+    const allMatches = await this.getWinlineMatchesByTeamIdAndTime(undefined, 'today');
+
+    if (!allMatches) {
+      logger.error('Failed get all matches in getWinlineTeams');
+      return null;
+    }
+
+    const winlineTeams = this.teams.getTeams(allMatches);
+
+
+    this.setCachedData('winlineTeams', winlineTeams, 60);
+
+    return winlineTeams;
   }
 
   private async getCachedData(key: string): Promise<Object | null> {
@@ -39,26 +63,7 @@ export class CachedService {
     await redisClient.set(key, JSON.stringify(data), { EX: expireSec });
   }
 
-  public async getWinlineTeams(): Promise<TWinlineTeams[]> {
-    const isTeams = await this.getCachedData('winlineTeams') as TWinlineTeams[];
-
-    if (isTeams) {
-      return isTeams;
-    }
-
-    const allMatches = await this.getWinlineMatchesByTeamIdAndTime(undefined, 'today');
-
-
-    const teams = new TeamService();
-    const winlineTeams = teams.getTeams(allMatches);
-
-    this.setCachedData('winlineTeams', winlineTeams, 60);
-
-    return winlineTeams;
-
-  }
-
-  public async getAllMatches(): Promise<TMatch[] | []> {
+  private async getAllMatches(): Promise<TMatch[] | null> {
     const isAllMatches = await this.getCachedData('winlineAllMatches') as TWinlineEvent[];
 
     if (isAllMatches) {
@@ -67,14 +72,14 @@ export class CachedService {
 
     const winlineAllMatches = await this.winlineMatches.getAllMatches();
 
-    if (winlineAllMatches.length === 0) return [];
+    if (winlineAllMatches.length === 0) return null;
 
     this.setCachedData('winlineAllMatches', winlineAllMatches);
 
     return winlineAllMatches;
   }
 
-  public async getWinlineMatchesByTeamIdAndTime(teamId?: number, matchTime: 'today' | 'tomorrow' = 'today'): Promise<TMatch[] | []> {
+  public async getWinlineMatchesByTeamIdAndTime(teamId?: number, matchTime: 'today' | 'tomorrow' = 'today'): Promise<TMatch[] | null> {
     const isTeamMatches = await this.getCachedData(`winlineTeamMatches:${teamId}`) as TMatch[];
     const isTodayMatches = await this.getCachedData(`winlineTodayMatches`) as TMatch[];
     const isTomorrowMatches = await this.getCachedData(`winlineTomorrowMatches`) as TMatch[];
@@ -92,10 +97,9 @@ export class CachedService {
       return isTomorrowMatches;
     }
 
-
     const matches = await this.winlineMatches.getMatches(teamId, matchTime);
 
-    if (Array.isArray(matches)) return [];
+    if (Array.isArray(matches)) return null;
 
     if (matches.type === 'team') {
       this.setCachedData(`winlineTeamMatches:${teamId}`, matches.data);
@@ -112,14 +116,11 @@ export class CachedService {
       return matches.data;
     }
 
-
-    return [];
+    return null;
   }
 
-
-  public async getPredictionByTeamId(teamId: number, line?: number) {
-    //проверка в кэше
-    const isPrediction = await this.getCachedData(`chatbotPrediction:${teamId}:${line}`);
+  public async getPredictionByTeamId(teamId: number, line?: number): Promise<TPredictionResponse | null> {
+    const isPrediction = await this.getCachedData(`chatbotPrediction:${teamId}:${line}`) as TPredictionResponse;
 
     if (isPrediction) {
       return isPrediction;
@@ -127,21 +128,260 @@ export class CachedService {
 
     const matchData = await this.getMatchData('team', teamId);
     if (!matchData) {
-      return {
-        message: 'Match not found'
-      };
+      logger.error('Failed get match data in getPredictionByTeamId: ' + teamId);
+      return null;
     }
 
-    const prediction = await this.getPrediction(matchData, line);
+    const prediction = await this.makePrediction(matchData, line);
+
+    if (!prediction) {
+      logger.error('Failed make prediction in getPredictionByTeamId: ' + teamId);
+      return null;
+    }
 
     await this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 40);
+
+    return line ? prediction : { ...prediction, betLines };
+  }
+
+  public async getPredictionByMatchId(winlineMatchId: number, line?: number): Promise<TPredictionResponse | null> {
+    const isPrediction = await this.getCachedData(`chatbotPrediction:${winlineMatchId}:${line}`) as TPredictionResponse;
+
+    if (isPrediction) {
+      return isPrediction;
+    }
+
+    const matchData = await this.getMatchData('match', winlineMatchId);
+
+    if (!matchData) {
+      logger.error("Failed getMatchData " + winlineMatchId);
+      return null;
+    }
+
+    const prediction = await this.makePrediction(matchData, line);
+    if (!prediction) {
+      logger.error("Failed makePrediction " + winlineMatchId + line);
+      return null;
+    }
+
+    await this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 40);
+
+    return line ? prediction : { ...prediction, betLines };
+  }
+
+  private async awaitPrediction(id: string) {
+    const startTime = Date.now();
+    const timeout = 1000 * 60 * 1; // 1 min
+    const awaitInterval = 5000; // 5 sec
+
+    while (await redisClient.get(`predictionInProgress${id}`) === 'true') {
+      const elapsed = Date.now() - startTime;
+
+      if (elapsed > timeout) {
+        logger.error(`Awaiting prediction: ${id} timeout`);
+        return null;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, awaitInterval));
+    }
+
+    return this.getCachedData(`chatbotPrediction:${id}`);
+  }
+
+  public async getMatchData(type: 'team' | 'match', id: number) {
+
+    const winlineMatches = await this.getAllMatches();
+    const pandascoreMatches = await this.getPandascoreMatches();
+
+    if (!winlineMatches || !pandascoreMatches) {
+      logger.error('Winline or pandascore matches not found');
+      return null;
+    }
+
+    let winlineMatch;
+
+    if (type === 'match') {
+      winlineMatch = winlineMatches.find(match => Number(match.id) === id);
+    } else {
+      winlineMatch = winlineMatches.find(match => match.id1 === id || match.id2 === id);
+    }
+
+    if (!winlineMatch) {
+      logger.error('Winline match not found. id: ' + id);
+      return null;
+    }
+
+    const isMatchData = await this.getCachedData(`matchData:${winlineMatch.id}`) as TMatchData;
+
+    if (isMatchData) {
+      return isMatchData;
+    }
+
+    const teamId1 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id1)?.pandaId;
+    const teamId2 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id2)?.pandaId;
+
+    const pandascoreMatch = pandascoreMatches.filter(match => {
+      if (winlineMatch.isMatchLive) {
+        if (match.status === 'running') {
+          return match;
+        }
+      } else {
+        if (match.teamId1 === teamId1 &&
+          match.teamId2 === teamId2) {
+          return match
+        }
+      }
+    }).sort((a, b) => new Date(a.datatime).getTime() - new Date(b.datatime).getTime())[0];
+
+    const matchData = this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
+
+    if (!matchData) {
+      logger.error('Match data not found', id);
+      return null;
+    }
+
+    await this.setCachedData(`matchData:${winlineMatch.id}`, matchData, 30);
+
+    return matchData;
+  }
+
+  private async getAssistantFromCache() {
+    let assistantId = await redisClient.get("predictorAssistant") as string;
+
+    if (!assistantId) {
+      getAssistant();
+    }
+
+    assistantId = await redisClient.get("predictorAssistant") as string;
+
+    return assistantId;
+  }
+
+  private async makePrediction(matchData: TMatchData, line?: number): Promise<TChatWithTreadIDResponse | null> {
+    const id = line ? `${matchData.matchId}:${line}` : `${matchData.matchId}`;
+    const isPredictionInProgress = await redisClient.get(`predictionInProgress${id}`) as string;
+
+    if (isPredictionInProgress) {
+      const prediction = await this.awaitPrediction(id) as TChatWithTreadIDResponse;
+
+      if (!prediction) {
+        logger.error('Failed await prediction', id);
+        await redisClient.del(`predictionInProgress${id}`)
+        return null;
+
+      }
+      return prediction;
+    }
+    let prediction: Promise<TChatWithTreadIDResponse | null>;
+
+    if (!line) {
+      prediction = this.getPrediction(matchData, id, 'Кто победит?');
+    } else {
+      prediction = this.getPrediction(matchData, id, betLines[line - 1].name);
+    }
+
+    if (!prediction) {
+      return null;
+    }
 
     return prediction;
   }
 
+  private async getPrediction(matchData: TMatchData, id: string, question: string): Promise<TChatWithTreadIDResponse | null> {
+
+    const predictor = new PredictionService();
+    const assistantId = await this.getAssistantFromCache();
+    await redisClient.set(`predictionInProgress${id}`, "true");
+    const prediction = await predictor.getPrediction(matchData, assistantId, question);
+
+    if (!prediction) {
+      logger.error('Failed get prediction', id);
+      await redisClient.del(`predictionInProgress${id}`)
+      return null;
+    }
+
+    await this.setCachedData(`chatbotPrediction:${id}`, prediction, 30);
+    await redisClient.del(`predictionInProgress${id}`)
+
+    return prediction;
+  }
+
+  //Stratz
+  public async getSupportTables(): Promise<TSupportTables | null> {
+    const isSupportTables = await this.getCachedData('stratzSupportTables');
+
+    if (isSupportTables) return isSupportTables as TSupportTables;
+
+    const supportTables = await this.stratz.getSupportTables();
+
+    if (!supportTables) return null;
+
+    this.setCachedData('stratzSupportTables', supportTables, 600);
+
+    return supportTables;
+  }
+
+  public async getLiveTournamentMatches(): Promise<MatchList | null> {
+    const isStratzLiveMatches = await this.getCachedData('stratzLiveMatches');
+
+    if (isStratzLiveMatches) return isStratzLiveMatches as MatchList;
+
+    const stratzLiveMatches = await this.stratz.getLiveTournamentMatches();
+
+    if (!stratzLiveMatches) return null;
+
+    this.setCachedData('stratzLiveMatches', stratzLiveMatches, 60);
+
+    return stratzLiveMatches;
+  }
+
+  public async getMatchIdByTeamId(teamId1?: number, teamId2?: number): Promise<number | null> {
+    const stratzLiveMatches = await this.getLiveTournamentMatches();
+    let matchId: number | undefined;
+
+    if (!stratzLiveMatches) return null;
+
+    if (!teamId2) {
+      matchId = stratzLiveMatches.league.liveMatches?.find(match => teamId1 === match.radiantTeamId || teamId1 === match.direTeamId)?.matchId;
+    } else {
+      matchId = stratzLiveMatches.league.liveMatches?.find(match =>
+        (teamId1 && match.radiantTeamId === teamId1) &&
+        (teamId2 && match.direTeamId === teamId2)
+      )?.matchId;
+    }
+
+    if (!matchId) return null;
+
+
+    return matchId;
+  }
+
+  public async getStatisticsByMatchId(matchId: number) {
+    // const stratzLiveMatches = await this.getLiveTournamentMatches();
+
+    const matchStat = await this.stratz.getStatsByMatchId(matchId);
+
+    return matchStat;
+  }
+
+  //Pandascore
+  public async getPandascoreMatches(): Promise<TPandaScoreFilteredMatch[] | null> {
+    const isPandascoreMatches = await this.getCachedData('pandascoreMatches') as TPandaScoreFilteredMatch[];
+
+    if (isPandascoreMatches) return isPandascoreMatches;
+
+    const pandascoreMatches = await this.pandascore.getAllMatches();
+
+    if (!pandascoreMatches) return null;
+
+    this.setCachedData('pandascoreMatches', pandascoreMatches, 60);
+
+    return pandascoreMatches;
+  }
+
   private filterMatchData(data: [TAllMatchData, TAvgTeamData]) {
-    let matchesData: TAllMatchData = data[0];
-    let teamData: TAvgTeamData = data[1];
+    let matchesData: TAllMatchData | null = data[0];
+    let teamData: TAvgTeamData | null = data[1];
 
     const formatPercent = (num: number) => {
       return (num * 100).toFixed(2) + "%";
@@ -266,254 +506,4 @@ export class CachedService {
       }
     }
   }
-
-  public async getPredictionByMatchId(winlineMatchId: number, line?: number) {
-
-    const isPrediction = await this.getCachedData(`chatbotPrediction:${winlineMatchId}:${line}`);
-
-    if (isPrediction) {
-      return isPrediction;
-    }
-
-    console.time('getPredictionByMatchId');
-    const matchData = await this.getMatchData('match', winlineMatchId);
-    if (!matchData) {
-      return {
-        message: 'Match not found',
-      }
-    }
-    console.timeEnd("getPredictionByMatchId");
-
-    const prediction = await this.getPrediction(matchData, line);
-
-    await this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 40);
-
-    return prediction;
-  }
-
-  private async awaitPrediction(id: string): Promise<Object | null> {
-    const startTime = Date.now();
-    const timeout = 1000 * 60 * 1; // 1 min
-    const awaitInterval = 5000; // 5 sec
-
-    while (await redisClient.get(`predictionInProgress${id}`) === 'true') {
-      const elapsed = Date.now() - startTime;
-
-      if (elapsed > timeout) {
-        console.error(`Awaiting prediction: ${id} timeout`);
-        return null;
-      }
-
-      await new Promise(resolve => setTimeout(resolve, awaitInterval));
-    }
-
-    return this.getCachedData(`chatbotPrediction:${id}`);
-  }
-
-  public async getMatchData(type: 'team' | 'match', id: number) {
-
-    const winlineMatches = await this.getAllMatches();
-    const pandascoreMatches = await this.getPandascoreMatches();
-
-    let winlineMatch;
-
-    if (type === 'match') {
-      winlineMatch = winlineMatches.find(match => Number(match.id) === id);
-    } else {
-      winlineMatch = winlineMatches.find(match => match.id1 === id || match.id2 === id);
-    }
-
-    if (!winlineMatch) {
-      console.error('Prediction module', 'Winline match not found', "Mach id: " + id);
-      return null;
-    }
-    const isMatchData = await this.getCachedData(`matchData:${winlineMatch.id}`) as TMatchData;
-
-    if (isMatchData) {
-      return isMatchData;
-    }
-
-    const teamId1 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id1)?.pandaId;
-    const teamId2 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id2)?.pandaId;
-
-
-    const pandascoreMatch = pandascoreMatches.filter(match => {
-      if (winlineMatch.isMatchLive) {
-        if (match.status === 'running') {
-          return match;
-        }
-      } else {
-        if (match.teamId1 === teamId1 &&
-          match.teamId2 === teamId2) {
-          return match
-        }
-      }
-    }).sort((a, b) => new Date(a.datatime).getTime() - new Date(b.datatime).getTime())[0];
-
-    const matchData = this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
-
-    // const isPandascoreLiveData = await this.getCachedData(`pandascoreLiveData:${winlineMatch.id}`);
-
-    // if (!isPandascoreLiveData && pandascoreMatch.live && pandascoreMatch.status === 'running') {
-    //   const socket = new SocketService(pandascoreMatch.live);
-    //   await Promise.resolve(setTimeout(() => console.log('await 1 sec'), 1000))
-    // }
-
-    if (!matchData) {
-      console.error('Prediction module', 'Match data not found', id);
-      return null;
-    }
-
-    await this.setCachedData(`matchData:${winlineMatch.id}`, matchData, 30);
-
-    return matchData;
-  }
-
-  private async getAssistantFromCache() {
-    let assistantId = await redisClient.get("predictorAssistant") as string;
-
-    if (!assistantId) {
-      getAssistant();
-    }
-
-    assistantId = await redisClient.get("predictorAssistant") as string;
-
-    return assistantId;
-  }
-
-  private async getPrediction(matchData: TMatchData, line?: number) {
-
-    const predictor = new PredictionService();
-    const assistantId = await this.getAssistantFromCache();
-
-    if (!line) {
-      const isPredictionInProgress = await redisClient.get(`predictionInProgress${matchData.matchId}`) as string;
-
-      if (isPredictionInProgress) {
-        const prediction = await this.awaitPrediction(`${matchData.matchId}`);
-        return {
-          ...prediction,
-          betLines
-        }
-      }
-
-      await redisClient.set(`predictionInProgress${matchData.matchId}`, "true");
-      const prediction = await predictor.getWinPrediction(matchData, assistantId);
-
-      if (!prediction) {
-        console.error('Prediction module', 'Failed get prediction', matchData.matchId);
-        await redisClient.del(`predictionInProgress${matchData.matchId}`)
-        return null;
-      }
-
-      await this.setCachedData(`chatbotPrediction:${matchData.matchId}`, prediction, 30);
-      await redisClient.del(`predictionInProgress${matchData.matchId}`)
-
-      return {
-        ...prediction,
-        betLines
-      };
-    } else {
-      const lineName = betLines[line - 1];
-      const question = lineName.name;
-
-      const isPredictionInProgress = await redisClient.get(`predictionInProgress${matchData.matchId}:${line}`) as string;
-
-      if (isPredictionInProgress) {
-        const prediction = await this.awaitPrediction(`${matchData.matchId}:${line}`);
-        return prediction;
-      }
-
-      await redisClient.set(`predictionInProgress${matchData.matchId}:${line}`, "true");
-
-      const prediction = await predictor.getPredictionByBetLine(matchData, assistantId, question);
-
-      if (!prediction) {
-        console.error('Prediction module', 'Failed get prediction', matchData.matchId, line);
-        await redisClient.del(`predictionInProgress${matchData.matchId}:${line}`)
-        return null;
-      }
-
-      await redisClient.del(`predictionInProgress${matchData.matchId}:${line}`)
-
-      return prediction;
-    }
-
-  }
-
-
-  //Stratz
-  public async getSupportTables(): Promise<TSupportTables | null> {
-    const isSupportTables = await this.getCachedData('stratzSupportTables');
-
-    if (isSupportTables) return isSupportTables as TSupportTables;
-
-    const supportTables = await this.stratz.getSupportTables();
-
-    if (!supportTables) return null;
-
-    this.setCachedData('stratzSupportTables', supportTables, 600);
-
-    return supportTables;
-  }
-  public async getLiveTournamentMatches(): Promise<MatchList | null> {
-    const isStratzLiveMatches = await this.getCachedData('stratzLiveMatches');
-
-    if (isStratzLiveMatches) return isStratzLiveMatches as MatchList;
-
-    const stratzLiveMatches = await this.stratz.getLiveTournamentMatches();
-
-    if (!stratzLiveMatches) return null;
-
-    this.setCachedData('stratzLiveMatches', stratzLiveMatches, 60);
-
-    return stratzLiveMatches;
-  }
-
-  public async getMatchIdByTeamId(teamId1?: number, teamId2?: number): Promise<number | null> {
-    const stratzLiveMatches = await this.getLiveTournamentMatches();
-    let matchId: number | undefined;
-
-    if (!stratzLiveMatches) return null;
-
-    if (!teamId2) {
-      matchId = stratzLiveMatches.league.liveMatches?.find(match => teamId1 === match.radiantTeamId || teamId1 === match.direTeamId)?.matchId;
-    } else {
-      matchId = stratzLiveMatches.league.liveMatches?.find(match =>
-        (teamId1 && match.radiantTeamId === teamId1) &&
-        (teamId2 && match.direTeamId === teamId2)
-      )?.matchId;
-    }
-
-    if (!matchId) return null;
-
-
-    return matchId;
-  }
-
-  public async getStatisticsByMatchId(matchId: number) {
-    // const stratzLiveMatches = await this.getLiveTournamentMatches();
-
-    const matchStat = await this.stratz.getStatsByMatchId(matchId);
-
-    return matchStat;
-  }
-
-  //Pandascore
-  public async getPandascoreMatches(): Promise<TPandaScoreFilteredMatch[] | []> {
-    const isPandascoreMatches = await this.getCachedData('pandascoreMatches') as TPandaScoreFilteredMatch[];
-
-    if (isPandascoreMatches) return isPandascoreMatches;
-
-    const pandascoreMatches = await this.pandascore.getAllMatches();
-
-    if (!pandascoreMatches) return [];
-
-    this.setCachedData('pandascoreMatches', pandascoreMatches, 60);
-
-    return pandascoreMatches;
-  }
-
-
-
 }

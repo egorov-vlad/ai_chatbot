@@ -7,31 +7,9 @@ const matchesRouter = new Elysia();
 //If matchTime is set, return list of matches for this time
 //@ts-ignore
 matchesRouter.get('/matches', async ({ query, main }) => {
-  const data = await main()?.getMatches(query.teamId, query.matchTime);
+  const res = await main()?.getMatches(query.teamId, query.matchTime);
 
-  if (data.length === 0) {
-    return new Response(JSON.stringify({
-      message: 'Array of matches is empty',
-      name: 'No matches found'
-    }), {
-      status: 404
-    })
-  }
-
-  const format = {
-    type: "button",
-    title: "Матч: team1 vs team2",
-    message: "",
-    isInputEnabled: false,
-    next: ["chooseBetLine", "makeBet"],
-    options: {
-      url: "url"
-    },
-  }
-
-  return new Response(JSON.stringify({ matches: data, format: format }), {
-    status: 200
-  })
+  return res
 }, {
   query: t.Object({
     teamId: t.Optional(t.Numeric({
@@ -79,17 +57,8 @@ matchesRouter.get('/matches', async ({ query, main }) => {
     }, {
       description: 'OK',
     }),
-    400: t.Object({
-
-    }, {
-      description: 'Bad Request',
-    }),
-    500: t.Object({
-      name: t.String(),
-      message: t.String()
-    }, {
-      description: 'Internal Server Error',
-    })
+    400: t.String({ description: 'Bad Request' }),
+    500: t.String({ description: 'Internal Server Error' })
   },
   beforeHandle: (req) => {
     if (req.headers['x-api-key'] !== process.env.API_KEY) {

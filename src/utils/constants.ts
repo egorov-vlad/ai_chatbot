@@ -3205,7 +3205,7 @@ export const staticInfo = [
     "name": "startPrediction",
     "message": "",
     "type": "button",
-    "title": "Давай прогназировать",
+    "title": "Давай прогнозировать",
     "isInputEnabled": true,
     "next": ["tomorrowBet", "todayBet", "teamBet", "toStart"]
   },
