@@ -122,11 +122,13 @@ export class CachedService {
   public async getPredictionByTeamId(teamId: number, line?: number): Promise<TPredictionResponse | null> {
     const isPrediction = await this.getCachedData(`chatbotPrediction:${teamId}:${line}`) as TPredictionResponse;
 
+    logger.info('Prediction for: ' + teamId + ' ' + line);
     if (isPrediction) {
       return isPrediction;
     }
 
     const matchData = await this.getMatchData('team', teamId);
+    
     if (!matchData) {
       logger.error('Failed get match data in getPredictionByTeamId: ' + teamId);
       return null;
@@ -146,7 +148,7 @@ export class CachedService {
 
   public async getPredictionByMatchId(winlineMatchId: number, line?: number): Promise<TPredictionResponse | null> {
     const isPrediction = await this.getCachedData(`chatbotPrediction:${winlineMatchId}:${line}`) as TPredictionResponse;
-
+    logger.info('Prediction for: ' + winlineMatchId + ' ' + line);
     if (isPrediction) {
       return isPrediction;
     }
@@ -159,6 +161,7 @@ export class CachedService {
     }
 
     const prediction = await this.makePrediction(matchData, line);
+
     if (!prediction) {
       logger.error("Failed makePrediction " + winlineMatchId + line);
       return null;
@@ -272,12 +275,12 @@ export class CachedService {
       }
       return prediction;
     }
-    let prediction: Promise<TChatWithTreadIDResponse | null>;
+    let prediction: TChatWithTreadIDResponse | null;
 
     if (!line) {
-      prediction = this.getPrediction(matchData, id, 'Кто победит?');
+      prediction = await this.getPrediction(matchData, id, 'Кто победит?');
     } else {
-      prediction = this.getPrediction(matchData, id, betLines[line - 1].name);
+      prediction = await this.getPrediction(matchData, id, betLines[line - 1].name);
     }
 
     if (!prediction) {
