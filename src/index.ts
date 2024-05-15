@@ -53,7 +53,7 @@ app.listen({
 redisClient
   .connect()
   .then(() => {
-    getAssistants();
+    // getAssistants();
   })
   .catch((err) => {
     logger.error("Redis connection error", err);
@@ -80,7 +80,7 @@ const getAssistants = async () => {
     return;
   }
 
-  logger.info("Assistants: ", predictorAssistant.id, supportAssistant.id);
+  logger.info("Assistants: " + predictorAssistant.id + supportAssistant.id);
 
   await redisClient.set("predictorAssistant", predictorAssistant?.id);
   await redisClient.set("supportAssistant", supportAssistant?.id);

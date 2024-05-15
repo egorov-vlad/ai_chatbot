@@ -63,7 +63,7 @@ export default class PredictionService {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       messages = await pullMessages(threadId, runId);
       if (!messages || messages.status === "failed") {
-        logger.error("AI thread failed", messages, threadId, runId);
+        logger.error("AI thread failed " + messages + " " + threadId + " " + runId);
         return null;
       }
     }

@@ -189,7 +189,7 @@ export class PandascoreService {
 
       return data;
     } catch (err) {
-      logger.error('Error when fetching data from pandascore', err, matchID);
+      logger.error('Error when fetching data from pandascore' + matchID, err);
       return null;
     }
   }
@@ -201,7 +201,7 @@ export class PandascoreService {
 
       return data;
     } catch (err) {
-      logger.error('Error when fetching last 3 months from pandascore', err, matchID);
+      logger.error('Error when fetching last 3 months from pandascore ' + matchID, err);
       return null;
     }
   }
@@ -214,7 +214,7 @@ export class PandascoreService {
 
       return data;
     } catch (err) {
-      logger.error('Error when fetching data from pandascore', err, matchID);
+      logger.error('Error when fetching data from pandascore ' + matchID, err);
       return null;
     }
   }
