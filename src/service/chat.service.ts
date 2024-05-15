@@ -66,7 +66,7 @@ export default class ChatService {
     logger.info(threadId + " " + textAnalyserRes.message + " " + message);
 
     if (!threadId) {
-      logger.error("Thread not found ", message, textAnalyserRes.message, assistantId);
+      logger.error("Thread not found " + message + " " + textAnalyserRes.message + " " + assistantId);
       return null;
     }
 
@@ -77,7 +77,7 @@ export default class ChatService {
         const predictor = new PredictionService();
         const res = await predictor.getPredictionByThread(message, threadId, assistantId);
         if (!res) {
-          logger.error("Failed getPredictionByThread ", message, textAnalyserRes.message, assistantId);
+          logger.error("Failed getPredictionByThread " + message + " " + textAnalyserRes.message + " " + assistantId);
           return null;
         }
         return {

@@ -236,7 +236,7 @@ export class CachedService {
     const matchData = this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
 
     if (!matchData) {
-      logger.error('Match data not found', id);
+      logger.error('Match data not found ' + id);
       return null;
     }
 
@@ -265,7 +265,7 @@ export class CachedService {
       const prediction = await this.awaitPrediction(id) as TChatWithTreadIDResponse;
 
       if (!prediction) {
-        logger.error('Failed await prediction', id);
+        logger.error('Failed await prediction ' + id);
         await redisClient.del(`predictionInProgress${id}`)
         return null;
 
@@ -295,7 +295,7 @@ export class CachedService {
     const prediction = await predictor.getPrediction(matchData, assistantId, question);
 
     if (!prediction) {
-      logger.error('Failed get prediction', id);
+      logger.error('Failed get prediction ' + id);
       await redisClient.del(`predictionInProgress${id}`)
       return null;
     }
