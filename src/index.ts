@@ -53,7 +53,7 @@ app.listen({
 redisClient
   .connect()
   .then(() => {
-    // getAssistants();
+    getAssistants();
   })
   .catch((err) => {
     logger.error("Redis connection error", err);
