@@ -1,3 +1,4 @@
+import logger from '../module/logger';
 import { deleteAssistant, getAssistant, type TChatMessageHistory } from '../module/openAIClient';
 import redisClient from '../module/redisClient';
 import type { TPredictionResponse } from '../utils/types';
@@ -34,8 +35,9 @@ export class MainService {
   public async getTeams(): Promise<Response> {
     const teams = await this.cached.getWinlineTeams();
 
-    if (!teams) {
-      return new Response('Failed get teams', { status: 500 });
+    if (!teams || teams.length === 0) {
+      logger.error('Failed get teams or teams is empty');
+      return new Response('Failed get teams or teams is empty', { status: 404 });
     }
 
     const format = {
@@ -55,7 +57,8 @@ export class MainService {
   public async getMatches(teamId?: number, matchTime: 'today' | 'tomorrow' = 'today'): Promise<Response> {
     const matches = await this.cached.getWinlineMatchesByTeamIdAndTime(teamId, matchTime);
 
-    if (!matches) {
+    if (!matches || matches.length === 0) {
+      logger.error('Failed get matches or matches is empty');
       return new Response('No matches in winline', { status: 404 });
     }
 
@@ -85,6 +88,7 @@ export class MainService {
     }
 
     if (!match) {
+      logger.error('Failed get prediction ' + ' ' + teamId + ' ' + matchId + ' ' + betLineId);
       return new Response('Failed get prediction', { status: 500 });
     }
 
@@ -99,11 +103,13 @@ export class MainService {
     const textAnalyserRes = await this.chat.textAnalyser(message, this.supportAssistant);
 
     if (!textAnalyserRes) {
+      logger.error('Failed get AI text analyser response ' + ' ' + message + ' ' + threadId);
       return new Response('Failed get AI response', { status: 500 });
     }
 
     const res = await this.chat.validateMessage(message, textAnalyserRes, this.predictorAssistant, threadId);
     if (!res) {
+      logger.error('Failed get AI response ' + ' ' + message + ' ' + threadId + textAnalyserRes);
       return new Response('Failed get AI response', { status: 500 });
     }
 
