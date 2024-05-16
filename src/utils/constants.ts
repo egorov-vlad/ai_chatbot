@@ -87,6 +87,11 @@ export const winLinePandascoreTeamsPGL = [
     pandaId: 126229
   },
   {
+    name: "Team Falcons",
+    winId: 883309,
+    pandaId: 133868
+  },
+  {
     name: "TEAM LIQUID",
     winId: 281541,
     pandaId: 1647
