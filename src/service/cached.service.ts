@@ -128,7 +128,7 @@ export class CachedService {
     }
 
     const matchData = await this.getMatchData('team', teamId);
-    
+
     if (!matchData) {
       logger.error('Failed get match data in getPredictionByTeamId: ' + teamId);
       return null;
@@ -395,6 +395,9 @@ export class CachedService {
       const seconds = `${time - Number(minutes) * 60}`.padStart(2, "0");
       return `${minutes}:${seconds}`;
     }
+    
+    const finishedMatches = matchesData.games.filter(game => game.status === 'finished');
+    const liveScore = `${finishedMatches.filter(game => game.winner_id === teamData.opponents[0].id).length} : ${finishedMatches.filter(game => game.winner_id === teamData.opponents[1].id).length}`
 
     let liveMatch;
     if (matchesData.match_status === 'running') {
@@ -440,6 +443,7 @@ export class CachedService {
       matchId: matchesData.id,
       match_status: matchesData.match_status,
       liveMatch: liveMatch,
+      liveScore: liveScore,
       matchUps: matchesData.encounters.map(match => {
         let team1 = match.opponents[0];
         let team2 = match.opponents[1];
