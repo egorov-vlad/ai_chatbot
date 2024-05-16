@@ -23,7 +23,7 @@ export class MainService {
   }
 
   public async getMatchData(id: number): Promise<Response> {
-    const match = this.cached.getMatchData('match', id);
+    const match = await this.cached.getMatchData('match', id);
 
     if (!match) {
       return new Response('Failed get match data', { status: 500 });
