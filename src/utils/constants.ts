@@ -58,6 +58,11 @@ export const teams: TTeam[] = [{
 
 export const winLinePandascoreTeamsPGL = [
   {
+    name: 'Xtreme Gaming',
+    winId: 769808,
+    pandaId: 128329
+  },
+  {
     name: "nouns",
     winId: 50000541,
     pandaId: 130920
