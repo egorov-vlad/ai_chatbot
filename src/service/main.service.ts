@@ -22,8 +22,8 @@ export class MainService {
     this.supportAssistant = await redisClient.get('supportAssistant') as string;
   }
 
-  public async getMatchData(id: number): Promise<Response> {
-    const match = await this.cached.getMatchData('match', id);
+  public async getMatchData(id: number, line?: number): Promise<Response> {
+    const match = await this.cached.getMatchData('match', id, line);
 
     if (!match) {
       return new Response('Failed get match data', { status: 500 });

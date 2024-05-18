@@ -2,7 +2,7 @@ import logger from '../module/logger';
 import { getAssistant } from '../module/openAIClient';
 import redisClient from '../module/redisClient';
 import { betLines, winLinePandascoreTeamsPGL } from '../utils/constants';
-import type { MatchList, TAllMatchData, TAvgTeamData, TChatWithTreadIDResponse, TMatch, TMatchData, TPandaScoreFilteredMatch, TPredictionResponse, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
+import type { MatchList, TAllMatchData, TAvgTeamData, TChatWithTreadIDResponse, TMatch, TMatchData, TOdds, TPandaScoreFilteredMatch, TPredictionResponse, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
 import { PandascoreService } from './pandascore.service';
 import PredictionService from './pediction.service';
 // import { SocketService } from './socket.service';
@@ -191,7 +191,7 @@ export class CachedService {
     return this.getCachedData(`chatbotPrediction:${id}`);
   }
 
-  public async getMatchData(type: 'team' | 'match', id: number) {
+  public async getMatchData(type: 'team' | 'match', id: number, line?: number): Promise<TMatchData | null> {
 
     const winlineMatches = await this.getAllMatches();
     const pandascoreMatches = await this.getPandascoreMatches();
@@ -236,16 +236,32 @@ export class CachedService {
       }
     }).sort((a, b) => new Date(a.datatime).getTime() - new Date(b.datatime).getTime())[0];
 
+    if (!pandascoreMatch) {
+      logger.error('Pandascore match not found. id: ' + id + " " + teamId1 + " " + teamId2 + " "+ type);
+      return null;
+    }
+
     const matchData = this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
 
-    if (!matchData) {
+    let odds = null;
+    if (winlineMatch.odds !== "") {
+      line = line || 1;
+      const split = matchData.liveScore.split(':');
+      const mapNum = Number(split[0]) + Number(split[1]) + 1;
+      console.log(mapNum);
+      odds = this.getOddsByBetLine(winlineMatch.odds, mapNum, line);
+    }
+
+    const matchDataWithOdds = { ...matchData, odds };
+
+    if (!matchDataWithOdds) {
       logger.error('Match data not found ' + id);
       return null;
     }
 
-    await this.setCachedData(`matchData:${winlineMatch.id}`, matchData, 30);
+    await this.setCachedData(`matchData:${winlineMatch.id}`, matchDataWithOdds, 30);
 
-    return matchData;
+    return matchDataWithOdds;
   }
 
   private async getAssistantFromCache() {
@@ -395,9 +411,9 @@ export class CachedService {
       const seconds = `${time - Number(minutes) * 60}`.padStart(2, "0");
       return `${minutes}:${seconds}`;
     }
-    
+
     const finishedMatches = matchesData.games.filter(game => game.status === 'finished');
-    const liveScore = `${finishedMatches.filter(game => game.winner_id === teamData.opponents[0].id).length} : ${finishedMatches.filter(game => game.winner_id === teamData.opponents[1].id).length}`
+    const liveScore = `${finishedMatches.filter(game => game.winner_id === teamData.opponents[0].id).length}:${finishedMatches.filter(game => game.winner_id === teamData.opponents[1].id).length}`
 
     let liveMatch;
     if (matchesData.match_status === 'running') {
@@ -451,7 +467,7 @@ export class CachedService {
         return {
           teamName1: team1.name,
           teamName2: team2.name,
-          score: team1.score + " : " + team2.score,
+          score: team1.score + ":" + team2.score,
           winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
         }
       }),
@@ -463,7 +479,7 @@ export class CachedService {
           return {
             teamName1: team1.name,
             teamName2: team2.name,
-            score: team1.score + " : " + team2.score,
+            score: team1.score + ":" + team2.score,
             winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
           }
         }),
@@ -491,7 +507,7 @@ export class CachedService {
           return {
             teamName1: team1.name,
             teamName2: team2.name,
-            score: team1.score + " : " + team2.score,
+            score: team1.score + ":" + team2.score,
             winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
           }
         }),
@@ -512,5 +528,55 @@ export class CachedService {
         players: teamData.opponents[1].stats.players.map(player => player.name)
       }
     }
-  }
+  };
+
+  private getOddsByBetLine(odds: { line: TOdds[] }, mapNum: number, betLineId: number) {
+    //filter 
+    // 1 - Победитель, 1/2/3 карта исход
+    // 2 - Точный счет по картам 
+    // 3 - Тотал убийств, 1/2/3 тотал убийств меньше\больше (45.5, 46.5)
+    // 4 - фора убийств, 1/2/3 карта фора убийств меньше\больше (-5.5, -6.5, -7.5)
+    if (betLineId == 1) {
+      return odds.line.map(odd => {
+        if (odd.freetext === 'Победитель') {
+          return {
+            name: "Победитель",
+            odd1: odd.odd1,
+            odd2: odd.odd2,
+          }
+        }
+        if (odd.freetext === `${mapNum} карта Исход 12`) {
+          return {
+            name: `${mapNum} карта Исход`,
+            odd1: odd.odd1,
+            odd2: odd.odd2,
+          }
+        }
+      }).filter(odd => odd !== undefined);
+    }
+
+    if (betLineId == 2) {
+      return odds.line.map(odd => {
+        if (odd.freetext === 'Точный счет по картам') {
+          return { ...odd }
+        }
+      }).filter(odd => odd !== undefined);
+    }
+
+    if (betLineId == 3) {
+      return odds.line.map(odd => {
+        if (odd.freetext === `${mapNum} карта Тотал убийств`) {
+          return { ...odd }
+        }
+      }).filter(odd => odd !== undefined);
+    }
+
+    if (betLineId == 4) {
+      return odds.line.map(odd => {
+        if (odd.freetext === `${mapNum} карта Фора убийств`) {
+          return { ...odd }
+        }
+      }).filter(odd => odd !== undefined);
+    }
+  };
 }

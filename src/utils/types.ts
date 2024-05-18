@@ -24,21 +24,36 @@ export type TItems = {
 }
 
 export type TWinlineEvent = {
-  'TV': number,
-  'isLive': number,
-  'sport': string,
-  'country': string,
-  'competition': string,
-  'datetime': string,
-  'EventUrl': string,
-  'team1': string,
-  'team2': string,
-  'id1': number,
-  'id2': number,
-  'odds': string | Object,
-  'id': string,
-  'isMatchLive': boolean,
+  TV: number,
+  isLive: number,
+  sport: string,
+  country: string,
+  competition: string,
+  datetime: string,
+  EventUrl: string,
+  team1: string,
+  team2: string,
+  id1: number,
+  id2: number,
+  odds: {
+    line: TOdds[]
+  } | "",
+  id: string,
+  isMatchLive: boolean,
   lines: TBetLine[]
+}
+
+export type TOdds = {
+  freetext: string;
+  value?: number;
+  name1: string;
+  odd1: string;
+  name2: string;
+  odd2: string;
+  name3?: string;
+  odd3?: string;
+  name4?: string;
+  odd4?: string;
 }
 
 export type TMatch = Omit<TWinlineEvent, 'TV' | 'isLive' | 'sport' | 'country' | 'lines'>;
