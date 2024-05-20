@@ -1,5 +1,5 @@
 import logger from '../module/logger';
-import { createRun, createThread, getMessageList, pullMessages, sendMessageToThread, type TChatMessageHistory } from '../module/openAIClient';
+import { createRun, createThread, getMessageList, pullMessages, sendMessageToThread } from '../module/openAIClient';
 import type { TChatResponse, TMessageResponse } from '../utils/types';
 import PredictionService from './pediction.service';
 

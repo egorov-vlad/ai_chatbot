@@ -4,98 +4,118 @@ export const winLinePandascoreTeams = [
   {
     name: 'Azure Ray',
     winId: 50049400,
-    pandaId: 133180
+    pandaId: 133180,
+    rating: 14
   },
   {
     name: 'Natus Vincere',
     winId: 220606,
-    pandaId: 1699
+    pandaId: 1699,
+    rating: 21
   },
   {
     name: 'Tundra Esports',
     winId: 771698,
-    pandaId: 128439
+    pandaId: 128439,
+    rating: 11
   },
   {
     name: 'HEROIC',
     winId: 282171,
-    pandaId: 134130
+    pandaId: 134130,
+    rating: 22
   },
   {
     name: 'PSG Quest',
     winId: 50056001,
-    pandaId: 133072
+    pandaId: 133072,
+    rating: 8
   },
   {
     name: 'Xtreme Gaming',
     winId: 769808,
-    pandaId: 128329
+    pandaId: 128329,
+    rating: 2
   },
   {
     name: "nouns",
     winId: 50000541,
-    pandaId: 130920
+    pandaId: 130920,
+    rating: 19
   },
   {
     name: "G2.iG",
     winId: 50058995,
-    pandaId: 134024
+    pandaId: 134024,
+    rating: 4
   },
   {
     name: "TEAM AURORA",
     winId: 50046800,
-    pandaId: 133882
+    pandaId: 133882,
+    rating: 16
   }, {
     name: "SHOPIFY REBELLION",
     winId: 50044347,
-    pandaId: 132234
+    pandaId: 132234,
+    rating: 17
   },
   {
     name: "GAIMIN GLADIATORS",
     winId: 881559,
-    pandaId: 130354
+    pandaId: 130354,
+    rating: 12
   },
   {
     name: "BOOM ESPORTS",
     winId: 377162,
-    pandaId: 126229
+    pandaId: 126229,
+    rating: 13
   },
   {
     name: "Team Falcons",
     winId: 883309,
-    pandaId: 133868
+    pandaId: 133868,
+    rating: 1
   },
   {
     name: "TEAM LIQUID",
     winId: 281541,
-    pandaId: 1647
+    pandaId: 1647,
+    rating: 6
   },
   {
     name: "MOUZ",
     winId: 220604,
-    pandaId: 134559
+    pandaId: 134559,
+    rating: 32
   },
   {
     name: "BB TEAM",
     winId: 50031026,
-    pandaId: 130768
+    pandaId: 130768,
+    rating: 5
   },
   {
     name: "TEAM SPIRIT",
     winId: 242390,
-    pandaId: 1669
+    pandaId: 1669,
+    rating: 3
   },
   {
     name: "TEAM SECRET",
     winId: 242388,
-    pandaId: 1656
+    pandaId: 1656,
+    rating: 18
   },
   {
     name: "VIRTUS.PRO",
     winId: 220624,
-    pandaId: 1651
+    pandaId: 1651,
+    rating: 20
   }
 ];
+
 
 export const betLines: TBetLine[] = [
   {

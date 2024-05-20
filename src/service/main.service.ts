@@ -1,5 +1,5 @@
 import logger from '../module/logger';
-import { deleteAssistant, getAssistant, type TChatMessageHistory } from '../module/openAIClient';
+import { deleteAssistant, getAssistant } from '../module/openAIClient';
 import redisClient from '../module/redisClient';
 import type { TPredictionResponse } from '../utils/types';
 import { CachedService } from './cached.service';
@@ -92,6 +92,9 @@ export class MainService {
       return new Response('Failed get prediction', { status: 500 });
     }
 
+    const messageFormatted = match.message as string;
+    match.message = messageFormatted.replace(/\n/g, '<br>');
+
     return this.createResponse(match, 200);
   }
 
@@ -107,11 +110,14 @@ export class MainService {
       return new Response('Failed get AI response', { status: 500 });
     }
 
-    const res = await this.chat.validateMessage(message, textAnalyserRes, this.predictorAssistant, threadId);
+    let res = await this.chat.validateMessage(message, textAnalyserRes, this.predictorAssistant, threadId);
     if (!res) {
       logger.error('Failed get AI response ' + ' ' + message + ' ' + threadId + textAnalyserRes);
       return new Response('Failed get AI response', { status: 500 });
     }
+
+    const messageFormatted = res.message as string;
+    res.message = messageFormatted.replace(/\n/g, '<br>');
 
     return this.createResponse(res, 200);
   }

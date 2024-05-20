@@ -468,6 +468,7 @@ export class CachedService {
       }),
       team1: {
         teamName: matchesData.opponents[0].name,
+        worldRatingPlacement: winLinePandascoreTeams.find(team => team.pandaId === matchesData.opponents[0].id)?.rating || null,
         lastMatches: matchesData.opponents[0].form.map(match => {
           let team1 = match.opponents[0];
           let team2 = match.opponents[1];
@@ -496,6 +497,7 @@ export class CachedService {
       },
       team2: {
         teamName: matchesData.opponents[1].name,
+        worldRatingPlacement: winLinePandascoreTeams.find(team => team.pandaId === matchesData.opponents[1].id)?.rating || null,
         lastMatches: matchesData.opponents[1].form.map(match => {
           let team1 = match.opponents[0];
           let team2 = match.opponents[1];
