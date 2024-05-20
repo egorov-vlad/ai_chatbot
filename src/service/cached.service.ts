@@ -474,7 +474,10 @@ export class CachedService {
           let team2 = match.opponents[1];
           return {
             teamName1: team1.name,
+            worldRatingPlacement1: winLinePandascoreTeams.find(team => team.pandaId === team1.id)?.rating || null,
             teamName2: team2.name,
+            worldRatingPlacement2: winLinePandascoreTeams.find(team => team.pandaId === team2.id)?.rating || null,
+            matchResult: match.winner_id === matchesData.opponents[0].id ? "WIN" : "LOSE",
             score: team1.score + ":" + team2.score,
             winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
           }
@@ -503,7 +506,10 @@ export class CachedService {
           let team2 = match.opponents[1];
           return {
             teamName1: team1.name,
+            worldRatingPlacement1: winLinePandascoreTeams.find(team => team.pandaId === team1.id)?.rating || null,
             teamName2: team2.name,
+            worldRatingPlacement2: winLinePandascoreTeams.find(team => team.pandaId === team2.id)?.rating || null,
+            matchResult: match.winner_id === matchesData.opponents[1].id ? "WIN" : "LOSE",
             score: team1.score + ":" + team2.score,
             winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
           }

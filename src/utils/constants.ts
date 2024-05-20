@@ -2,6 +2,30 @@ import type { TBetLine, THeroes, TItems } from './types';
 
 export const winLinePandascoreTeams = [
   {
+    name: "DANDELIONS",
+    winId: 50061426,
+    pandaId: 134592,
+    rating: 60
+  },
+  {
+    name: "Yellow Submarine",
+    winId: 287351,
+    pandaId: 1931,
+    rating: 35
+  },
+  {
+    name: "Night Pulse",
+    winId: 0,
+    pandaId: 133861,
+    rating: 45
+  },
+  {
+    name: "ASAKURA",
+    winId: 50000541,
+    pandaId: 134594,
+    rating: 80
+  },
+  {
     name: 'Azure Ray',
     winId: 50049400,
     pandaId: 133180,
