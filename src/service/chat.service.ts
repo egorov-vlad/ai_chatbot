@@ -12,7 +12,7 @@ export default class ChatService {
 
   public async textAnalyser(message: string, assistantId: string): Promise<TChatResponse | null> {
     const threadId = await createThread();
-
+    logger.info(threadId)
     if (!threadId) {
       logger.error("Thread creation failed " + message + " " + assistantId);
       return null;
