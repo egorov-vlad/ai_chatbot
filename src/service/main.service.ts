@@ -98,12 +98,13 @@ export class MainService {
     return this.createResponse(match, 200);
   }
 
-  public async sendMessage(message: string, threadId?: string): Promise<Response> {
+  public async sendMessage(message: string, threadId: string): Promise<Response> {
     if (!this.supportAssistant || !this.predictorAssistant) {
       await this.init();
     }
 
-    const textAnalyserRes = await this.chat.textAnalyser(message, this.supportAssistant);
+    const threadData = await redisClient.get(`threadData:${threadId}`) as string;
+    const textAnalyserRes = await this.chat.textAnalyser(message + ' ' + threadData, this.supportAssistant);
 
     if (!textAnalyserRes) {
       logger.error('Failed get AI text analyser response ' + ' ' + message + ' ' + threadId);
@@ -126,6 +127,10 @@ export class MainService {
     // await deleteAssistant("asst_eBlqYVEPqeTql05wkUlLZPxM");
     // await deleteAssistant("asst_mJCib449G33ihFVP7KkgRTIy");
     return getAssistant();
+  }
+
+  private async getThreadData(threadId: string) {
+    return this.cached.getCachedData(`threadData:${threadId}`);
   }
 
   private createResponse(res: any, status: number) {

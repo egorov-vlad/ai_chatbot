@@ -1,8 +1,8 @@
 import logger from '../module/logger';
 import { getAssistant } from '../module/openAIClient';
 import redisClient from '../module/redisClient';
-import { betLines, winLinePandascoreTeams } from '../utils/constants';
-import type { MatchList, TAllMatchData, TAvgTeamData, TChatWithTreadIDResponse, TMatch, TMatchData, TOdds, TPandaScoreFilteredMatch, TPredictionResponse, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
+import { betLines, heroes, winLinePandascoreTeams } from '../utils/constants';
+import type { MatchList, TAllMatchData, TAvgTeamData, TChatWithTreadIDResponse, TLiveTeamData, TMatch, TMatchData, TOdds, TPandaScoreFilteredMatch, TPredictionResponse, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
 import { PandascoreService } from './pandascore.service';
 import PredictionService from './pediction.service';
 // import { SocketService } from './socket.service';
@@ -49,7 +49,7 @@ export class CachedService {
     return winlineTeams;
   }
 
-  private async getCachedData(key: string): Promise<Object | null> {
+  public async getCachedData(key: string): Promise<Object | null> {
     const data = await redisClient.get(key) as string;
 
     if (data && data.length > 2) {
@@ -142,6 +142,7 @@ export class CachedService {
     }
 
     await this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 40);
+    await this.setThreadData(prediction.threadId, matchData)
 
     return line ? prediction : { ...prediction, betLines };
   }
@@ -168,6 +169,7 @@ export class CachedService {
     }
 
     await this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 40);
+    await this.setThreadData(prediction.threadId, matchData)
 
     return line ? prediction : { ...prediction, betLines };
   }
@@ -392,7 +394,7 @@ export class CachedService {
     return pandascoreMatches;
   }
 
-  private filterMatchData(data: [TAllMatchData, TAvgTeamData]) {
+  private filterMatchData(data: [TAllMatchData, TAvgTeamData]): TMatchData {
     let matchesData: TAllMatchData | null = data[0];
     let teamData: TAvgTeamData | null = data[1];
 
@@ -446,12 +448,11 @@ export class CachedService {
           }
         }
       }).filter(match => match)[0];
-      // console.log(liveMatch);
     }
 
     return {
       matchId: matchesData.id,
-      match_status: matchesData.match_status,
+      matchStatus: matchesData.match_status,
       matchType: `Best of ${matchesData.games.length}`,
       liveScore: liveScore,
       liveMatch: liveMatch,
@@ -591,5 +592,22 @@ export class CachedService {
         }
       }).filter(odd => odd !== undefined);
     }
+  };
+
+  private async setThreadData(threadId: string, matchData: TMatchData) {
+
+    await this.setCachedData(`threadData:${threadId}`, {
+      status: matchData.matchStatus,
+      team1: {
+        name: matchData.team1.teamName,
+        players: matchData.team1.players,
+        heroes: matchData.liveMatch?.team1.heroes.map((hero: { name: string; winRate: string; }) => hero.name) || []
+      },
+      team2: {
+        name: matchData.team2.teamName,
+        players: matchData.team2.players,
+        heroes: matchData.liveMatch?.team2.heroes.map((hero: { name: string; winRate: string; }) => hero.name) || []
+      },
+    }, 60 * 10);
   };
 }

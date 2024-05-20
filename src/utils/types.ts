@@ -771,10 +771,14 @@ export type TAvgTeamData = {
 
 export type TTeamMatchData = {
   teamName: string;
+  worldRatingPlacement: number | null;
   lastMatches: {
     teamName1: string;
+    worldRatingPlacement1: number | null;
     teamName2: string;
+    worldRatingPlacement2: number | null;
     score: string;
+    matchResult: string;
     winningTeam: string;
   }[];
   killAvg: number;
@@ -796,8 +800,41 @@ export type TTeamMatchData = {
   players: string[];
 }
 
+export type TLiveTeamData = {
+  teamName: string;
+  heroes: {
+    name: string;
+    winRate: string;
+  }[];
+  side: "dire" | "radiant";
+  kills: number;
+  towerAlive: {
+    ancient_bottom: boolean;
+    ancient_top: boolean;
+    bottom_tier_1: boolean;
+    bottom_tier_2: boolean;
+    bottom_tier_3: boolean;
+    middle_tier_1: boolean;
+    middle_tier_2: boolean;
+    middle_tier_3: boolean;
+    top_tier_1: boolean;
+    top_tier_2: boolean;
+    top_tier_3: boolean;
+  }
+  towersKills: number;
+}
+
 export type TMatchData = {
   matchId: number;
+  matchStatus: string;
+  matchType: string;
+  liveScore: string;
+  liveMatch: {
+    inGameTime: string;
+    team1: TLiveTeamData;
+    team2: TLiveTeamData;
+    radiantGoldAdvantage: number | undefined;
+  }[] | undefined | any;
   matchUps: {
     teamName1: string;
     teamName2: string;
