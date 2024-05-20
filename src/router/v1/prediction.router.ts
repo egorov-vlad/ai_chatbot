@@ -7,7 +7,7 @@ const predictionRouter = new Elysia();
 predictionRouter.post('/prediction', async ({ body, main }) => {
 
   const { teamId, betLineId, matchId, threadId } = body;
-logger.info('Prediction for: ' + teamId + ' ' + matchId + ' ' + betLineId + ' ' + threadId);
+
   const predictionRes = await main().getPrediction(teamId, matchId, betLineId, threadId);
 
   return predictionRes;
