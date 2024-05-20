@@ -457,6 +457,7 @@ export class CachedService {
     return {
       matchId: matchesData.id,
       match_status: matchesData.match_status,
+      matchType: `Best of ${matchesData.games.length}`,
       liveScore: liveScore,
       liveMatch: liveMatch,
       matchUps: matchesData.encounters.map(match => {
