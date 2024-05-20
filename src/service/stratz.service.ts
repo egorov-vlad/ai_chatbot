@@ -1,7 +1,7 @@
 import redisClient from '../module/redisClient';
 import { gql, GraphQLClient } from 'graphql-request';
 import type { MatchList, TStratzHero, TStratzMatch, TStratzMatchFiltered, TStratzPlayer, TStratzSeries, TStratzTeam, TSupportTables, TSupportTablesQuery } from '../utils/types';
-import { heroes, teams, items } from '../utils/constants';
+import { heroes, items } from '../utils/constants';
 
 
 
