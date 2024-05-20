@@ -22,11 +22,6 @@ export const winLinePandascoreTeams = [
     pandaId: 134130
   },
   {
-    name: 'Aurora',
-    winId: 50046800,
-    pandaId: 133882
-  },
-  {
     name: 'PSG Quest',
     winId: 50056001,
     pandaId: 133072
