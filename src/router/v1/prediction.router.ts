@@ -1,5 +1,4 @@
 import { Elysia, t } from 'elysia';
-import logger from '../../module/logger';
 
 const predictionRouter = new Elysia();
 

@@ -72,7 +72,7 @@ export default class ChatService {
 
     switch (textAnalyserRes.message) {
       case "relevant":
-      case "support":
+      case "help":
       case "wetrain":
         const predictor = new PredictionService();
         const res = await predictor.getPredictionByThread(message, threadId, assistantId);
@@ -116,14 +116,13 @@ export default class ChatService {
             next: ["toStart"]
           }
         };
-      case "help":
+      case "support":
         return {
-          message: 'Если тебе нужна информация о разных видах ставок и пари или о том, как делать ставки, я могу перевести тебя в нашу обучающую рубрику. Там ты найдешь все, что тебе нужно. Просто нажми на кнопку "Как сделать ставку?" под нашим диалогом',
+          message: `Извини за неудобства! Пожалуйста, нажми на кнопку "Обратная связь" вверху окна чат-бота, чтобы связаться с техподдержкой.`,
           role: "assistant",
           threadId: threadId,
           options: {
             isRelevant: true,
-            next: ["howToBet"]
           }
         };
       case "bettoday":
@@ -144,6 +143,34 @@ export default class ChatService {
           options: {
             isRelevant: true,
             next: ["tomorrowBet"]
+          }
+        };
+      case "betmyhouse":
+        return {
+          message: `Если у тебя есть вопросы про наше шоу "Ставлю Хату", переходи в раздел FAQ на этой страничке. Или присоединяйся к официальному  Telegram- каналу Winline  про киберспорт.`,
+          role: "assistant",
+          threadId: threadId,
+          options: {
+            isRelevant: true,
+          }
+        };
+      case "wannabet":
+        return {
+          message: `Нажимай на кнопку "Сделай ставка" под нашим диалогом`,
+          role: "assistant",
+          threadId: threadId,
+          options: {
+            isRelevant: true,
+          }
+        };
+      case "wannalearn":
+        return {
+          message: `Если тебе нужна информация о разных видах ставок и пари или о том, как делать ставки, я могу перевести тебя в нашу обучающую рубрику. Там ты найдешь все, что тебе нужно. Просто нажми на кнопку "Как сделать ставку?" под нашим диалогом`,
+          role: "assistant",
+          threadId: threadId,
+          options: {
+            isRelevant: true,
+            next: ["howToBet"]
           }
         };
       default:
