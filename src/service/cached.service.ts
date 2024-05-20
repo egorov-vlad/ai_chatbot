@@ -237,7 +237,7 @@ export class CachedService {
     }).sort((a, b) => new Date(a.datatime).getTime() - new Date(b.datatime).getTime())[0];
 
     if (!pandascoreMatch) {
-      logger.error('Pandascore match not found. id: ' + id + " " + teamId1 + " " + teamId2 + " "+ type);
+      logger.error('Pandascore match not found. id: ' + id + " " + teamId1 + " " + teamId2 + " " + type);
       return null;
     }
 
@@ -549,6 +549,16 @@ export class CachedService {
             name: `${mapNum} карта Исход`,
             odd1: odd.odd1,
             odd2: odd.odd2,
+          }
+        }
+        if (odd.freetext === '1X2 (Основное время)') {
+          return {
+            name1: "Победа первой команды",
+            odd1: odd.odd1,
+            name2: "Ничья",
+            odd2: odd.odd2,
+            name3: "Победа второй команды",
+            odd3: odd.odd3
           }
         }
       }).filter(odd => odd !== undefined);

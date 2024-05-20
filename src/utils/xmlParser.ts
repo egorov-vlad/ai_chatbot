@@ -99,6 +99,7 @@ export function filterResponseJson(filters: TFilter, matchList: TWinlineMatch): 
 
   filtered = matchList.Winline.event.filter(item => {
     // console.log(item.competition, filters.tournament, item.competition === filters.tournament);
+    if(!item) return false
     return (
       (!filters.game || item.country === filters.game) &&
       (!filters.tournament || item.competition === filters.tournament)
