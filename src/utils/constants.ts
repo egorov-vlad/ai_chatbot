@@ -1,62 +1,36 @@
-import type { TTeam, TBetLine, THeroes, TItems } from './types';
+import type { TBetLine, THeroes, TItems } from './types';
 
-/**
- * Type of team.
- * @property {number} [id] - Team id in dota2 systems  
- * @property {string} name - Team name
- * @property {number} [teamId] - Team id in in winline system 
- */
-export const teams: TTeam[] = [{
-  id: 8255888,
-  name: 'BetBoom Team',
-  teamId: 50031026
-}, {
-  id: 8261500,
-  name: 'Xtreme Gaming',
-  teamId: 769808
-}, {
-  id: 8599101,
-  name: 'Gaimin Gladiators',
-  teamId: 881559
-}, {
-  id: 9247354,
-  name: 'Team Falcons',
-  teamId: 883309
-}, {
-  id: 2163,
-  name: 'Team Liquid',
-  teamId: 281541
-}, {
-  id: 8291895,
-  name: 'Tundra Esports',
-  teamId: 771698
-}, {
-  id: 36,
-  name: 'Natus Vincere',
-  teamId: 0 //TODO: Add valid teamId
-}, {
-  id: 8894818,
-  name: 'PSG Quest',
-  teamId: 50056001
-}, {
-  id: 8574561,
-  name: 'Azure Ray',
-  teamId: 50049400
-}, {
-  id: 9255706,
-  name: 'Aurora',
-  teamId: 50046800,
-}, {
-  id: 39,
-  name: 'Shopify Rebellion',
-  teamId: 50044347
-}, {
-  id: 9303484,
-  name: 'HEROIC',
-  teamId: 282171
-}];
-
-export const winLinePandascoreTeamsPGL = [
+export const winLinePandascoreTeams = [
+  {
+    name: 'Azure Ray',
+    winId: 50049400,
+    pandaId: 133180
+  },
+  {
+    name: 'Natus Vincere',
+    winId: 220606,
+    pandaId: 1699
+  },
+  {
+    name: 'Tundra Esports',
+    winId: 771698,
+    pandaId: 128439
+  },
+  {
+    name: 'HEROIC',
+    winId: 282171,
+    pandaId: 134130
+  },
+  {
+    name: 'Aurora',
+    winId: 50046800,
+    pandaId: 133882
+  },
+  {
+    name: 'PSG Quest',
+    winId: 50056001,
+    pandaId: 133072
+  },
   {
     name: 'Xtreme Gaming',
     winId: 769808,

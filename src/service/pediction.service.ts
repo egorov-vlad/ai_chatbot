@@ -14,17 +14,16 @@ export default class PredictionService {
       return null;
     }
 
-    await sendMessageToThread(threadId, "Кто победит? " + JSON.stringify(matchData));
+    await sendMessageToThread(threadId, `${question}` + JSON.stringify(matchData));
     const runId = await createRun(threadId, assistantId);
 
     if (!runId) {
       logger.error("Run creation failed " + JSON.stringify(matchData));
       return null;
     }
-
-    console.time("checkStatus");
     const res = await this.checkStatus(threadId, runId);
-    console.timeEnd("checkStatus");
+
+    logger.info("Prediction done for: " + performance.now())
 
     return res ? {
       ...res,

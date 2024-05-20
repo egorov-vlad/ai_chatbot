@@ -1,7 +1,7 @@
 import logger from '../module/logger';
 import { getAssistant } from '../module/openAIClient';
 import redisClient from '../module/redisClient';
-import { betLines, winLinePandascoreTeamsPGL } from '../utils/constants';
+import { betLines, winLinePandascoreTeams } from '../utils/constants';
 import type { MatchList, TAllMatchData, TAvgTeamData, TChatWithTreadIDResponse, TMatch, TMatchData, TOdds, TPandaScoreFilteredMatch, TPredictionResponse, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
 import { PandascoreService } from './pandascore.service';
 import PredictionService from './pediction.service';
@@ -220,8 +220,8 @@ export class CachedService {
       return isMatchData;
     }
 
-    const teamId1 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id1)?.pandaId;
-    const teamId2 = winLinePandascoreTeamsPGL.find(team => team.winId === winlineMatch?.id2)?.pandaId;
+    const teamId1 = winLinePandascoreTeams.find(team => team.winId === winlineMatch?.id1)?.pandaId;
+    const teamId2 = winLinePandascoreTeams.find(team => team.winId === winlineMatch?.id2)?.pandaId;
 
     const pandascoreMatch = pandascoreMatches.filter(match => {
       if (winlineMatch.isMatchLive) {
@@ -248,7 +248,6 @@ export class CachedService {
       line = line || 1;
       const split = matchData.liveScore.split(':');
       const mapNum = Number(split[0]) + Number(split[1]) + 1;
-      console.log(mapNum);
       odds = this.getOddsByBetLine(winlineMatch.odds, mapNum, line);
     }
 
@@ -458,8 +457,8 @@ export class CachedService {
     return {
       matchId: matchesData.id,
       match_status: matchesData.match_status,
-      liveMatch: liveMatch,
       liveScore: liveScore,
+      liveMatch: liveMatch,
       matchUps: matchesData.encounters.map(match => {
         let team1 = match.opponents[0];
         let team2 = match.opponents[1];

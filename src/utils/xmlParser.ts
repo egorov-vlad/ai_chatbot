@@ -1,6 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import type { TWinlineEvent } from './types';
 import { betLines } from './constants';
+import logger from '../module/logger';
 
 
 
@@ -17,7 +18,7 @@ export enum GameEnum {
 }
 
 export enum TournamentEnum {
-  dream_league = 'DreamLeague Season 23',
+  dream_league = 'DreamLeague',
   elite_league = 'Elite League',
   european_pro_league = 'European Pro League',
   esl_one = 'ESL One Birmingham',
@@ -34,7 +35,7 @@ async function fetchWinline(url: string): Promise<string> {
   return fetch(url)
     .then((res) => res.text())
     .catch((e) => {
-      console.error(e);
+      logger.error(e);
       return '';
     });
 }
