@@ -85,3 +85,5 @@ const getAssistants = async () => {
   await redisClient.set("predictorAssistant", predictorAssistant?.id);
   await redisClient.set("supportAssistant", supportAssistant?.id);
 }
+
+setInterval(getAssistants, 1000 * 60 * 60 * 3);
