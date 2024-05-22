@@ -93,7 +93,7 @@ export class MainService {
     }
 
     const messageFormatted = match.message as string;
-    match.message = messageFormatted.replace(/\n/g, '<br>');
+    match.message = this.formateMessage(messageFormatted);;
 
     return this.createResponse(match, 200);
   }
@@ -118,7 +118,7 @@ export class MainService {
     }
 
     const messageFormatted = res.message as string;
-    res.message = messageFormatted.replace(/\n/g, '<br>');
+    res.message = this.formateMessage(messageFormatted);
 
     return this.createResponse(res, 200);
   }
@@ -127,6 +127,10 @@ export class MainService {
     // await deleteAssistant("asst_mgHIPElOT0oElbESksmkON4L");
     // await deleteAssistant("asst_mJCib449G33ihFVP7KkgRTIy");
     return getAssistant();
+  }
+
+  private formateMessage(message: string) {
+    return message.replace(/\n/g, '<br>').replace(/\*\*/g, '');
   }
 
   private async getThreadData(threadId: string) {
