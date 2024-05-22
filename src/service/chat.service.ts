@@ -173,6 +173,15 @@ export default class ChatService {
             next: ["howToBet"]
           }
         };
+      case "teammismatch":
+        return {
+          message: "Извини, но, похоже, ты спрашиваешь о команде, которая сейчас не участвует в текущем матче.",
+          role: "assistant",
+          threadId: threadId,
+          options: {
+            isRelevant: false,
+          }
+        };
       default:
         return {
           message: "Я не могу ответить на этот вопрос",
