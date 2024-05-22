@@ -108,7 +108,7 @@ export default class ChatService {
         };
       case "archive":
         return {
-          message: "Извините, я располагаю информацией только о текущем турнире",
+          message: "Увы, временно я не располагаю доступом к архивным данным. Буду рад помочь тебе с этим запросом чуть позже!",
           role: "assistant",
           threadId: threadId,
           options: {
