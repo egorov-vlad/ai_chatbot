@@ -58,7 +58,7 @@ export default class PredictionService {
       return null;
     }
 
-    while (messages?.status !== "completed") {
+    while (messages.status !== "completed") {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       messages = await pullMessages(threadId, runId);
       if (!messages || messages.status === "failed") {

@@ -147,7 +147,7 @@ export default class ChatService {
         };
       case "betmyhouse":
         return {
-          message: `Если у тебя есть вопросы про наше шоу "Ставлю Хату", переходи в раздел FAQ на этой страничке. Или присоединяйся к официальному  Telegram- каналу Winline  про киберспорт.`,
+          message: `Если у тебя есть вопросы про наше шоу "Ставлю Хату", переходи в раздел FAQ по кнопке справа внизу странички. Или присоединяйся к официальному  Telegram- каналу Winline  про киберспорт`,
           role: "assistant",
           threadId: threadId,
           options: {
