@@ -86,4 +86,4 @@ const getAssistants = async () => {
   await redisClient.set("supportAssistant", supportAssistant?.id);
 }
 
-setInterval(getAssistants, 1000 * 60 * 60 * 3);
+setInterval(getAssistants, 1000 * 60 * 2);
