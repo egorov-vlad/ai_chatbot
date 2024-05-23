@@ -3,7 +3,7 @@ import redisClient from './module/redisClient';
 import router from './router';
 import swagger from '@elysiajs/swagger';
 import { createAssistant, getAssistant } from './module/openAIClient';
-import { predictionPrompt, textAnalyserPrompt } from './utils/constants';
+import { predictionPrompt, shortPredictionPrompt, textAnalyserPrompt } from './utils/constants';
 import type OpenAI from 'openai';
 import logger from './module/logger';
 
@@ -69,21 +69,26 @@ const getAssistants = async () => {
 
   let predictorAssistant: OpenAI.Beta.Assistants.Assistant | undefined;
   let supportAssistant: OpenAI.Beta.Assistants.Assistant | undefined;
+  let shortPredictorAssistant: OpenAI.Beta.Assistants.Assistant | undefined;
 
   predictorAssistant = assistantList.data.find((assistant) => assistant.name === "Predictor") ||
     await createAssistant(predictionPrompt, "Predictor");
   supportAssistant = assistantList.data.find((assistant) => assistant.name === "Support")
     || await createAssistant(textAnalyserPrompt, "Support");
 
-  if (!predictorAssistant || !supportAssistant) {
+  shortPredictorAssistant = assistantList.data.find((assistant) => assistant.name === "ShortPredictor") ||
+    await createAssistant(shortPredictionPrompt, "ShortPredictor");
+
+  if (!predictorAssistant || !supportAssistant || !shortPredictorAssistant) {
     logger.error("Assistants not found");
     return;
   }
 
-  logger.info("Assistants: " + predictorAssistant.id + " " + supportAssistant.id);
+  logger.info("Assistants: " + predictorAssistant.id + " " + supportAssistant.id + " " + shortPredictorAssistant.id);
 
   await redisClient.set("predictorAssistant", predictorAssistant?.id);
   await redisClient.set("supportAssistant", supportAssistant?.id);
+  await redisClient.set("shortPredictorAssistant", shortPredictorAssistant?.id);
 }
 
 setInterval(getAssistants, 1000 * 60 * 2);

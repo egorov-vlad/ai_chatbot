@@ -3380,3 +3380,5 @@ export const staticInfo = [
 export const predictionPrompt = await Bun.file(__dirname + '/Winbot_GPT.txt').text();
 
 export const textAnalyserPrompt = await Bun.file(__dirname + '/Winbot_Gatekeeper_GPT.txt').text();
+
+export const shortPredictionPrompt = await Bun.file(__dirname + '/Winbot_Laconic_GPT.txt').text();

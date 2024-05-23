@@ -123,6 +123,17 @@ export class MainService {
     return this.createResponse(res, 200);
   }
 
+  public async shortPrediction(matchId: number): Promise<Response> {
+    const shortPrediction = await this.cached.getShortPrediction(matchId);
+
+    if (!shortPrediction) {
+      logger.error('Failed get short prediction ' + ' ' + matchId);
+      return new Response('Failed get short prediction', { status: 500 });
+    }
+
+    return this.createResponse(shortPrediction, 200);
+  }
+
   public async test() {
     // await deleteAssistant("asst_Hc47O80h0QBeDmmXrvFqs1S0");
     // await deleteAssistant("asst_fmhX9fgD7xbx2nI0jCZ8lqDz");

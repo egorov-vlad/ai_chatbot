@@ -272,6 +272,18 @@ export class CachedService {
     return assistantId;
   }
 
+  private async getShortAssistantFromCache() {
+    let assistantId = await redisClient.get("shortPredictorAssistant") as string;
+
+    if (!assistantId && assistantId.length < 2) {
+      getAssistant();
+    }
+
+    assistantId = await redisClient.get("shortPredictorAssistant") as string;
+
+    return assistantId;
+  }
+
   private async makePrediction(matchData: TMatchData, line?: number): Promise<TChatWithTreadIDResponse | null> {
     const id = line ? `${matchData.matchId}:${line}` : `${matchData.matchId}`;
     // const isPredictionInProgress = await redisClient.get(`predictionInProgress${id}`) as string;
@@ -319,6 +331,29 @@ export class CachedService {
     // await redisClient.del(`predictionInProgress${id}`)
 
     return prediction;
+  }
+
+  public async getShortPrediction(winlineMatchId: number): Promise<{ message: string } | null> {
+    const matchData = await this.getMatchData('match', winlineMatchId);
+
+    if (!matchData) {
+      logger.error("Failed getMatchData " + winlineMatchId);
+      return null;
+    }
+
+    const predictor = new PredictionService();
+    const assistantId = await this.getShortAssistantFromCache();
+
+    const prediction = await predictor.getPrediction(matchData, assistantId, 'Кто победит?');
+
+    if (!prediction) {
+      logger.error("Failed makePrediction " + winlineMatchId);
+      return null;
+    }
+
+    return {
+      message: prediction.message as string,
+    };
   }
 
   //Stratz
