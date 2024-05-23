@@ -35,7 +35,7 @@ services:
           cpus: '0.5'
           memory: 512M
         limits:
-          cpus: '1'
+          cpus: '2'
           memory: 1024M
     links:
       - redis
