@@ -135,8 +135,8 @@ export class MainService {
   }
 
   public async test() {
-    // await deleteAssistant("asst_Hc47O80h0QBeDmmXrvFqs1S0");
-    // await deleteAssistant("asst_fmhX9fgD7xbx2nI0jCZ8lqDz");
+    // await deleteAssistant("asst_GZUnhe1K4qMbHuCPiAiDk1kI");
+    // await deleteAssistant("asst_ntO5bvAzWHN2asuGDj4Cx1pr");
     return getAssistant();
   }
 
