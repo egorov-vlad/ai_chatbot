@@ -5,61 +5,61 @@ export const winLinePandascoreTeams = [
     name: "DANDELIONS",
     winId: 50061426,
     pandaId: 134592,
-    rating: 60
+    rating: 56
   },
   {
     name: "Yellow Submarine",
     winId: 287351,
     pandaId: 1931,
-    rating: 35
+    rating: 37
   },
   {
     name: "Night Pulse",
     winId: 0,
     pandaId: 133861,
-    rating: 45
+    rating: 48
   },
   {
     name: "ASAKURA",
     winId: 50000541,
     pandaId: 134594,
-    rating: 80
+    rating: 81
   },
   {
     name: 'Azure Ray',
     winId: 50049400,
     pandaId: 133180,
-    rating: 14
+    rating: 15
   },
   {
     name: 'Natus Vincere',
     winId: 220606,
     pandaId: 1699,
-    rating: 21
+    rating: 22
   },
   {
     name: 'Tundra Esports',
     winId: 771698,
     pandaId: 128439,
-    rating: 11
+    rating: 9
   },
   {
     name: 'HEROIC',
     winId: 282171,
     pandaId: 134130,
-    rating: 22
+    rating: 20
   },
   {
     name: 'PSG Quest',
     winId: 50056001,
     pandaId: 133072,
-    rating: 8
+    rating: 14
   },
   {
     name: 'Xtreme Gaming',
     winId: 769808,
     pandaId: 128329,
-    rating: 2
+    rating: 3
   },
   {
     name: "nouns",
@@ -71,24 +71,24 @@ export const winLinePandascoreTeams = [
     name: "G2.iG",
     winId: 50058995,
     pandaId: 134024,
-    rating: 4
+    rating: 5
   },
   {
     name: "TEAM AURORA",
     winId: 50046800,
     pandaId: 133882,
-    rating: 16
+    rating: 12
   }, {
     name: "SHOPIFY REBELLION",
     winId: 50044347,
     pandaId: 132234,
-    rating: 17
+    rating: 18
   },
   {
     name: "GAIMIN GLADIATORS",
     winId: 881559,
     pandaId: 130354,
-    rating: 12
+    rating: 4
   },
   {
     name: "BOOM ESPORTS",
@@ -106,37 +106,37 @@ export const winLinePandascoreTeams = [
     name: "TEAM LIQUID",
     winId: 281541,
     pandaId: 1647,
-    rating: 6
+    rating: 11
   },
   {
     name: "MOUZ",
     winId: 220604,
     pandaId: 134559,
-    rating: 32
+    rating: 33
   },
   {
     name: "BB TEAM",
     winId: 50031026,
     pandaId: 130768,
-    rating: 5
+    rating: 8
   },
   {
     name: "TEAM SPIRIT",
     winId: 242390,
     pandaId: 1669,
-    rating: 3
+    rating: 2
   },
   {
     name: "TEAM SECRET",
     winId: 242388,
     pandaId: 1656,
-    rating: 18
+    rating: 17
   },
   {
     name: "VIRTUS.PRO",
     winId: 220624,
     pandaId: 1651,
-    rating: 20
+    rating: 21
   }
 ];
 
