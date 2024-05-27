@@ -8,7 +8,7 @@ export class WinlineMatchService {
   constructor() {
     this.config = {
       game: GameEnum.DOTA_2,
-      tournament: TournamentEnum.dream_league
+      tournament: TournamentEnum.fissure_universe
     }
   }
   public async getMatches(teamId?: number, matchTime: 'today' | 'tomorrow' = 'today'):

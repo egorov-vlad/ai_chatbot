@@ -2,10 +2,28 @@ import type { TBetLine, THeroes, TItems } from './types';
 
 export const winLinePandascoreTeams = [
   {
+    name: "ENTITY GAMING",
+    winId: 391766,
+    pandaId: 129904,
+    rating: 9
+  },
+  {
+    name: "NIGMA GALAXY",
+    winId: 839880,
+    pandaId: 129609,
+    rating: 49
+  },
+  {
+    name: "OG",
+    winId: 242386,
+    pandaId: 1654,
+    rating: 8
+  },
+  {
     name: "DANDELIONS",
     winId: 50061426,
     pandaId: 134592,
-    rating: 56
+    rating: 58
   },
   {
     name: "Yellow Submarine",
@@ -17,19 +35,19 @@ export const winLinePandascoreTeams = [
     name: "Night Pulse",
     winId: 0,
     pandaId: 133861,
-    rating: 48
+    rating: 50
   },
   {
     name: "ASAKURA",
     winId: 50000541,
     pandaId: 134594,
-    rating: 81
+    rating: 82
   },
   {
     name: 'Azure Ray',
     winId: 50049400,
     pandaId: 133180,
-    rating: 15
+    rating: 12
   },
   {
     name: 'Natus Vincere',
@@ -41,13 +59,13 @@ export const winLinePandascoreTeams = [
     name: 'Tundra Esports',
     winId: 771698,
     pandaId: 128439,
-    rating: 9
+    rating: 11
   },
   {
     name: 'HEROIC',
     winId: 282171,
     pandaId: 134130,
-    rating: 20
+    rating: 21
   },
   {
     name: 'PSG Quest',
@@ -71,13 +89,13 @@ export const winLinePandascoreTeams = [
     name: "G2.iG",
     winId: 50058995,
     pandaId: 134024,
-    rating: 5
+    rating: 6
   },
   {
     name: "TEAM AURORA",
     winId: 50046800,
     pandaId: 133882,
-    rating: 12
+    rating: 16
   }, {
     name: "SHOPIFY REBELLION",
     winId: 50044347,
@@ -106,7 +124,7 @@ export const winLinePandascoreTeams = [
     name: "TEAM LIQUID",
     winId: 281541,
     pandaId: 1647,
-    rating: 11
+    rating: 10
   },
   {
     name: "MOUZ",
@@ -118,7 +136,7 @@ export const winLinePandascoreTeams = [
     name: "BB TEAM",
     winId: 50031026,
     pandaId: 130768,
-    rating: 8
+    rating: 5
   },
   {
     name: "TEAM SPIRIT",
@@ -136,7 +154,7 @@ export const winLinePandascoreTeams = [
     name: "VIRTUS.PRO",
     winId: 220624,
     pandaId: 1651,
-    rating: 21
+    rating: 20
   }
 ];
 
