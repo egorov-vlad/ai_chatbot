@@ -3295,7 +3295,7 @@ export const staticInfo = [
     "type": "button",
     "title": "Исход",
     "isInputEnabled": false,
-    "next": ["toStart", "makeBet", "wantPrediction"]
+    "next": ["toStart", "makeBet", "wantPrediction", "toBet"]
   },
   {
     "name": "total",
@@ -3303,7 +3303,7 @@ export const staticInfo = [
     "type": "button",
     "title": "Тотал",
     "isInputEnabled": false,
-    "next": ["toStart", "makeBet", "wantPrediction"]
+    "next": ["toStart", "makeBet", "wantPrediction", "toBet"]
   },
   {
     "name": "handicap",
@@ -3311,7 +3311,7 @@ export const staticInfo = [
     "type": "button",
     "title": "Фора",
     "isInputEnabled": false,
-    "next": ["toStart", "makeBet", "wantPrediction"]
+    "next": ["toStart", "makeBet", "wantPrediction", "toBet"]
   },
   {
     "name": "whatAreThePari",
@@ -3341,7 +3341,7 @@ export const staticInfo = [
     "type": "button",
     "title": "Как выбрать ординар?",
     "isInputEnabled": false,
-    "next": ["toStart", "makeBet", "wantPrediction"]
+    "next": ["toStart", "makeBet", "wantPrediction", "toPari"]
   },
   {
     "name": "express",
@@ -3362,7 +3362,7 @@ export const staticInfo = [
     "type": "button",
     "title": "Как выбрать экспресс?",
     "isInputEnabled": false,
-    "next": ["toStart", "makeBet", "wantPrediction"]
+    "next": ["toStart", "makeBet", "wantPrediction", "toPari"]
   },
   {
     "name": "undoBet",
@@ -3384,13 +3384,30 @@ export const staticInfo = [
     "title": "Как сделать выкуп ставки?",
     "isInputEnabled": false,
     "next": ["toStart", "makeBet", "wantPrediction"]
-  }, {
+  },
+  {
     "name": "disclaimer",
     "message": `WINBOT предоставляет прогнозы исключительно в виде рекомендаций, используя актуальные данные API на момент предоставления.<br>Этот прогноз основан на текущей информации о командах, их последних матчах и общей статистике игр с патчем 7.35. В настоящее время у меня нет информации об играх с патчем 7.36, но как только они появятся, они будут включены в мои прогнозы. Выбор за тобой.`,
     "type": "text",
     "title": "",
     "isInputEnabled": true,
     "next": ["makeBet", "betLie"]
+  },
+  {
+    "name": "toPari",
+    "message": "",
+    "type": "button",
+    "title": "Узнать про другие пари",
+    "isInputEnabled": false,
+    "next": ["whatAreThePari"]
+  },
+  {
+    "name": "toBet",
+    "message": "",
+    "type": "button",
+    "title": "Узнать другие про ставки",
+    "isInputEnabled": false,
+    "next": ["whatAreThePari"]
   }
 ];
 
