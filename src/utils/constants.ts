@@ -3405,7 +3405,7 @@ export const staticInfo = [
     "name": "toBet",
     "message": "",
     "type": "button",
-    "title": "Узнать другие про ставки",
+    "title": "Узнать про другие ставки",
     "isInputEnabled": false,
     "next": ["whatAreThePari"]
   }
