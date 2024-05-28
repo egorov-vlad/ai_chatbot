@@ -3407,7 +3407,7 @@ export const staticInfo = [
     "type": "button",
     "title": "Узнать про другие ставки",
     "isInputEnabled": false,
-    "next": ["whatAreThePari"]
+    "next": ["whatAreTheBets"]
   }
 ];
 
