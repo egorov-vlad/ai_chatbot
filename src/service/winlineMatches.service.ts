@@ -114,7 +114,7 @@ export class WinlineMatchService {
 
     return matches.map(item => {
       return _.omit(item, ['TV', 'isLive', 'sport', 'country', 'betLines']);
-    }) as TMatch[];
+    }).sort((a, b) => a === b ? 0 : a ? -1 : 1) as TMatch[];
   }
 
   public async getWinlineMatchByTeamId(teamId1: number, teamId2?: number,) {
