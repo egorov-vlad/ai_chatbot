@@ -226,12 +226,11 @@ export class CachedService {
     const teamId2 = winLinePandascoreTeams.find(team => team.winId === winlineMatch?.id2)?.pandaId;
 
     const pandascoreMatch = pandascoreMatches.filter(match => {
-      if (match.teamId1 === teamId1 &&
-        match.teamId2 === teamId2) {
+      if ((match.teamId1 === teamId1 || match.teamId1 === teamId2) &&
+        (match.teamId2 === teamId1 || match.teamId2 === teamId2)) {
         return match
       }
     }).sort((a, b) => new Date(a.datatime).getTime() - new Date(b.datatime).getTime())[0];
-
 
     if (!pandascoreMatch) {
       logger.error('Pandascore match not found. id: ' + id + " " + teamId1 + " " + teamId2 + " " + type);

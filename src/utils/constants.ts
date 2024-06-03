@@ -62,7 +62,7 @@ export const winLinePandascoreTeams: {
     },
     {
       name: "Night Pulse",
-      winId: 50056001,
+      winId: 50057831,
       pandaId: 133861,
       rating: 47
     },

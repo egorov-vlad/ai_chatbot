@@ -169,8 +169,7 @@ export class PandascoreService {
             team1: match.opponents[0].opponent.name,
             teamId1: match.opponents[0].opponent.id,
             team2: match.opponents[1].opponent.name,
-            teamId2: match.opponents[1].opponent.id,
-            live: match.live.supported ? match.live.url : null
+            teamId2: match.opponents[1].opponent.id
           });
         });
 
