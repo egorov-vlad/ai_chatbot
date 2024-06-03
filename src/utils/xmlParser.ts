@@ -23,7 +23,8 @@ export enum TournamentEnum {
   european_pro_league = 'European Pro League',
   esl_one = 'ESL One Birmingham',
   pgl_wallachia = 'PGL Wallachia',
-  fissure_universe = "FISSURE Universe"
+  fissure_universe = "FISSURE Universe",
+  riyadh_masters_qualifier = "Riyadh Masters. Qualifier",
 }
 
 export type TFilter = {

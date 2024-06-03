@@ -1,162 +1,191 @@
 import type { TBetLine, THeroes, TItems } from './types';
 
-export const winLinePandascoreTeams = [
-  {
-    name: "ENTITY GAMING",
-    winId: 391766,
-    pandaId: 129904,
-    rating: 9
-  },
-  {
-    name: "NIGMA GALAXY",
-    winId: 839880,
-    pandaId: 129609,
-    rating: 49
-  },
-  {
-    name: "OG",
-    winId: 242386,
-    pandaId: 1654,
-    rating: 8
-  },
-  {
-    name: "DANDELIONS",
-    winId: 50061426,
-    pandaId: 134592,
-    rating: 58
-  },
-  {
-    name: "Yellow Submarine",
-    winId: 287351,
-    pandaId: 1931,
-    rating: 37
-  },
-  {
-    name: "Night Pulse",
-    winId: 0,
-    pandaId: 133861,
-    rating: 50
-  },
-  {
-    name: "ASAKURA",
-    winId: 50000541,
-    pandaId: 134594,
-    rating: 82
-  },
-  {
-    name: 'Azure Ray',
-    winId: 50049400,
-    pandaId: 133180,
-    rating: 12
-  },
-  {
-    name: 'Natus Vincere',
-    winId: 220606,
-    pandaId: 1699,
-    rating: 22
-  },
-  {
-    name: 'Tundra Esports',
-    winId: 771698,
-    pandaId: 128439,
-    rating: 11
-  },
-  {
-    name: 'HEROIC',
-    winId: 282171,
-    pandaId: 134130,
-    rating: 21
-  },
-  {
-    name: 'PSG Quest',
-    winId: 50056001,
-    pandaId: 133072,
-    rating: 14
-  },
-  {
-    name: 'Xtreme Gaming',
-    winId: 769808,
-    pandaId: 128329,
-    rating: 3
-  },
-  {
-    name: "nouns",
-    winId: 50000541,
-    pandaId: 130920,
-    rating: 19
-  },
-  {
-    name: "G2.iG",
-    winId: 50058995,
-    pandaId: 134024,
-    rating: 6
-  },
-  {
-    name: "TEAM AURORA",
-    winId: 50046800,
-    pandaId: 133882,
-    rating: 16
-  }, {
-    name: "SHOPIFY REBELLION",
-    winId: 50044347,
-    pandaId: 132234,
-    rating: 18
-  },
-  {
-    name: "GAIMIN GLADIATORS",
-    winId: 881559,
-    pandaId: 130354,
-    rating: 4
-  },
-  {
-    name: "BOOM ESPORTS",
-    winId: 377162,
-    pandaId: 126229,
-    rating: 13
-  },
-  {
-    name: "Team Falcons",
-    winId: 883309,
-    pandaId: 133868,
-    rating: 1
-  },
-  {
-    name: "TEAM LIQUID",
-    winId: 281541,
-    pandaId: 1647,
-    rating: 10
-  },
-  {
-    name: "MOUZ",
-    winId: 220604,
-    pandaId: 134559,
-    rating: 33
-  },
-  {
-    name: "BB TEAM",
-    winId: 50031026,
-    pandaId: 130768,
-    rating: 5
-  },
-  {
-    name: "TEAM SPIRIT",
-    winId: 242390,
-    pandaId: 1669,
-    rating: 2
-  },
-  {
-    name: "TEAM SECRET",
-    winId: 242388,
-    pandaId: 1656,
-    rating: 17
-  },
-  {
-    name: "VIRTUS.PRO",
-    winId: 220624,
-    pandaId: 1651,
-    rating: 20
-  }
-];
+export const winLinePandascoreTeams: {
+  name: string;
+  winId: number;
+  pandaId: number;
+  rating: number;
+}[] = [
+    {
+      name: "Cuyes Esports",
+      winId: 50063458,
+      pandaId: 134917,
+      rating: 43
+    },
+    {
+      name: "BEASTCOAST",
+      winId: 575385,
+      pandaId: 126002,
+      rating: 32
+    },
+    {
+      name: "Twisted Minds",
+      winId: 50032208,
+      pandaId: 133220,
+      rating: 52
+    },
+    {
+      name: "NATUS VINCERE JUNIOR",
+      winId: 640344,
+      pandaId: 132308,
+      rating: 41
+    },
+    {
+      name: "ENTITY GAMING",
+      winId: 391766,
+      pandaId: 129904,
+      rating: 9
+    },
+    {
+      name: "NIGMA GALAXY",
+      winId: 839880,
+      pandaId: 129609,
+      rating: 34
+    },
+    {
+      name: "NIGMA",
+      winId: 242386,
+      pandaId: 1654,
+      rating: 7
+    },
+    {
+      name: "DANDELIONS",
+      winId: 50061426,
+      pandaId: 134592,
+      rating: 53
+    },
+    {
+      name: "Yellow Submarine",
+      winId: 287351,
+      pandaId: 1931,
+      rating: 35
+    },
+    {
+      name: "Night Pulse",
+      winId: 50056001,
+      pandaId: 133861,
+      rating: 47
+    },
+    {
+      name: "ASAKURA",
+      winId: 50000541,
+      pandaId: 134594,
+      rating: 79
+    },
+    {
+      name: 'Azure Ray',
+      winId: 50049400,
+      pandaId: 133180,
+      rating: 12
+    },
+    {
+      name: 'Natus Vincere',
+      winId: 220606,
+      pandaId: 1699,
+      rating: 20
+    },
+    {
+      name: 'Tundra Esports',
+      winId: 771698,
+      pandaId: 128439,
+      rating: 11
+    },
+    {
+      name: 'HEROIC',
+      winId: 282171,
+      pandaId: 134130,
+      rating: 19
+    },
+    {
+      name: 'PSG Quest',
+      winId: 50056001,
+      pandaId: 133072,
+      rating: 13
+    },
+    {
+      name: 'Xtreme Gaming',
+      winId: 769808,
+      pandaId: 128329,
+      rating: 3
+    },
+    {
+      name: "nouns",
+      winId: 50000541,
+      pandaId: 130920,
+      rating: 16
+    },
+    {
+      name: "G2.iG",
+      winId: 50058995,
+      pandaId: 134024,
+      rating: 6
+    },
+    {
+      name: "TEAM AURORA",
+      winId: 50046800,
+      pandaId: 133882,
+      rating: 14
+    }, {
+      name: "SHOPIFY REBELLION",
+      winId: 50044347,
+      pandaId: 132234,
+      rating: 15
+    },
+    {
+      name: "GAIMIN GLADIATORS",
+      winId: 881559,
+      pandaId: 130354,
+      rating: 4
+    },
+    {
+      name: "BOOM ESPORTS",
+      winId: 377162,
+      pandaId: 126229,
+      rating: 13
+    },
+    {
+      name: "Team Falcons",
+      winId: 883309,
+      pandaId: 133868,
+      rating: 1
+    },
+    {
+      name: "TEAM LIQUID",
+      winId: 281541,
+      pandaId: 1647,
+      rating: 10
+    },
+    {
+      name: "MOUZ",
+      winId: 220604,
+      pandaId: 134559,
+      rating: 27
+    },
+    {
+      name: "BB TEAM",
+      winId: 50031026,
+      pandaId: 130768,
+      rating: 5
+    },
+    {
+      name: "TEAM SPIRIT",
+      winId: 242390,
+      pandaId: 1669,
+      rating: 2
+    },
+    {
+      name: "TEAM SECRET",
+      winId: 242388,
+      pandaId: 1656,
+      rating: 17
+    },
+    {
+      name: "VIRTUS.PRO",
+      winId: 220624,
+      pandaId: 1651,
+      rating: 18
+    }
+  ];
 
 
 export const betLines: TBetLine[] = [
