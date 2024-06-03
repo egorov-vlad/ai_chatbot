@@ -26,6 +26,10 @@ app.use(swagger({
   },
 }));
 
+app.get('/healthz', async () => {
+  return new Response('OK', { status: 200 });
+});
+
 app.guard({
   headers: t.Object({
     'x-api-key': t.String({
