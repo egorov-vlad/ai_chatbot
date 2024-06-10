@@ -820,7 +820,8 @@ export type TLiveTeamData = {
     top_tier_1: boolean;
     top_tier_2: boolean;
     top_tier_3: boolean;
-  }
+  };
+  pickWinChance?: string
   towersKills: number;
 }
 
@@ -857,3 +858,59 @@ export type TChatWithTreadIDResponse = TChatResponse & {
 export type TMessageResponse = TChatWithTreadIDResponse & { options: { isRelevant?: boolean, next?: string[] } }
 
 export type TPredictionResponse = TChatWithTreadIDResponse & { betLines?: TBetLine[] }
+
+export type TStratzAdvantage = {
+  heroId: number;
+  with: {
+    heroId2: number;
+    winsAverage: number;
+  }[];
+  vs: {
+    heroId2: number;
+    winsAverage: number;
+  }[];
+}
+
+export type TStratzHeroStats = {
+  r1: {
+    advantage: TStratzAdvantage[];
+  },
+  r2: {
+    advantage: TStratzAdvantage[];
+  },
+  r3: {
+    advantage: TStratzAdvantage[];
+  },
+  r4: {
+    advantage: TStratzAdvantage[];
+  },
+  r5: {
+    advantage: TStratzAdvantage[];
+  },
+  d1: {
+    advantage: TStratzAdvantage[];
+  },
+  d2: {
+    advantage: TStratzAdvantage[];
+  },
+  d3: {
+    advantage: TStratzAdvantage[];
+  },
+  d4: {
+    advantage: TStratzAdvantage[];
+  },
+  d5: {
+    advantage: TStratzAdvantage[];
+  },
+}
+
+export type TStratzResponse = {
+  heroStats: TStratzHeroStats
+}
+
+export type TPandascoreLiveMatch = {
+  inGameTime: string;
+  team1: TLiveTeamData;
+  team2: TLiveTeamData;
+  radiantGoldAdvantage: number | undefined;
+}

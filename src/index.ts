@@ -2,7 +2,7 @@ import { Elysia, t } from 'elysia';
 import redisClient from './module/redisClient';
 import router from './router';
 import swagger from '@elysiajs/swagger';
-import { createAssistant, getAssistant } from './module/openAIClient';
+import { createAssistant, getAssistant, deleteAssistant } from './module/openAIClient';
 import { predictionPrompt, shortPredictionPrompt, textAnalyserPrompt } from './utils/constants';
 import type OpenAI from 'openai';
 import logger from './module/logger';
@@ -56,12 +56,26 @@ app.listen({
 
 redisClient
   .connect()
-  .then(() => {
+  .then(async () => {
+    await deleteAssistants();
     getAssistants();
   })
   .catch((err) => {
     logger.error("Redis connection error", err);
   });
+
+
+const deleteAssistants = async () => {
+  const assistantList = await getAssistant();
+
+  if (!assistantList) {
+    return;
+  }
+
+  for (const assistant of assistantList.data) {
+    await deleteAssistant(assistant.id);
+  }
+}
 
 
 const getAssistants = async () => {

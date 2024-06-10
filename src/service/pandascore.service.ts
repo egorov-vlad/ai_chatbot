@@ -124,13 +124,13 @@ export type TPandaScoreMatch = {
 export class PandascoreService {
   protected API_URL: string;
   protected API_KEY: string;
-  protected tournamentId: number;
+  protected leagueId: number;
 
   constructor() {
 
     this.API_URL = 'https://api.pandascore.co/dota2';
     this.API_KEY = 'Bearer ' + process.env.PANDASCORE_API_KEY;
-    this.tournamentId = 4821;
+    this.leagueId = 4106;
   }
 
   private async makeRequest(route: string) {
@@ -159,7 +159,7 @@ export class PandascoreService {
       ]);
       data
         .flatMap((item) => (item || []))
-        .filter(match => match.league_id === this.tournamentId)
+        .filter(match => match.league_id === this.leagueId)
         .forEach(match => {
           if (match.opponents.length < 2) return;
           matches.push({

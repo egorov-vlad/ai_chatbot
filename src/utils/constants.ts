@@ -7,6 +7,78 @@ export const winLinePandascoreTeams: {
   rating: number;
 }[] = [
     {
+      name: "4 AMIGOS",
+      winId: 50061894,
+      pandaId: 134713,
+      rating: 46
+    },
+    {
+      name: "LA CORRENTADA",
+      winId: 50061778,
+      pandaId: 134698,
+      rating: 48
+    },
+    {
+      name: "LGD GAMING",
+      winId: 422313,
+      pandaId: 1657,
+      rating: 8
+    },
+    {
+      name: "THE HUT",
+      winId: 50064206,
+      pandaId: 0,
+      rating: 48
+    },
+    {
+      name: "THE CHAPULINES",
+      winId: 50064284,
+      pandaId: 135088,
+      rating: 47
+    },
+    {
+      name: "DARK HORSE",
+      winId: 671017,
+      pandaId: 134381,
+      rating: 54
+    },
+    {
+      name: "ZERO",
+      winId: 273575,
+      pandaId: 127846,
+      rating: 57
+    },
+    {
+      name: "SPIKY",
+      winId: 50062832,
+      pandaId: 134696,
+      rating: 48
+    },
+    {
+      name: "TEAM TURTLE",
+      winId: 50064243,
+      pandaId: 134695,
+      rating: 47
+    },
+    {
+      name: "APEX GENESI",
+      winId: 50061777,
+      pandaId: 134694,
+      rating: 44
+    },
+    {
+      name: "KEV",
+      winId: 50061477,
+      pandaId: 134626,
+      rating: 39
+    },
+    {
+      name: "GRIN ESPORTS",
+      winId: 50049795,
+      pandaId: 133227,
+      rating: 81
+    },
+    {
       name: "Cuyes Esports",
       winId: 50063458,
       pandaId: 134917,
@@ -109,7 +181,7 @@ export const winLinePandascoreTeams: {
       rating: 3
     },
     {
-      name: "nouns",
+      name: "NOUNS",
       winId: 50000541,
       pandaId: 130920,
       rating: 16

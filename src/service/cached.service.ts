@@ -2,7 +2,7 @@ import logger from '../module/logger';
 import { getAssistant } from '../module/openAIClient';
 import redisClient from '../module/redisClient';
 import { betLines, heroes, winLinePandascoreTeams } from '../utils/constants';
-import type { MatchList, TAllMatchData, TAvgTeamData, TChatWithTreadIDResponse, TLiveTeamData, TMatch, TMatchData, TOdds, TPandaScoreFilteredMatch, TPredictionResponse, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
+import type { MatchList, TAllMatchData, TAvgTeamData, TChatWithTreadIDResponse, TLiveTeamData, TMatch, TMatchData, TOdds, TPandaScoreFilteredMatch, TPandascoreLiveMatch, TPredictionResponse, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
 import { PandascoreService } from './pandascore.service';
 import PredictionService from './pediction.service';
 // import { SocketService } from './socket.service';
@@ -237,7 +237,7 @@ export class CachedService {
       return null;
     }
 
-    const matchData = this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
+    const matchData = await this.filterMatchData(await this.pandascore.getAllDataByID(pandascoreMatch.id) as [TAllMatchData, TAvgTeamData]);
 
     let odds = null;
     if (winlineMatch.odds !== "") {
@@ -356,6 +356,26 @@ export class CachedService {
   }
 
   //Stratz
+
+  public async getPickWinrates(radiantHeroId: number[], direHeroId: number[], matchId: number): Promise<{ radiantWinChance: string; direWinChance: string; } | null> {
+    const isPickWinrates = await this.getCachedData(`stratzPickWinrates${matchId}`);
+
+    if (isPickWinrates) return isPickWinrates as { radiantWinChance: string; direWinChance: string; };
+
+    const pickWinrate = await this.stratz.getPickWinrateByHeroIds(radiantHeroId, direHeroId);
+
+    if (!pickWinrate) {
+      logger.error('Failed get pick winrate ' + radiantHeroId + ' ' + direHeroId);
+      return null;
+    }
+
+    this.setCachedData(`stratzPickWinrates${matchId}`, pickWinrate, 1200);
+
+    return {
+      ...pickWinrate
+    };
+  }
+
   public async getSupportTables(): Promise<TSupportTables | null> {
     const isSupportTables = await this.getCachedData('stratzSupportTables');
 
@@ -428,7 +448,7 @@ export class CachedService {
     return pandascoreMatches;
   }
 
-  private filterMatchData(data: [TAllMatchData, TAvgTeamData]): TMatchData {
+  private async filterMatchData(data: [TAllMatchData, TAvgTeamData]): Promise<TMatchData> {
     let matchesData: TAllMatchData | null = data[0];
     let teamData: TAvgTeamData | null = data[1];
 
@@ -445,11 +465,15 @@ export class CachedService {
     const finishedMatches = matchesData.games.filter(game => game.status === 'finished');
     const liveScore = `${finishedMatches.filter(game => game.winner_id === teamData.opponents[0].id).length}:${finishedMatches.filter(game => game.winner_id === teamData.opponents[1].id).length}`
 
-    let liveMatch;
+    let liveMatch: TPandascoreLiveMatch | undefined;
+    let radiantHeroesIds: number[] = [];
+    let direHeroesIds: number[] = [];
+
     if (matchesData.match_status === 'running') {
       liveMatch = matchesData.games.map(game => {
         if (game.status === "running" && game.timer.timer !== null) {
-
+          radiantHeroesIds = game.opponents[0].heroes.map(hero => hero.id);
+          direHeroesIds = game.opponents[1].heroes.map(hero => hero.id);
           return {
             inGameTime: convertTime(game.timer.timer) + " минут",
             team1: {
@@ -482,6 +506,12 @@ export class CachedService {
           }
         }
       }).filter(match => match)[0];
+    }
+
+    if (liveMatch) {
+      const winChance = await this.getPickWinrates(radiantHeroesIds, direHeroesIds, matchesData.id);
+      liveMatch.team1.pickWinChance = formatPercent(Number(winChance?.radiantWinChance));
+      liveMatch.team2.pickWinChance = formatPercent(Number(winChance?.direWinChance));
     }
 
     return {
@@ -526,10 +556,10 @@ export class CachedService {
         firstBloodPercent: formatPercent(teamData.opponents[0].stats.first_blood_percentage),
         gpmAvg: teamData.opponents[0].stats.gold_per_minute,
         mostPicked: teamData.opponents[0].stats.most_picked.map(hero => {
-          return { name: hero.name, presence: formatPercent(hero.presence_percentage) }
+          return { name: hero.name, count: hero.number_of_picks, presence: formatPercent(hero.presence_percentage) }
         }),
         mostBannedAgainst: teamData.opponents[0].stats.most_banned_against.map(hero => {
-          return { name: hero.name, presence: formatPercent(hero.presence_percentage) }
+          return { name: hero.name, count: hero.number_of_picks, presence: formatPercent(hero.presence_percentage) }
         }),
         players: teamData.opponents[0].stats.players.map(player => player.name)
       },
@@ -558,10 +588,10 @@ export class CachedService {
         firstBloodPercent: formatPercent(teamData.opponents[1].stats.first_blood_percentage),
         gpmAvg: teamData.opponents[1].stats.gold_per_minute,
         mostPicked: teamData.opponents[1].stats.most_picked.map(hero => {
-          return { name: hero.name, presence: formatPercent(hero.presence_percentage) }
+          return { name: hero.name, count: hero.number_of_picks, presence: formatPercent(hero.presence_percentage) }
         }),
         mostBannedAgainst: teamData.opponents[1].stats.most_banned_against.map(hero => {
-          return { name: hero.name, presence: formatPercent(hero.presence_percentage) }
+          return { name: hero.name, count: hero.number_of_picks, presence: formatPercent(hero.presence_percentage) }
         }),
         players: teamData.opponents[1].stats.players.map(player => player.name)
       }

@@ -1,9 +1,7 @@
-import redisClient from '../module/redisClient';
 import { gql, GraphQLClient } from 'graphql-request';
-import type { MatchList, TStratzHero, TStratzMatch, TStratzMatchFiltered, TStratzPlayer, TStratzSeries, TStratzTeam, TSupportTables, TSupportTablesQuery } from '../utils/types';
+import type { MatchList, TStratzAdvantage, TStratzHero, TStratzHeroStats, TStratzMatch, TStratzMatchFiltered, TStratzPlayer, TStratzResponse, TStratzSeries, TStratzTeam, TSupportTables, TSupportTablesQuery } from '../utils/types';
 import { heroes, items } from '../utils/constants';
-
-
+import logger from '../module/logger';
 
 type liveMatchesList = {
   matchId: number;
@@ -42,6 +40,192 @@ export default class StratzService {
       return data;
     } catch (err) {
       console.error(err)
+    }
+  }
+
+  async getPickWinrateByHeroIds(radiantHeroIds: number[], direHeroIds: number[]) {
+    const mathLimit = 100;
+    const query = gql`{
+    heroStats {
+        r1: heroVsHeroMatchup(
+            heroId: ${radiantHeroIds[0]}
+            bracketBasicIds: DIVINE_IMMORTAL
+            
+        ) {
+            advantage {
+                heroId
+                with {
+                    heroId2
+                    winsAverage
+                }
+                vs {
+                    heroId2
+                    winsAverage
+                }
+            }
+        }
+        r2: heroVsHeroMatchup(
+            heroId: ${radiantHeroIds[1]}
+            bracketBasicIds: DIVINE_IMMORTAL
+            
+        ) {
+            advantage {
+                heroId
+                with {
+                    heroId2
+                    winsAverage
+                }
+                vs {
+                    heroId2
+                    winsAverage
+                }
+            }
+        }
+        r3: heroVsHeroMatchup(
+            heroId: ${radiantHeroIds[2]}
+            bracketBasicIds: DIVINE_IMMORTAL
+            
+        ) {
+            advantage {
+                heroId
+                with {
+                    heroId2
+                    winsAverage
+                }
+                vs {
+                    heroId2
+                    winsAverage
+                }
+            }
+        }
+        r4: heroVsHeroMatchup(
+            heroId: ${radiantHeroIds[3]}
+            bracketBasicIds: DIVINE_IMMORTAL
+            
+        ) {
+            advantage {
+                heroId
+                with {
+                    heroId2
+                    winsAverage
+                }
+                vs {
+                    heroId2
+                    winsAverage
+                }
+            }
+        }
+        r5: heroVsHeroMatchup(
+            heroId: ${radiantHeroIds[4]}
+            bracketBasicIds: DIVINE_IMMORTAL
+            
+        ) {
+            advantage {
+                heroId
+                with {
+                    heroId2
+                    winsAverage
+                }
+                vs {
+                    heroId2
+                    winsAverage
+                }
+            }
+        }
+        d1: heroVsHeroMatchup(
+            heroId: ${direHeroIds[0]}
+            bracketBasicIds: DIVINE_IMMORTAL
+            
+        ) {
+            advantage {
+                heroId
+                with {
+                    heroId2
+                    winsAverage
+                }
+                vs {
+                    heroId2
+                    winsAverage
+                }
+            }
+        }
+        d2: heroVsHeroMatchup(
+            heroId: ${direHeroIds[1]}
+            bracketBasicIds: DIVINE_IMMORTAL
+            
+        ) {
+            advantage {
+                heroId
+                with {
+                    heroId2
+                    winsAverage
+                }
+                vs {
+                    heroId2
+                    winsAverage
+                }
+            }
+        }
+        d3: heroVsHeroMatchup(
+            heroId: ${direHeroIds[2]}
+            bracketBasicIds: DIVINE_IMMORTAL
+            
+        ) {
+            advantage {
+                heroId
+                with {
+                    heroId2
+                    winsAverage
+                }
+                vs {
+                    heroId2
+                    winsAverage
+                }
+            }
+        }
+        d4: heroVsHeroMatchup(
+            heroId: ${direHeroIds[3]}
+            bracketBasicIds: DIVINE_IMMORTAL
+            
+        ) {
+            advantage {
+                heroId
+                with {
+                    heroId2
+                    winsAverage
+                }
+                vs {
+                    heroId2
+                    winsAverage
+                }
+            }
+        }
+        d5: heroVsHeroMatchup(
+            heroId: ${direHeroIds[4]}
+            bracketBasicIds: DIVINE_IMMORTAL
+            
+        ) {
+            advantage {
+                heroId
+                with {
+                    heroId2
+                    winsAverage
+                }
+                vs {
+                    heroId2
+                    winsAverage
+                }
+            }
+        }
+    }
+}`;
+
+    try {
+      const data = await this.makeRequest(query) as TStratzResponse;
+      return this.deserializeHeroWinrates(radiantHeroIds, direHeroIds, data.heroStats);
+    } catch (err) {
+      logger.error(`Error when fetching data from stratz` + err);
+      return null;
     }
   }
 
@@ -497,6 +681,86 @@ export default class StratzService {
     }
   }
 
+  private deserializeHeroWinrates(radiantHeroes: number[], direHeroes: number[], stats: TStratzHeroStats) {
+    let totalRadiant: TStratzAdvantage[] = [];
+    let totalDire: TStratzAdvantage[] = [];
+    let playerSide: keyof TStratzHeroStats;
+
+    for (playerSide in stats) {
+      const advantage = stats[playerSide].advantage;
+      for (const hero in advantage) {
+        const heroId = advantage[hero].heroId;
+        const withHeroes = advantage[hero].with;
+        const vsHeroes = advantage[hero].vs;
+
+        if (radiantHeroes.includes(heroId)) {
+          const a = withHeroes.filter((heroes) =>
+            radiantHeroes.includes(heroes.heroId2)
+          );
+          const b = vsHeroes.filter((heroes) =>
+            direHeroes.includes(heroes.heroId2)
+          );
+
+          totalRadiant.push({
+            heroId,
+            with: a,
+            vs: b,
+          });
+        }
+
+        if (direHeroes.includes(heroId)) {
+          const a = withHeroes.filter((heroes) =>
+            direHeroes.includes(heroes.heroId2)
+          );
+          const b = vsHeroes.filter((heroes) =>
+            radiantHeroes.includes(heroes.heroId2)
+          );
+
+          totalDire.push({
+            heroId,
+            with: a,
+            vs: b,
+          });
+        }
+      }
+    }
+    const team = {
+      radiant: totalRadiant,
+      dire: totalDire,
+    };
+
+    const calculateAverage = (values: number[]): number => values.reduce((a, b) => a + b) / values.length;
+
+    const calculateHeroStats = (hero: TStratzAdvantage, team: TStratzAdvantage[], isWith: boolean): number => {
+      const relevantStats = isWith ? hero.with : hero.vs;
+      const averages = relevantStats
+        .filter(stat => team.some(teammate => teammate.heroId === stat.heroId2))
+        .map(stat => stat.winsAverage)
+
+      return calculateAverage(averages);
+    };
+
+    const calculateTeamAverage = (team: TStratzAdvantage[], opposingTeam: TStratzAdvantage[]): string => {
+      const withAverages = team.map(hero => calculateHeroStats(hero, team, true));
+      const vsAverages = team.map(hero => calculateHeroStats(hero, opposingTeam, false));
+
+      const withAverage = calculateAverage(withAverages);
+      const vsAverage = calculateAverage(vsAverages);
+
+      return Number((withAverage + vsAverage) / 2).toFixed(2);
+    };
+
+    const radiantWinChance = calculateTeamAverage(team.radiant, team.dire);
+    const direWinChance = calculateTeamAverage(team.dire, team.radiant);
+
+    console.log(`radiantWinChance: ${radiantWinChance} direWinChance: ${direWinChance}`);
+
+    return {
+      radiantWinChance,
+      direWinChance
+    }
+
+  }
   // private deserializeMatchStatistics(match: TStratzMatch): TStratzMatchFiltered {
   //   return {
   //     radiantScore: match.live.match.radiantScore,

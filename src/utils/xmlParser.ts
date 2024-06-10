@@ -25,6 +25,7 @@ export enum TournamentEnum {
   pgl_wallachia = 'PGL Wallachia',
   fissure_universe = "FISSURE Universe",
   riyadh_masters_qualifier = "Riyadh Masters. Qualifier",
+  TI_Qualifier = "The International, Qualification",
 }
 
 export type TFilter = {
