@@ -61,7 +61,7 @@ export const winLinePandascoreTeams: {
       rating: 47
     },
     {
-      name: "APEX GENESI",
+      name: "APEX GENESIS",
       winId: 50061777,
       pandaId: 134694,
       rating: 44
@@ -138,12 +138,12 @@ export const winLinePandascoreTeams: {
       pandaId: 133861,
       rating: 47
     },
-    {
-      name: "ASAKURA",
-      winId: 50000541,
-      pandaId: 134594,
-      rating: 79
-    },
+    // {
+    //   name: "ASAKURA",
+    //   winId: 50000541,
+    //   pandaId: 134594,
+    //   rating: 79
+    // },
     {
       name: 'Azure Ray',
       winId: 50049400,
