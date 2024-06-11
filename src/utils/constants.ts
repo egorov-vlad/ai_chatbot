@@ -27,7 +27,7 @@ export const winLinePandascoreTeams: {
     {
       name: "THE HUT",
       winId: 50064206,
-      pandaId: 0,
+      pandaId: 134625,
       rating: 48
     },
     {
@@ -51,13 +51,13 @@ export const winLinePandascoreTeams: {
     {
       name: "SPIKY",
       winId: 50062832,
-      pandaId: 134696,
+      pandaId: 134859,
       rating: 48
     },
     {
       name: "TEAM TURTLE",
       winId: 50064243,
-      pandaId: 134695,
+      pandaId: 135068,
       rating: 47
     },
     {
