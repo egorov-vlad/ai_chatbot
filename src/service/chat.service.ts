@@ -128,7 +128,7 @@ export default class ChatService {
         };
       case "bettoday":
         return {
-          message: "Сегодня состоятся эти матчи. На какой из них ты хочешь получить прогноз?",
+          message: "Сегодня состоятся эти матчи. На какой из них ты хочешь получить рекомендацию?",
           role: "assistant",
           threadId: threadId,
           options: {
@@ -138,7 +138,7 @@ export default class ChatService {
         };
       case "bettomorrow":
         return {
-          message: "Я могу предложить прогнозы на матчи, которые состоятся завтра. Какой матч интересует?",
+          message: "Я могу предложить рекомендацию на матчи, которые состоятся завтра. Какой матч интересует?",
           role: "assistant",
           threadId: threadId,
           options: {
