@@ -92,6 +92,7 @@ export async function getWinlineAllMatches(filters: TFilter) {
   return filteredJson;
 }
 
+const teamFilterIds = [220624, 50033792, 220606, 371608, 678849, 50057831, 287351, 50059639, 50059969, 50006593, 50059853, 50049799];
 
 //TODO: maybe add inner sort by date/team and etc 
 export function filterResponseJson(filters: TFilter, matchList: TWinlineMatch): TWinlineEvent[] {
@@ -105,7 +106,8 @@ export function filterResponseJson(filters: TFilter, matchList: TWinlineMatch): 
     if (!item) return false
     return (
       (!filters.game || item.country === filters.game) &&
-      (!filters.tournament || item.competition === filters.tournament)
+      (!filters.tournament || item.competition === filters.tournament) &&
+      (teamFilterIds.includes(item.id1) && teamFilterIds.includes(item.id2))
     );
   });
 

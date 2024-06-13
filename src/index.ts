@@ -72,9 +72,11 @@ const deleteAssistants = async () => {
     return;
   }
 
+  logger.info(`Deleting ${assistantList.data.length} Assistants....`);
   for (const assistant of assistantList.data) {
     await deleteAssistant(assistant.id);
   }
+  logger.info("Assistants deleted");
 }
 
 

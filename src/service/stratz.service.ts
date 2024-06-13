@@ -753,7 +753,7 @@ export default class StratzService {
     const radiantWinChance = calculateTeamAverage(team.radiant, team.dire);
     const direWinChance = calculateTeamAverage(team.dire, team.radiant);
 
-    console.log(`radiantWinChance: ${radiantWinChance} direWinChance: ${direWinChance}`);
+    // console.log(`radiantWinChance: ${radiantWinChance} direWinChance: ${direWinChance}`);
 
     return {
       radiantWinChance,
