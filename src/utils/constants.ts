@@ -8,7 +8,7 @@ export const winLinePandascoreTeams: {
 }[] = [
     {
       name: "DMS",
-      winId: 50059969,
+      winId: 50064178,
       pandaId: 135039,
       rating: 50
     },
