@@ -5,7 +5,7 @@ const predictionRouter = new Elysia();
 
 // @ts-ignore
 predictionRouter.post('/prediction', async ({ body, main, cookie: { StickySession } }) => {
-  logger.info(`StickySession: ${StickySession}`);
+  logger.info(`StickySession: ${StickySession.value}`);
   const { teamId, betLineId, matchId, threadId } = body;
 
   const predictionRes = await main().getPrediction(teamId, matchId, betLineId, threadId);

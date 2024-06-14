@@ -5,7 +5,7 @@ const messageRouter = new Elysia();
 
 //@ts-ignore
 messageRouter.post('/message', async ({ body, main, cookie: { StickySession } }) => {
-  logger.info(`StickySession: ${StickySession}`);
+  logger.info(`StickySession: ${StickySession.value}`);
   const res = await main().sendMessage(body.message, body.threadId);
 
   return res
