@@ -1,11 +1,10 @@
 import { Elysia, t } from 'elysia';
-import logger from '../../module/logger';
 
 const predictionRouter = new Elysia();
 
 // @ts-ignore
-predictionRouter.post('/prediction', async ({ body, main, cookie: { StickySession } }) => {
-  logger.info(`StickySession: ${StickySession.value}`);
+predictionRouter.post('/prediction', async ({ body, main }) => {
+
   const { teamId, betLineId, matchId, threadId } = body;
 
   const predictionRes = await main().getPrediction(teamId, matchId, betLineId, threadId);

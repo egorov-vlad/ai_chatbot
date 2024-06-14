@@ -1,11 +1,10 @@
 import { Elysia, t } from 'elysia';
-import logger from '../../module/logger';
 
 const messageRouter = new Elysia();
 
 //@ts-ignore
-messageRouter.post('/message', async ({ body, main, cookie: { StickySession } }) => {
-  logger.info(`StickySession: ${StickySession.value}`);
+messageRouter.post('/message', async ({ body, main }) => {
+
   const res = await main().sendMessage(body.message, body.threadId);
 
   return res

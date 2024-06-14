@@ -13,7 +13,7 @@ import logger from '../module/logger';
 const router = new Elysia();
 
 router.onRequest((ctx) => {
-  logger.info(ctx.request.method + ' ' + ctx.request.url);
+  logger.info(ctx.request.method + ' ' + ctx.request.url + ' ' + ctx.request.headers.get('cookie'));
 })
 
 router.onError((ctx) => {
@@ -29,7 +29,7 @@ router.group('/api', (router) =>
     .use(teamsRouter)
     .use(predictionRouter)
     .use(shortPredictionRouter)
-    // .use(testRouter)
+    .use(testRouter)
     .use(matchDataRouter)
   ));
 
