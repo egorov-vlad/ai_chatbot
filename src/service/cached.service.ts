@@ -514,6 +514,9 @@ export class CachedService {
       liveMatch.team2.pickWinChance = formatPercent(Number(winChance?.direWinChance));
     }
 
+    const team1Stats = teamData.opponents[0].stats;
+    const team2Stats = teamData.opponents[1].stats;
+
     return {
       matchId: matchesData.id,
       matchStatus: matchesData.match_status,
@@ -547,21 +550,21 @@ export class CachedService {
             winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
           }
         }),
-        killAvg: teamData.opponents[0].stats.kills,
-        gameLengthAvg: convertTime(teamData.opponents[0].stats.average_game_length) + " минут",
-        towerKillAvg: teamData.opponents[0].stats.towers,
-        barracksKillAvg: teamData.opponents[0].stats.barracks,
-        radiantWinrate: formatPercent(teamData.opponents[0].stats.radiant_winrate),
-        direWinrate: formatPercent(teamData.opponents[0].stats.dire_winrate),
-        firstBloodPercent: formatPercent(teamData.opponents[0].stats.first_blood_percentage),
-        gpmAvg: teamData.opponents[0].stats.gold_per_minute,
-        mostPicked: teamData.opponents[0].stats.most_picked.map(hero => {
+        killAvg: team1Stats.kills,
+        gameLengthAvg: convertTime(team1Stats.average_game_length) + " минут",
+        towerKillAvg: team1Stats.towers,
+        barracksKillAvg: team1Stats.barracks,
+        radiantWinrate: formatPercent(team1Stats.radiant_winrate),
+        direWinrate: formatPercent(team1Stats.dire_winrate),
+        firstBloodPercent: formatPercent(team1Stats.first_blood_percentage),
+        gpmAvg: team1Stats.gold_per_minute,
+        mostPicked: team1Stats.most_picked.map(hero => {
           return { name: hero.name, count: hero.number_of_picks, presence: formatPercent(hero.presence_percentage) }
         }),
-        mostBannedAgainst: teamData.opponents[0].stats.most_banned_against.map(hero => {
+        mostBannedAgainst: team1Stats.most_banned_against.map(hero => {
           return { name: hero.name, count: hero.number_of_picks, presence: formatPercent(hero.presence_percentage) }
         }),
-        players: teamData.opponents[0].stats.players.map(player => player.name)
+        players: team1Stats.players.map(player => player.name)
       },
       team2: {
         teamName: matchesData.opponents[1].name,
@@ -579,21 +582,21 @@ export class CachedService {
             winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
           }
         }),
-        killAvg: teamData.opponents[1].stats.kills,
-        gameLengthAvg: convertTime(teamData.opponents[1].stats.average_game_length) + " минут",
-        towerKillAvg: teamData.opponents[1].stats.towers,
-        barracksKillAvg: teamData.opponents[1].stats.barracks,
-        radiantWinrate: formatPercent(teamData.opponents[1].stats.radiant_winrate),
-        direWinrate: formatPercent(teamData.opponents[1].stats.dire_winrate),
-        firstBloodPercent: formatPercent(teamData.opponents[1].stats.first_blood_percentage),
-        gpmAvg: teamData.opponents[1].stats.gold_per_minute,
-        mostPicked: teamData.opponents[1].stats.most_picked.map(hero => {
+        killAvg: team2Stats?.kills,
+        gameLengthAvg: convertTime(team2Stats?.average_game_length) + " минут",
+        towerKillAvg: team2Stats?.towers,
+        barracksKillAvg: team2Stats?.barracks,
+        radiantWinrate: formatPercent(team2Stats?.radiant_winrate),
+        direWinrate: formatPercent(team2Stats?.dire_winrate),
+        firstBloodPercent: formatPercent(team2Stats?.first_blood_percentage),
+        gpmAvg: team2Stats?.gold_per_minute,
+        mostPicked: team2Stats?.most_picked.map(hero => {
           return { name: hero.name, count: hero.number_of_picks, presence: formatPercent(hero.presence_percentage) }
         }),
-        mostBannedAgainst: teamData.opponents[1].stats.most_banned_against.map(hero => {
+        mostBannedAgainst: team2Stats?.most_banned_against.map(hero => {
           return { name: hero.name, count: hero.number_of_picks, presence: formatPercent(hero.presence_percentage) }
         }),
-        players: teamData.opponents[1].stats.players.map(player => player.name)
+        players: team2Stats?.players.map(player => player.name)
       }
     }
   };
