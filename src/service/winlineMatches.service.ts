@@ -81,9 +81,12 @@ export class WinlineMatchService {
     if (!tomorrowMatches) return [];
 
     const filteredMatches = tomorrowMatches.filter(
-      ({ datetime }) =>
-        new Date(datetime).toLocaleDateString('en-EN', { timeZone: 'Europe/Moscow' }) >
-        new Date(Date.now()).toLocaleDateString('en-EN', { timeZone: 'Europe/Moscow' })
+      ({ datetime }) => {
+        const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        tomorrow.setHours(0, 0, 0, 0);
+        return new Date(datetime).toLocaleDateString('en-EN', { timeZone: 'Europe/Moscow' }) ===
+          tomorrow.toLocaleDateString('en-EN', { timeZone: 'Europe/Moscow' })
+      }
     );
 
     return filteredMatches.length ? this.omitWinlineData(filteredMatches) : [];
