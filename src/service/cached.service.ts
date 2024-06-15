@@ -472,8 +472,8 @@ export class CachedService {
     if (matchesData.match_status === 'running') {
       liveMatch = matchesData.games.map(game => {
         if (game.status === "running" && game.timer.timer !== null) {
-          radiantHeroesIds = game.opponents[0].heroes.map(hero => hero.id);
-          direHeroesIds = game.opponents[1].heroes.map(hero => hero.id);
+          radiantHeroesIds = game.opponents[0].side === "radiant" ? game.opponents[0].heroes.map(hero => hero.id) : game.opponents[1].heroes.map(hero => hero.id);
+          direHeroesIds = game.opponents[1].side === "dire" ? game.opponents[1].heroes.map(hero => hero.id) : game.opponents[0].heroes.map(hero => hero.id);
           return {
             inGameTime: convertTime(game.timer.timer) + " минут",
             team1: {
