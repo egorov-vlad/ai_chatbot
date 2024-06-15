@@ -29,7 +29,7 @@ router.group('/api', (router) =>
     .use(teamsRouter)
     .use(predictionRouter)
     .use(shortPredictionRouter)
-    .use(testRouter)
+    // .use(testRouter)
     .use(matchDataRouter)
   ));
 
