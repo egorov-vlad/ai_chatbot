@@ -216,7 +216,7 @@ export class CachedService {
       return null;
     }
 
-    const isMatchData = await this.getCachedData(`matchData:${winlineMatch.id}`) as TMatchData;
+    const isMatchData = await this.getCachedData(`matchData:${winlineMatch.id}:${line}`) as TMatchData;
 
     if (isMatchData) {
       return isMatchData;
@@ -254,7 +254,8 @@ export class CachedService {
       return null;
     }
 
-    await this.setCachedData(`matchData:${winlineMatch.id}`, matchDataWithOdds, 30);
+    await this.setCachedData(`matchData:${winlineMatch.id}:${line}`, matchDataWithOdds, 30);
+    // await this.setCachedData(`matchData:${winlineMatch.id}`, matchDataWithOdds, 30);
 
     return matchDataWithOdds;
   }
