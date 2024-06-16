@@ -135,12 +135,12 @@ export class CachedService {
       return null;
     }
 
-    // const prediction = await this.makePrediction(matchData, 'team', line, teamName);
-    const prediction = {
-      role: 'assistant',
-      message: 'Тут будет сообщение',
-      threadId: "123"
-    };
+    const prediction = await this.makePrediction(matchData, 'team', line, teamName, threadId);
+    // const prediction = {
+    //   role: 'assistant',
+    //   message: 'Тут будет сообщение',
+    //   threadId: "123"
+    // };
     if (!prediction) {
       logger.error('Failed make prediction in getPredictionByTeamId: ' + teamId);
       return null;
@@ -176,12 +176,12 @@ export class CachedService {
       return null;
     }
 
-    // const prediction = await this.makePrediction(matchData, 'match', line);
-    const prediction = {
-      role: 'assistant',
-      message: 'Тут будет сообщение',
-      threadId: "123"
-    };
+    const prediction = await this.makePrediction(matchData, 'match', line, threadId);
+    // const prediction = {
+    //   role: 'assistant',
+    //   message: 'Тут будет сообщение',
+    //   threadId: "123"
+    // };
 
     if (!prediction) {
       logger.error("Failed makePrediction " + winlineMatchId + line);
