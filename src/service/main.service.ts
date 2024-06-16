@@ -114,7 +114,7 @@ export class MainService {
 
     let res = await this.chat.validateMessage(message, textAnalyserRes, this.predictorAssistant, threadId);
     if (!res) {
-      logger.error('Failed get AI response ' + ' ' + message + ' ' + threadId + textAnalyserRes);
+      logger.error('Failed get AI response ' + ' ' + message + ' ' + threadId + JSON.stringify(textAnalyserRes));
       return new Response('Failed get AI response', { status: 500 });
     }
 
