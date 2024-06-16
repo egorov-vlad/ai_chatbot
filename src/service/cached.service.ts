@@ -647,13 +647,13 @@ export class CachedService {
             odd2: odd.odd2,
           }
         }
-        if (odd.freetext === `${mapNum} карта Исход 12`) {
-          return {
-            name: `${mapNum} карта Исход`,
-            odd1: odd.odd1,
-            odd2: odd.odd2,
-          }
-        }
+        // if (odd.freetext === `${mapNum} карта Исход 12`) {
+        //   return {
+        //     name: `${mapNum} карта Исход`,
+        //     odd1: odd.odd1,
+        //     odd2: odd.odd2,
+        //   }
+        // }
         if (odd.freetext === '1X2 (Основное время)') {
           return {
             name1: "Победа первой команды",
