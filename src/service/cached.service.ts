@@ -332,7 +332,7 @@ export class CachedService {
     let prediction: TChatWithTreadIDResponse | null;
 
     if (!line) {
-      prediction = await this.getPrediction(matchData, id, predictionType === 'match' ? 'Кто победит?' : `Шанс победы команды ${teamName}?`, threadId);
+      prediction = await this.getPrediction(matchData, id, predictionType === 'match' ? 'Кто победит в матче?' : `Шанс победы команды ${teamName}?`, threadId);
     } else {
       prediction = await this.getPrediction(matchData, id, betLines[line - 1].name, threadId);
     }
