@@ -259,7 +259,7 @@ export const betLines: TBetLine[] = [
   },
   {
     id: 3,
-    name: "Тотал убийств матч"
+    name: "Тотал убийств на 1-й карте"
   },
   {
     id: 4,

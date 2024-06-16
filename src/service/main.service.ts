@@ -4,6 +4,7 @@ import redisClient from '../module/redisClient';
 import type { TPredictionResponse } from '../utils/types';
 import { CachedService } from './cached.service';
 import ChatService from './chat.service';
+import StratzService from './stratz.service';
 
 export class MainService {
   protected cached: CachedService;
@@ -76,15 +77,15 @@ export class MainService {
     return this.createResponse({ matches, format }, 200);
   }
 
-  public async getPrediction(teamId: number, matchId: number, betLineId: number): Promise<Response> {
+  public async getPrediction(teamId: number, matchId: number, betLineId: number, threadId?: string): Promise<Response> {
     let match: TPredictionResponse | null = null;
 
     if (matchId) {
-      match = await this.cached.getPredictionByMatchId(matchId, betLineId);
+      match = await this.cached.getPredictionByMatchId(matchId, betLineId, threadId);
     }
 
     if (teamId) {
-      match = await this.cached.getPredictionByTeamId(teamId, betLineId);
+      match = await this.cached.getPredictionByTeamId(teamId, betLineId, threadId);
     }
 
     if (!match) {
@@ -137,15 +138,11 @@ export class MainService {
   public async test() {
     // await deleteAssistant("asst_GZUnhe1K4qMbHuCPiAiDk1kI");
     // await deleteAssistant("asst_ntO5bvAzWHN2asuGDj4Cx1pr");
-    return getAssistant();
+    // return getAssistant();
   }
 
   private formateMessage(message: string) {
     return message.replace(/\n/g, '<br>').replace(/\*\*/g, '');
-  }
-
-  private async getThreadData(threadId: string) {
-    return this.cached.getCachedData(`threadData:${threadId}`);
   }
 
   private createResponse(res: any, status: number) {

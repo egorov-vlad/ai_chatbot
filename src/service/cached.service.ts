@@ -1,8 +1,8 @@
 import logger from '../module/logger';
 import { getAssistant } from '../module/openAIClient';
 import redisClient from '../module/redisClient';
-import { betLines, heroes, winLinePandascoreTeams } from '../utils/constants';
-import type { MatchList, TAllMatchData, TAvgTeamData, TChatWithTreadIDResponse, TLiveTeamData, TMatch, TMatchData, TOdds, TPandaScoreFilteredMatch, TPandascoreLiveMatch, TPredictionResponse, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
+import { betLines, winLinePandascoreTeams } from '../utils/constants';
+import type { MatchList, TAllMatchData, TAvgTeamData, TBetLine, TChatWithTreadIDResponse, TMatch, TMatchData, TOdds, TPandaScoreFilteredMatch, TPandascoreLiveMatch, TPredictionResponse, TSupportTables, TWinlineEvent, TWinlineTeams } from '../utils/types';
 import { PandascoreService } from './pandascore.service';
 import PredictionService from './pediction.service';
 // import { SocketService } from './socket.service';
@@ -119,7 +119,7 @@ export class CachedService {
     return null;
   }
 
-  public async getPredictionByTeamId(teamId: number, line?: number): Promise<TPredictionResponse | null> {
+  public async getPredictionByTeamId(teamId: number, line?: number, threadId?: string): Promise<TPredictionResponse | null> {
     const isPrediction = await this.getCachedData(`chatbotPrediction:${teamId}:${line}`) as TPredictionResponse;
 
     logger.info('Prediction for: ' + teamId + ' ' + line);
@@ -128,26 +128,41 @@ export class CachedService {
     }
 
     const matchData = await this.getMatchData('team', teamId);
+    const teamName = winLinePandascoreTeams.filter(team => team.winId === teamId)[0].name;
 
     if (!matchData) {
       logger.error('Failed get match data in getPredictionByTeamId: ' + teamId);
       return null;
     }
 
-    const prediction = await this.makePrediction(matchData, line);
-
+    // const prediction = await this.makePrediction(matchData, 'team', line, teamName);
+    const prediction = {
+      role: 'assistant',
+      message: 'Тут будет сообщение',
+      threadId: "123"
+    };
     if (!prediction) {
       logger.error('Failed make prediction in getPredictionByTeamId: ' + teamId);
       return null;
     }
 
     await this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 40);
-    await this.setThreadData(prediction.threadId, matchData)
+    await this.setThreadData(prediction.threadId, matchData);
 
-    return line ? prediction : { ...prediction, betLines };
+    const newBetLines: TBetLine[] = matchData.liveScore === "0:0" ? betLines : betLines.map(betLine => {
+      if (betLine.id === 3) {
+        return {
+          ...betLine, name: "Тотал убийств на текущей карте"
+        }
+      }
+
+      return betLine
+    });
+
+    return line ? prediction : { ...prediction, betLines: newBetLines };
   }
 
-  public async getPredictionByMatchId(winlineMatchId: number, line?: number): Promise<TPredictionResponse | null> {
+  public async getPredictionByMatchId(winlineMatchId: number, line?: number, threadId?: string): Promise<TPredictionResponse | null> {
     const isPrediction = await this.getCachedData(`chatbotPrediction:${winlineMatchId}:${line}`) as TPredictionResponse;
     logger.info('Prediction for: ' + winlineMatchId + ' ' + line);
     if (isPrediction) {
@@ -161,7 +176,12 @@ export class CachedService {
       return null;
     }
 
-    const prediction = await this.makePrediction(matchData, line);
+    // const prediction = await this.makePrediction(matchData, 'match', line);
+    const prediction = {
+      role: 'assistant',
+      message: 'Тут будет сообщение',
+      threadId: "123"
+    };
 
     if (!prediction) {
       logger.error("Failed makePrediction " + winlineMatchId + line);
@@ -169,9 +189,19 @@ export class CachedService {
     }
 
     await this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 40);
-    await this.setThreadData(prediction.threadId, matchData)
+    await this.setThreadData(prediction.threadId, matchData);
 
-    return line ? prediction : { ...prediction, betLines };
+    const newBetLines: TBetLine[] = matchData.liveScore === "0:0" ? betLines : betLines.map(betLine => {
+      if (betLine.id === 3) {
+        return {
+          ...betLine, name: "Тотал убийств на текущей карте"
+        }
+      }
+
+      return betLine
+    });
+
+    return line ? prediction : { ...prediction, betLines: newBetLines };
   }
 
   private async awaitPrediction(id: string) {
@@ -284,7 +314,7 @@ export class CachedService {
     return assistantId;
   }
 
-  private async makePrediction(matchData: TMatchData, line?: number): Promise<TChatWithTreadIDResponse | null> {
+  private async makePrediction(matchData: TMatchData, predictionType: string, line?: number, teamName?: string, threadId?: string): Promise<TChatWithTreadIDResponse | null> {
     const id = line ? `${matchData.matchId}:${line}` : `${matchData.matchId}`;
     const isPredictionInProgress = await redisClient.get(`predictionInProgress${id}`) as string;
 
@@ -302,9 +332,9 @@ export class CachedService {
     let prediction: TChatWithTreadIDResponse | null;
 
     if (!line) {
-      prediction = await this.getPrediction(matchData, id, 'Кто победит?');
+      prediction = await this.getPrediction(matchData, id, predictionType === 'match' ? 'Кто победит?' : `Шанс победы команды ${teamName}?`, threadId);
     } else {
-      prediction = await this.getPrediction(matchData, id, betLines[line - 1].name);
+      prediction = await this.getPrediction(matchData, id, betLines[line - 1].name, threadId);
     }
 
     if (!prediction) {
@@ -314,12 +344,12 @@ export class CachedService {
     return prediction;
   }
 
-  private async getPrediction(matchData: TMatchData, id: string, question: string): Promise<TChatWithTreadIDResponse | null> {
+  private async getPrediction(matchData: TMatchData, id: string, question: string, threadId?: string): Promise<TChatWithTreadIDResponse | null> {
 
     const predictor = new PredictionService();
     const assistantId = await this.getAssistantFromCache();
     await redisClient.set(`predictionInProgress${id}`, "true");
-    const prediction = await predictor.getPrediction(matchData, assistantId, question);
+    const prediction = await predictor.getPrediction(matchData, assistantId, question, threadId);
 
     if (!prediction) {
       logger.error('Failed get prediction ' + id);

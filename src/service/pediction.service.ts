@@ -1,13 +1,13 @@
 
 import logger from '../module/logger';
-import { createRun, createThread, getMessageList, pullMessages, sendMessageToThread, type TChatMessageHistory } from '../module/openAIClient';
+import { createRun, createThread, getMessageList, pullMessages, sendMessageToThread } from '../module/openAIClient';
 import type { TChatWithTreadIDResponse, TMatchData } from '../utils/types';
 
 
 export default class PredictionService {
 
-  public async getPrediction(matchData: TMatchData, assistantId: string, question: string): Promise<TChatWithTreadIDResponse | null> {
-    const threadId = await createThread();
+  public async getPrediction(matchData: TMatchData, assistantId: string, question: string, thread?: string): Promise<TChatWithTreadIDResponse | null> {
+    const threadId = thread ? thread : await createThread();
 
     if (!threadId) {
       logger.error("Thread creation failed " + JSON.stringify(matchData));
