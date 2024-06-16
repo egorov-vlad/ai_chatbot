@@ -43,7 +43,7 @@ export class MainService {
 
     const format = {
       type: "button",
-      title: "Сделать прогноз на name",
+      title: "Рекомендация на name",
       message: "",
       isInputEnabled: false,
       next: ["chooseBetLine", "makeBet"],
