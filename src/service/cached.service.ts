@@ -578,6 +578,7 @@ export class CachedService {
             worldRatingPlacement2: winLinePandascoreTeams.find(team => team.pandaId === team2.id)?.rating || null,
             matchResult: match.winner_id === matchesData.opponents[0].id ? "WIN" : "LOSE",
             score: team1.score + ":" + team2.score,
+            matchTime: match.modified_at.split('T')[0],
             winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
           }
         }),
@@ -610,6 +611,7 @@ export class CachedService {
             worldRatingPlacement2: winLinePandascoreTeams.find(team => team.pandaId === team2.id)?.rating || null,
             matchResult: match.winner_id === matchesData.opponents[1].id ? "WIN" : "LOSE",
             score: team1.score + ":" + team2.score,
+            matchTime: match.modified_at.split('T')[0],
             winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
           }
         }),
