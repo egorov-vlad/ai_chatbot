@@ -34,7 +34,7 @@ export const winLinePandascoreTeams: {
       name: "1WIN",
       winId: 678849,
       pandaId: 134536,
-      rating: 26
+      rating: 23
     },
     {
       name: "NEMIGA GAMING",
@@ -52,7 +52,7 @@ export const winLinePandascoreTeams: {
       name: "9 PANDAS",
       winId: 50033792,
       pandaId: 133137,
-      rating: 23
+      rating: 22
     },
     {
       name: "NextUp",
@@ -118,7 +118,7 @@ export const winLinePandascoreTeams: {
       name: "Yellow Submarine",
       winId: 287351,
       pandaId: 1931,
-      rating: 32
+      rating: 31
     },
     {
       name: "Night Pulse",
@@ -142,7 +142,7 @@ export const winLinePandascoreTeams: {
       name: 'Natus Vincere',
       winId: 220606,
       pandaId: 1699,
-      rating: 21
+      rating: 20
     },
     {
       name: 'Tundra Esports',
