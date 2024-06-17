@@ -1,4 +1,5 @@
 import { Elysia, t } from 'elysia';
+import logger from '../../module/logger';
 
 const predictionRouter = new Elysia();
 
@@ -6,7 +7,7 @@ const predictionRouter = new Elysia();
 predictionRouter.post('/prediction', async ({ body, main }) => {
 
   const { teamId, betLineId, matchId, threadId } = body;
-
+  logger.info('Prediction for: ' + teamId + ' ' + betLineId + ' ' + matchId + ' ' + threadId);
   const predictionRes = await main().getPrediction(teamId, matchId, betLineId, threadId);
 
   return predictionRes;
