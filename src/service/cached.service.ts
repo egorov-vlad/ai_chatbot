@@ -562,6 +562,7 @@ export class CachedService {
           teamName1: team1.name,
           teamName2: team2.name,
           score: team1.score + ":" + team2.score,
+          matchTime: match.modified_at.split('T')[0],
           winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
         }
       }),
