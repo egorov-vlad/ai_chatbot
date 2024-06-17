@@ -23,7 +23,7 @@ export default class PredictionService {
     }
     const res = await this.checkStatus(threadId, runId);
 
-    // logger.info("Prediction done for: " + performance.now())
+    logger.info("Prediction done for: " + question + " " + threadId);
 
     return res ? {
       ...res,
