@@ -176,7 +176,7 @@ export class CachedService {
       return null;
     }
 
-    const prediction = await this.makePrediction(matchData, 'match', line, threadId);
+    const prediction = await this.makePrediction(matchData, 'match', line, undefined, threadId);
     // const prediction = {
     //   role: 'assistant',
     //   message: 'Тут будет сообщение',
