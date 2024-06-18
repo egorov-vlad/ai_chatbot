@@ -92,7 +92,7 @@ export async function getWinlineAllMatches(filters: TFilter) {
   return filteredJson;
 }
 
-const teamFilterIds = [220624, 50033792, 220606, 371608, 678849, 50057831, 287351, 50059639, 50064178, 50006593, 50059853, 50049799];
+const teamFilterIds = [220624, 50033792, 220606, 371608, 678849, 50057831, 287351, 50059639, 50064178, 50006593, 50059853, 50049799, 771698, 640344, 242388, 220604, 391766, 50056001, 242386, 839880];
 
 //TODO: maybe add inner sort by date/team and etc 
 export function filterResponseJson(filters: TFilter, matchList: TWinlineMatch): TWinlineEvent[] {

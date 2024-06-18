@@ -94,13 +94,13 @@ export const winLinePandascoreTeams: {
       name: "ENTITY GAMING",
       winId: 391766,
       pandaId: 129904,
-      rating: 9
+      rating: 8
     },
     {
       name: "NIGMA GALAXY",
       winId: 839880,
       pandaId: 129609,
-      rating: 33
+      rating: 34
     },
     {
       name: "OG",
@@ -157,10 +157,10 @@ export const winLinePandascoreTeams: {
       rating: 19
     },
     {
-      name: '50057831',
+      name: 'PSG QUEST',
       winId: 50056001,
       pandaId: 133072,
-      rating: 13
+      rating: 12
     },
     {
       name: 'Xtreme Gaming',
@@ -237,7 +237,7 @@ export const winLinePandascoreTeams: {
       name: "TEAM SECRET",
       winId: 242388,
       pandaId: 1656,
-      rating: 17
+      rating: 18
     },
     {
       name: "VIRTUS.PRO",
