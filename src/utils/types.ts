@@ -777,7 +777,7 @@ export type TTeamMatchData = {
     worldRatingPlacement1: number | null;
     teamName2: string;
     worldRatingPlacement2: number | null;
-    score: string;
+    previousScore: string;
     matchResult: string;
     winningTeam: string;
   }[];
@@ -838,7 +838,7 @@ export type TMatchData = {
   matchId: number;
   matchStatus: string;
   matchType: string;
-  liveScore: string;
+  currentScore: string;
   liveMatch: {
     inGameTime: string;
     team1: TLiveTeamData;
@@ -848,7 +848,7 @@ export type TMatchData = {
   matchUps: {
     teamName1: string;
     teamName2: string;
-    score: string;
+    previousScore: string;
     winningTeam: string;
   }[];
   team1: TTeamMatchData;

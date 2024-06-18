@@ -149,7 +149,7 @@ export class CachedService {
     await this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 40);
     await this.setThreadData(prediction.threadId, matchData);
 
-    const newBetLines: TBetLine[] = matchData.liveScore === "0:0" ? betLines : betLines.map(betLine => {
+    const newBetLines: TBetLine[] = matchData.currentScore === "0:0" ? betLines : betLines.map(betLine => {
       if (betLine.id === 3) {
         return {
           ...betLine, name: "Тотал убийств на текущей карте"
@@ -191,7 +191,7 @@ export class CachedService {
     await this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 40);
     await this.setThreadData(prediction.threadId, matchData);
 
-    const newBetLines: TBetLine[] = matchData.liveScore === "0:0" ? betLines : betLines.map(betLine => {
+    const newBetLines: TBetLine[] = matchData.currentScore === "0:0" ? betLines : betLines.map(betLine => {
       if (betLine.id === 3) {
         return {
           ...betLine, name: "Тотал убийств на текущей карте"
@@ -272,7 +272,7 @@ export class CachedService {
     let odds = null;
     if (winlineMatch.odds !== "") {
       line = line || 1;
-      const split = matchData.liveScore.split(':');
+      const split = matchData.currentScore.split(':');
       const mapNum = Number(split[0]) + Number(split[1]) + 1;
       odds = this.getOddsByBetLine(winlineMatch.odds, mapNum, line);
     }
@@ -552,7 +552,7 @@ export class CachedService {
       matchId: matchesData.id,
       matchStatus: matchesData.match_status,
       matchType: `Best of ${matchesData.games.length}`,
-      liveScore: liveScore,
+      currentScore: liveScore,
       liveMatch: liveMatch,
       matchUps: matchesData.encounters.map(match => {
         let team1 = match.opponents[0];
@@ -561,7 +561,7 @@ export class CachedService {
         return {
           teamName1: team1.name,
           teamName2: team2.name,
-          score: team1.score + ":" + team2.score,
+          previousScore: team1.score + ":" + team2.score,
           matchTime: match.modified_at.split('T')[0],
           winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
         }
@@ -578,7 +578,7 @@ export class CachedService {
             teamName2: team2.name,
             worldRatingPlacement2: winLinePandascoreTeams.find(team => team.pandaId === team2.id)?.rating || null,
             matchResult: match.winner_id === matchesData.opponents[0].id ? "WIN" : "LOSE",
-            score: team1.score + ":" + team2.score,
+            previousScore: team1.score + ":" + team2.score,
             matchTime: match.modified_at.split('T')[0],
             winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
           }
@@ -622,7 +622,7 @@ export class CachedService {
             teamName2: team2.name,
             worldRatingPlacement2: winLinePandascoreTeams.find(team => team.pandaId === team2.id)?.rating || null,
             matchResult: match.winner_id === matchesData.opponents[1].id ? "WIN" : "LOSE",
-            score: team1.score + ":" + team2.score,
+            previousScore: team1.score + ":" + team2.score,
             matchTime: match.modified_at.split('T')[0],
             winningTeam: match.winner_id === team1.id ? team1.name : team2.name,
           }
