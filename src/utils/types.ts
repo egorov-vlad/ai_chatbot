@@ -838,7 +838,12 @@ export type TMatchData = {
   matchId: number;
   matchStatus: string;
   matchType: string;
-  currentScore: string;
+  currentScore: {
+    team1: string;
+    score1: number;
+    team2: string;
+    score2: number;
+  };
   liveMatch: {
     inGameTime: string;
     team1: TLiveTeamData;

@@ -149,7 +149,7 @@ export class CachedService {
     await this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 40);
     await this.setThreadData(prediction.threadId, matchData);
 
-    const newBetLines: TBetLine[] = matchData.currentScore === "0:0" ? betLines : betLines.map(betLine => {
+    const newBetLines: TBetLine[] = matchData.currentScore.score1 + matchData.currentScore.score2 === 0 ? betLines : betLines.map(betLine => {
       if (betLine.id === 3) {
         return {
           ...betLine, name: "Тотал убийств на текущей карте"
@@ -191,7 +191,7 @@ export class CachedService {
     await this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 40);
     await this.setThreadData(prediction.threadId, matchData);
 
-    const newBetLines: TBetLine[] = matchData.currentScore === "0:0" ? betLines : betLines.map(betLine => {
+    const newBetLines: TBetLine[] = matchData.currentScore.score1 + matchData.currentScore.score2 === 0 ? betLines : betLines.map(betLine => {
       if (betLine.id === 3) {
         return {
           ...betLine, name: "Тотал убийств на текущей карте"
@@ -272,8 +272,7 @@ export class CachedService {
     let odds = null;
     if (winlineMatch.odds !== "") {
       line = line || 1;
-      const split = matchData.currentScore.split(':');
-      const mapNum = Number(split[0]) + Number(split[1]) + 1;
+      const mapNum = matchData.currentScore.score1 + matchData.currentScore.score2 + 1;
       odds = this.getOddsByBetLine(winlineMatch.odds, mapNum, line);
     }
 
@@ -552,7 +551,12 @@ export class CachedService {
       matchId: matchesData.id,
       matchStatus: matchesData.match_status,
       matchType: `Best of ${matchesData.games.length}`,
-      currentScore: liveScore,
+      currentScore: {
+        team1: matchesData.opponents[0].name,
+        score1: finishedMatches.filter(game => game.winner_id === teamData.opponents[0].id).length,
+        team2: matchesData.opponents[1].name,
+        score2: finishedMatches.filter(game => game.winner_id === teamData.opponents[1].id).length
+      },
       liveMatch: liveMatch,
       matchUps: matchesData.encounters.map(match => {
         let team1 = match.opponents[0];
