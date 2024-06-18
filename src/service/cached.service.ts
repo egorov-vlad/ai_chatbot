@@ -316,19 +316,19 @@ export class CachedService {
 
   private async makePrediction(matchData: TMatchData, predictionType: string, line?: number, teamName?: string, threadId?: string): Promise<TChatWithTreadIDResponse | null> {
     const id = line ? `${matchData.matchId}:${line}` : `${matchData.matchId}`;
-    const isPredictionInProgress = await redisClient.get(`predictionInProgress${id}`) as string;
+    // const isPredictionInProgress = await redisClient.get(`predictionInProgress${id}`) as string;
 
-    if (isPredictionInProgress) {
-      const prediction = await this.awaitPrediction(id) as TChatWithTreadIDResponse;
+    // if (isPredictionInProgress) {
+    //   const prediction = await this.awaitPrediction(id) as TChatWithTreadIDResponse;
 
-      if (!prediction) {
-        logger.error('Failed await prediction ' + id);
-        await redisClient.del(`predictionInProgress${id}`)
-        return null;
+    //   if (!prediction) {
+    //     logger.error('Failed await prediction ' + id);
+    //     await redisClient.del(`predictionInProgress${id}`)
+    //     return null;
 
-      }
-      return prediction;
-    }
+    //   }
+    //   return prediction;
+    // }
     let prediction: TChatWithTreadIDResponse | null;
 
     if (!line) {
@@ -348,17 +348,17 @@ export class CachedService {
 
     const predictor = new PredictionService();
     const assistantId = await this.getAssistantFromCache();
-    await redisClient.set(`predictionInProgress${id}`, "true");
+    // await redisClient.set(`predictionInProgress${id}`, "true");
     const prediction = await predictor.getPrediction(matchData, assistantId, question, threadId);
 
     if (!prediction) {
       logger.error('Failed get prediction ' + id);
-      await redisClient.del(`predictionInProgress${id}`)
+      // await redisClient.del(`predictionInProgress${id}`)
       return null;
     }
 
     await this.setCachedData(`chatbotPrediction:${id}`, prediction, 30);
-    await redisClient.del(`predictionInProgress${id}`)
+    // await redisClient.del(`predictionInProgress${id}`)
 
     return prediction;
   }
