@@ -597,7 +597,18 @@ export class CachedService {
         mostBannedAgainst: team1Stats.most_banned_against.map(hero => {
           return { name: hero.name, count: hero.number_of_picks, presence: formatPercent(hero.presence_percentage) }
         }),
-        players: team1Stats.players.map(player => player.name)
+        players: team1Stats.players.map(player => player.name),
+        playersStats: team1Stats.players.map(player => {
+          return {
+            name: player.name,
+            killAvg: player.kills,
+            deathAvg: player.deaths,
+            assistAvg: player.assists,
+            position: player.position,
+            mostPickedHero: player.most_picked.map(hero => hero.name),
+            lastHitAvg: player.last_hits
+          }
+        })
       },
       team2: {
         teamName: matchesData.opponents[1].name,
@@ -630,7 +641,18 @@ export class CachedService {
         mostBannedAgainst: team2Stats?.most_banned_against.map(hero => {
           return { name: hero.name, count: hero.number_of_picks, presence: formatPercent(hero.presence_percentage) }
         }),
-        players: team2Stats?.players.map(player => player.name)
+        players: team2Stats?.players.map(player => player.name),
+        playersStats: team1Stats.players.map(player => {
+          return {
+            name: player.name,
+            killAvg: player.kills,
+            deathAvg: player.deaths,
+            assistAvg: player.assists,
+            position: player.position,
+            mostPickedHero: player.most_picked.map(hero => hero.name),
+            lastHitAvg: player.last_hits
+          }
+        })
       }
     }
   };

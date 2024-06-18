@@ -798,6 +798,15 @@ export type TTeamMatchData = {
     presence: string;
   }[];
   players: string[];
+  playersStats: {
+    name: string;
+    killAvg: number;
+    deathAvg: number;
+    assistAvg: number;
+    position: string;
+    mostPickedHero: string[];
+    lastHitAvg: number;
+  }[];
 }
 
 export type TLiveTeamData = {
