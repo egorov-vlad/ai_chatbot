@@ -836,6 +836,7 @@ export type TLiveTeamData = {
 
 export type TMatchData = {
   matchId: number;
+  todayDate: string;
   matchStatus: string;
   matchType: string;
   currentScore: {

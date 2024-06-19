@@ -549,6 +549,7 @@ export class CachedService {
 
     return {
       matchId: matchesData.id,
+      todayDate: new Date().toISOString().split('T')[0],
       matchStatus: matchesData.match_status,
       matchType: `Best of ${matchesData.games.length}`,
       currentScore: {
