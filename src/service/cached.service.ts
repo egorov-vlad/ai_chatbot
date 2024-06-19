@@ -293,7 +293,7 @@ export class CachedService {
     let assistantId = await redisClient.get("predictorAssistant") as string;
 
     if (!assistantId && assistantId?.length < 2) {
-      getAssistant();
+      await getAssistant();
     }
 
     assistantId = await redisClient.get("predictorAssistant") as string;
@@ -305,7 +305,7 @@ export class CachedService {
     let assistantId = await redisClient.get("shortPredictorAssistant") as string;
 
     if (!assistantId && assistantId?.length < 2) {
-      getAssistant();
+      await getAssistant();
     }
 
     assistantId = await redisClient.get("shortPredictorAssistant") as string;

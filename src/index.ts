@@ -58,7 +58,7 @@ redisClient
   .connect()
   .then(async () => {
     await deleteAssistants();
-    getAssistants();
+    await getAssistants();
   })
   .catch((err) => {
     logger.error("Redis connection error", err);
