@@ -146,9 +146,6 @@ export class CachedService {
       return null;
     }
 
-    await this.setCachedData(`chatbotPrediction:${teamId}:${line}`, prediction, 40);
-    await this.setThreadData(prediction.threadId, matchData);
-
     const newBetLines: TBetLine[] = matchData.currentScore.score1 + matchData.currentScore.score2 === 0 ? betLines : betLines.map(betLine => {
       if (betLine.id === 3) {
         return {
@@ -158,6 +155,11 @@ export class CachedService {
 
       return betLine
     });
+
+    await this.setCachedData(`chatbotPrediction:${teamId}:${line}`, line ? prediction : { ...prediction, betLines: newBetLines }, 40);
+    await this.setThreadData(prediction.threadId, matchData);
+
+
 
     return line ? prediction : { ...prediction, betLines: newBetLines };
   }
@@ -188,9 +190,6 @@ export class CachedService {
       return null;
     }
 
-    await this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, prediction, 40);
-    await this.setThreadData(prediction.threadId, matchData);
-
     const newBetLines: TBetLine[] = matchData.currentScore.score1 + matchData.currentScore.score2 === 0 ? betLines : betLines.map(betLine => {
       if (betLine.id === 3) {
         return {
@@ -200,6 +199,9 @@ export class CachedService {
 
       return betLine
     });
+
+    await this.setCachedData(`chatbotPrediction:${winlineMatchId}:${line}`, line ? prediction : { ...prediction, betLines: newBetLines }, 40);
+    await this.setThreadData(prediction.threadId, matchData);
 
     return line ? prediction : { ...prediction, betLines: newBetLines };
   }
