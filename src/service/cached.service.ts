@@ -16,6 +16,8 @@ export class CachedService {
   protected stratz: StratzService;
   protected teams: TeamService;
   protected pandascore: PandascoreService;
+  protected predictionAssistantId: string = "";
+  protected shortPredictionAssistantId: string = "";
 
   constructor() {
     this.redisClient = redisClient;
@@ -299,6 +301,7 @@ export class CachedService {
     }
 
     assistantId = await redisClient.get("predictorAssistant") as string;
+    this.predictionAssistantId = assistantId;
 
     return assistantId;
   }
@@ -311,6 +314,7 @@ export class CachedService {
     }
 
     assistantId = await redisClient.get("shortPredictorAssistant") as string;
+    this.shortPredictionAssistantId = assistantId;
 
     return assistantId;
   }
@@ -348,7 +352,8 @@ export class CachedService {
   private async getPrediction(matchData: TMatchData, id: string, question: string, threadId?: string): Promise<TChatWithTreadIDResponse | null> {
 
     const predictor = new PredictionService();
-    const assistantId = await this.getAssistantFromCache();
+    const assistantId = this.predictionAssistantId ? this.predictionAssistantId : await this.getAssistantFromCache();
+    logger.info('assistantId: ' + assistantId + this.predictionAssistantId);
     // await redisClient.set(`predictionInProgress${id}`, "true");
     const prediction = await predictor.getPrediction(matchData, assistantId, question, threadId);
 
@@ -373,7 +378,7 @@ export class CachedService {
     }
 
     const predictor = new PredictionService();
-    const assistantId = await this.getShortAssistantFromCache();
+    const assistantId = this.shortPredictionAssistantId ? this.shortPredictionAssistantId : await this.getShortAssistantFromCache();
 
     const prediction = await predictor.getPrediction(matchData, assistantId, 'Кто победит?');
 
