@@ -7,6 +7,12 @@ export const winLinePandascoreTeams: {
   rating: number;
 }[] = [
     {
+      name: "JUSTBETTER",
+      winId: 50061398,
+      pandaId: 134590,
+      rating: 67
+    },
+    {
       name: "TEAM BALD REBORN",
       winId: 603628,
       pandaId: 126099,
