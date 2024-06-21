@@ -275,7 +275,7 @@ export const betLines: TBetLine[] = [
   },
   {
     id: 4,
-    name: "Фора убийств матч"
+    name: "Фора убийств на 1-й карте"
   },
   {
     id: 5,

@@ -155,6 +155,12 @@ export class CachedService {
         }
       }
 
+      if (betLine.id === 4) {
+        return {
+          ...betLine, name: "Фора убийств на текущей карте"
+        }
+      }
+
       return betLine
     });
 
@@ -196,6 +202,12 @@ export class CachedService {
       if (betLine.id === 3) {
         return {
           ...betLine, name: "Тотал убийств на текущей карте"
+        }
+      }
+      
+      if (betLine.id === 4) {
+        return {
+          ...betLine, name: "Фора убийств на текущей карте"
         }
       }
 
