@@ -20,6 +20,10 @@
 - [bun](https://bun.sh)
 - [ElysiaJS](https://elysiajs.com/)
 - [Redis](https://redis.io/)
+- OpenAI 
+
+## Примечание 
+Из проекда удалены промпты для обученных моделей
 
 ## To run the bot in development mode:
 
